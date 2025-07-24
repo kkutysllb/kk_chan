@@ -1,0 +1,189 @@
+{
+  "summary": {
+    "total_fields": 262,
+    "technical_indicator_fields": 188,
+    "analysis_date": "20250715"
+  },
+  "field_categories": {
+    "资金流向": {
+      "count": 4,
+      "fields": [
+        "amount",
+        "turnover_rate",
+        "turnover_rate_f",
+        "volume_ratio"
+      ]
+    },
+    "布林带指标": {
+      "count": 9,
+      "fields": [
+        "boll_lower_bfq",
+        "boll_lower_hfq",
+        "boll_lower_qfq",
+        "boll_mid_bfq",
+        "boll_mid_hfq",
+        "boll_mid_qfq",
+        "boll_upper_bfq",
+        "boll_upper_hfq",
+        "boll_upper_qfq"
+      ]
+    },
+    "MACD指标": {
+      "count": 9,
+      "fields": [
+        "macd_bfq",
+        "macd_hfq",
+        "macd_qfq",
+        "macd_dea_bfq",
+        "macd_dea_hfq",
+        "macd_dea_qfq",
+        "macd_dif_bfq",
+        "macd_dif_hfq",
+        "macd_dif_qfq"
+      ]
+    },
+    "RSI指标": {
+      "count": 9,
+      "fields": [
+        "rsi_bfq_12",
+        "rsi_bfq_24",
+        "rsi_bfq_6",
+        "rsi_hfq_12",
+        "rsi_hfq_24",
+        "rsi_hfq_6",
+        "rsi_qfq_12",
+        "rsi_qfq_24",
+        "rsi_qfq_6"
+      ]
+    },
+    "KDJ指标": {
+      "count": 9,
+      "fields": [
+        "kdj_bfq",
+        "kdj_hfq",
+        "kdj_qfq",
+        "kdj_d_bfq",
+        "kdj_d_hfq",
+        "kdj_d_qfq",
+        "kdj_k_bfq",
+        "kdj_k_hfq",
+        "kdj_k_qfq"
+      ]
+    },
+    "CCI指标": {
+      "count": 3,
+      "fields": [
+        "cci_bfq",
+        "cci_hfq",
+        "cci_qfq"
+      ]
+    },
+    "移动平均线": {
+      "count": 66,
+      "fields": [
+        "dfma_dif_bfq",
+        "dfma_dif_hfq",
+        "dfma_dif_qfq",
+        "dfma_difma_bfq",
+        "dfma_difma_hfq",
+        "dfma_difma_qfq",
+        "ema_bfq_10",
+        "ema_bfq_20",
+        "ema_bfq_250",
+        "ema_bfq_30"
+      ]
+    },
+    "乖离率": {
+      "count": 9,
+      "fields": [
+        "bias1_bfq",
+        "bias1_hfq",
+        "bias1_qfq",
+        "bias2_bfq",
+        "bias2_hfq",
+        "bias2_qfq",
+        "bias3_bfq",
+        "bias3_hfq",
+        "bias3_qfq"
+      ]
+    },
+    "动量指标": {
+      "count": 9,
+      "fields": [
+        "mtm_bfq",
+        "mtm_hfq",
+        "mtm_qfq",
+        "roc_bfq",
+        "roc_hfq",
+        "roc_qfq",
+        "maroc_bfq",
+        "maroc_hfq",
+        "maroc_qfq"
+      ]
+    },
+    "成交量指标": {
+      "count": 13,
+      "fields": [
+        "vol",
+        "emv_bfq",
+        "emv_hfq",
+        "emv_qfq",
+        "maemv_bfq",
+        "maemv_hfq",
+        "maemv_qfq",
+        "mfi_bfq",
+        "mfi_hfq",
+        "mfi_qfq"
+      ]
+    },
+    "波动率指标": {
+      "count": 6,
+      "fields": [
+        "atr_bfq",
+        "atr_hfq",
+        "atr_qfq",
+        "mass_bfq",
+        "mass_hfq",
+        "mass_qfq"
+      ]
+    },
+    "趋势指标": {
+      "count": 12,
+      "fields": [
+        "dmi_adx_bfq",
+        "dmi_adx_hfq",
+        "dmi_adx_qfq",
+        "dmi_adxr_bfq",
+        "dmi_adxr_hfq",
+        "dmi_adxr_qfq",
+        "dmi_mdi_bfq",
+        "dmi_mdi_hfq",
+        "dmi_mdi_qfq",
+        "dmi_pdi_bfq"
+      ]
+    },
+    "心理线指标": {
+      "count": 3,
+      "fields": [
+        "psy_bfq",
+        "psy_hfq",
+        "psy_qfq"
+      ]
+    },
+    "其他技术指标": {
+      "count": 27,
+      "fields": [
+        "asi_bfq",
+        "asi_hfq",
+        "asi_qfq",
+        "asit_bfq",
+        "asit_hfq",
+        "asit_qfq",
+        "bbi_bfq",
+        "bbi_hfq",
+        "bbi_qfq",
+        "cr_bfq"
+      ]
+    }
+  }
+}

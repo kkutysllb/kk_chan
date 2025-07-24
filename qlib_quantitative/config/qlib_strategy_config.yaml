@@ -1,0 +1,607 @@
+# Qlib量化策略配置文件
+# 本文件定义了量化策略的各种配置参数
+
+# 基础配置
+basic:
+  strategy_name: "QlibComprehensiveStrategy"
+  version: "1.0.0"
+  description: "基于Qlib的综合量化策略"
+  author: "Quantitative Team"
+  created_date: "2024-01-01"
+
+# 数据配置
+data:
+  # 数据源配置
+  provider: "mongo"                    # 数据提供者: mongo, qlib, csv
+  universe: "csi500"                   # 股票池: csi500, csi300, sse50
+  
+  # 时间配置
+  start_time: "2020-01-01"            # 回测开始时间
+  end_time: "2023-12-31"              # 回测结束时间
+  train_start_time: "2018-01-01"      # 训练开始时间
+  train_end_time: "2019-12-31"        # 训练结束时间
+  
+  # 数据字段
+  fields:
+    - "open"
+    - "high"
+    - "low"
+    - "close"
+    - "volume"
+    - "amount"
+    - "turnover"
+    - "pe_ttm"
+    - "pb"
+    - "market_cap"
+  
+  # 数据过滤
+  filters:
+    # 市值过滤
+    market_cap:
+      enabled: true
+      min_cap: 1000000000              # 最小市值10亿
+      max_cap: 500000000000            # 最大市值5000亿
+    
+    # 流动性过滤
+    liquidity:
+      enabled: true
+      min_turnover: 10000000           # 最小日成交额1000万
+      min_volume_ratio: 0.01           # 最小成交量比率
+    
+    # 价格过滤
+    price:
+      enabled: true
+      min_price: 1.0                   # 最小价格1元
+      max_price: 200.0                 # 最大价格200元
+      exclude_st: true                 # 排除ST股票
+      exclude_suspend: true            # 排除停牌股票
+    
+    # 行业过滤
+    industry:
+      enabled: false
+      include_industries: []           # 包含的行业
+      exclude_industries: []           # 排除的行业
+
+# 特征工程配置
+feature:
+  # 特征处理器类型
+  handler: "alpha158"                  # alpha158, alpha360, custom
+  
+  # 特征处理器参数
+  params:
+    instruments: "csi500"
+    freq: "day"
+    
+  # 特征选择
+  feature_selection:
+    enabled: true
+    method: "correlation"              # correlation, mutual_info, chi2
+    threshold: 0.95                    # 相关性阈值
+    max_features: 100                  # 最大特征数量
+    
+  # 特征工程
+  feature_engineering:
+    # 数据标准化
+    - type: "normalize"
+      method: "zscore"                 # zscore, minmax, robust
+      params:
+        clip_outlier: true
+        percentile: [0.01, 0.99]
+    
+    # 缺失值处理
+    - type: "fillna"
+      method: "forward"                # forward, backward, mean, median
+      params:
+        limit: 5
+    
+    # 数据变换
+    - type: "transform"
+      method: "log"                    # log, sqrt, box_cox
+      params:
+        columns: ["volume", "amount"]
+  
+  # 自定义因子
+  custom_factors:
+    enabled: true
+    factors:
+      - name: "enhanced_momentum"
+        group: "momentum"
+        params:
+          short_window: 5
+          long_window: 20
+      
+      - name: "volatility_momentum"
+        group: "volatility"
+        params:
+          window: 20
+      
+      - name: "price_volume_divergence"
+        group: "volume"
+        params:
+          window: 10
+
+# 模型配置
+model:
+  # 模型类型
+  class: "LGBModel"                    # LGBModel, XGBModel, CatBoostModel
+  
+  # 模型参数
+  params:
+    # 基础参数
+    objective: "regression"            # regression, binary, multiclass
+    metric: "rmse"                     # rmse, mae, binary_logloss
+    boosting_type: "gbdt"              # gbdt, dart, goss
+    
+    # 学习参数
+    learning_rate: 0.05                # 学习率
+    num_boost_round: 1000              # 提升轮数
+    early_stopping_rounds: 50          # 早停轮数
+    
+    # 树结构参数
+    num_leaves: 210                    # 叶子节点数
+    max_depth: 8                       # 最大深度
+    min_child_samples: 20              # 最小子样本数
+    
+    # 特征采样参数
+    feature_fraction: 0.8879           # 特征采样比例
+    bagging_fraction: 0.8789           # 数据采样比例
+    bagging_freq: 5                    # 采样频率
+    
+    # 正则化参数
+    lambda_l1: 205.6999                # L1正则化
+    lambda_l2: 580.9768                # L2正则化
+    
+    # 性能参数
+    verbose: -1                        # 详细程度
+    n_jobs: -1                         # 并行数
+    random_state: 42                   # 随机种子
+    deterministic: true                # 确定性
+  
+  # 模型验证
+  validation:
+    method: "time_series_split"        # time_series_split, k_fold
+    n_splits: 5                        # 分割数量
+    test_size: 0.2                     # 测试集比例
+    
+  # 超参数优化
+  hyperparameter_tuning:
+    enabled: false                     # 是否启用超参数优化
+    method: "optuna"                   # optuna, grid_search, random_search
+    n_trials: 100                      # 优化试验次数
+    timeout: 3600                      # 超时时间(秒)
+    
+    # 参数搜索空间
+    param_space:
+      learning_rate: [0.01, 0.3]
+      num_leaves: [10, 300]
+      max_depth: [3, 12]
+      feature_fraction: [0.4, 1.0]
+      bagging_fraction: [0.4, 1.0]
+      lambda_l1: [0, 1000]
+      lambda_l2: [0, 1000]
+  
+  # 模型集成
+  ensemble:
+    enabled: false                     # 是否启用模型集成
+    method: "weighted_average"         # weighted_average, stacking, voting
+    models:
+      - type: "LGBModel"
+        weight: 0.4
+        params:
+          learning_rate: 0.05
+          num_leaves: 210
+      
+      - type: "XGBModel"
+        weight: 0.3
+        params:
+          learning_rate: 0.05
+          max_depth: 8
+      
+      - type: "CatBoostModel"
+        weight: 0.3
+        params:
+          learning_rate: 0.05
+          depth: 8
+
+# 策略配置
+strategy:
+  # 策略类型
+  class: "TopkDropoutStrategy"         # TopkDropoutStrategy, WeightStrategy
+  
+  # 策略参数
+  params:
+    # 基础参数
+    topk: 30                          # 持仓股票数量
+    n_drop: 5                         # 每次调仓数量
+    
+    # 交易方法
+    method_sell: "bottom"             # 卖出方法: bottom, top
+    method_buy: "top"                 # 买入方法: top, bottom
+    
+    # 持仓限制
+    hold_thresh: 1                    # 最小持仓天数
+    only_tradable: true               # 只交易可交易股票
+    forbid_all_trade_at_limit: true   # 禁止涨跌停交易
+    
+    # 权重限制
+    max_position_weight: 0.1          # 单只股票最大权重
+    min_position_weight: 0.01         # 单只股票最小权重
+  
+  # 风险管理
+  risk_management:
+    enabled: true
+    
+    # 仓位管理
+    position_sizing:
+      method: "equal_weight"          # equal_weight, risk_parity, kelly
+      max_position_size: 0.1          # 单只股票最大仓位
+      max_sector_exposure: 0.3        # 单个行业最大暴露
+      
+    # 止损止盈
+    stop_loss:
+      enabled: true
+      threshold: -0.1                 # 止损阈值-10%
+      method: "trailing"              # fixed, trailing
+      
+    stop_profit:
+      enabled: false
+      threshold: 0.2                  # 止盈阈值20%
+      method: "fixed"                 # fixed, trailing
+    
+    # 风险限制
+    risk_limits:
+      max_portfolio_volatility: 0.25  # 最大组合波动率
+      max_drawdown: -0.15             # 最大回撤
+      max_var_95: -0.05               # 最大VaR(95%)
+      max_leverage: 1.0               # 最大杠杆
+      
+    # 流动性管理
+    liquidity_management:
+      enabled: true
+      max_turnover: 0.3               # 最大换手率
+      min_avg_volume: 1000000         # 最小平均成交量
+      participation_rate: 0.05        # 参与率限制
+  
+  # 调仓配置
+  rebalancing:
+    frequency: "daily"                # daily, weekly, monthly
+    time: "09:30"                     # 调仓时间
+    
+    # 调仓条件
+    triggers:
+      - type: "time"                  # 时间触发
+        params:
+          frequency: "daily"
+      
+      - type: "drift"                 # 权重漂移触发
+        params:
+          threshold: 0.05             # 漂移阈值
+      
+      - type: "volatility"            # 波动率触发
+        params:
+          threshold: 0.3              # 波动率阈值
+
+# 回测配置
+backtest:
+  # 基础配置
+  account: 10000000                   # 初始资金
+  benchmark: "SH000905"               # 基准指数
+  
+  # 交易成本
+  trading_cost:
+    # 手续费
+    commission:
+      buy: 0.0015                     # 买入手续费
+      sell: 0.0015                    # 卖出手续费
+      min_cost: 5                     # 最小手续费
+    
+    # 印花税
+    stamp_duty: 0.001                 # 印花税(仅卖出)
+    
+    # 过户费
+    transfer_fee: 0.00002             # 过户费
+    
+    # 滑点
+    slippage:
+      enabled: true
+      model: "linear"                 # linear, sqrt, fixed
+      params:
+        rate: 0.001                   # 滑点率
+  
+  # 交易所配置
+  exchange:
+    freq: "day"                       # 交易频率
+    limit_threshold: 0.095            # 涨跌停阈值
+    deal_price: "close"               # 成交价格: open, close, vwap
+    
+    # 交易时间
+    trading_hours:
+      start: "09:30"
+      end: "15:00"
+      lunch_break:
+        start: "11:30"
+        end: "13:00"
+    
+    # 市场限制
+    market_limits:
+      max_order_size: 1000000         # 最大订单金额
+      min_order_size: 1000            # 最小订单金额
+      tick_size: 0.01                 # 最小价格变动
+  
+  # 执行器配置
+  executor:
+    class: "SimulatorExecutor"        # SimulatorExecutor, RealExecutor
+    
+    params:
+      time_per_step: "day"            # 时间步长
+      generate_portfolio_metrics: true # 生成投资组合指标
+      verbose: false                  # 详细输出
+      
+      # 订单执行
+      order_execution:
+        method: "close"               # close, vwap, twap
+        execution_delay: 0            # 执行延迟(天)
+        partial_fill: true            # 允许部分成交
+        
+      # 市场冲击
+      market_impact:
+        enabled: true
+        model: "linear"               # linear, sqrt, fixed
+        params:
+          permanent_impact: 0.001     # 永久冲击
+          temporary_impact: 0.001     # 临时冲击
+
+# 评估配置
+evaluation:
+  # 评估指标
+  metrics:
+    - "total_return"                  # 总收益率
+    - "annualized_return"             # 年化收益率
+    - "volatility"                    # 波动率
+    - "sharpe_ratio"                  # 夏普比率
+    - "sortino_ratio"                 # 索提诺比率
+    - "calmar_ratio"                  # 卡玛比率
+    - "max_drawdown"                  # 最大回撤
+    - "win_rate"                      # 胜率
+    - "profit_loss_ratio"             # 盈亏比
+    - "information_ratio"             # 信息比率
+    - "tracking_error"                # 跟踪误差
+    - "var_95"                        # 95%风险价值
+    - "cvar_95"                       # 95%条件风险价值
+    
+  # 基准比较
+  benchmark_comparison:
+    enabled: true
+    benchmarks:
+      - "SH000905"                    # 中证500
+      - "SH000300"                    # 沪深300
+      - "SH000016"                    # 上证50
+      
+  # 归因分析
+  attribution:
+    enabled: true
+    methods:
+      - "brinson"                     # Brinson归因
+      - "factor_attribution"          # 因子归因
+      
+  # 风险分析
+  risk_analysis:
+    enabled: true
+    methods:
+      - "volatility_decomposition"    # 波动率分解
+      - "var_analysis"                # VaR分析
+      - "stress_testing"              # 压力测试
+      
+  # 交易分析
+  trading_analysis:
+    enabled: true
+    metrics:
+      - "turnover_rate"               # 换手率
+      - "holding_period"              # 持仓周期
+      - "win_loss_distribution"       # 盈亏分布
+      - "trade_size_distribution"     # 交易规模分布
+
+# 输出配置
+output:
+  # 基础输出
+  save_predictions: true              # 保存预测结果
+  save_positions: true                # 保存持仓数据
+  save_trades: true                   # 保存交易记录
+  save_model: true                    # 保存模型
+  
+  # 输出路径
+  output_dir: "./results"             # 输出目录
+  
+  # 报告配置
+  report:
+    enabled: true
+    formats:
+      - "json"                        # JSON格式
+      - "html"                        # HTML格式
+      - "pdf"                         # PDF格式
+      
+    # 报告内容
+    sections:
+      - "executive_summary"           # 执行摘要
+      - "strategy_description"        # 策略描述
+      - "performance_analysis"        # 表现分析
+      - "risk_analysis"               # 风险分析
+      - "trading_analysis"            # 交易分析
+      - "attribution_analysis"        # 归因分析
+      - "conclusions"                 # 结论建议
+      
+    # 图表配置
+    charts:
+      - "cumulative_returns"          # 累计收益率
+      - "drawdown"                    # 回撤
+      - "rolling_sharpe"              # 滚动夏普
+      - "position_weights"            # 持仓权重
+      - "sector_allocation"           # 行业配置
+      - "monthly_returns"             # 月度收益
+      
+    # 图表样式
+    chart_style:
+      figure_size: [12, 8]            # 图表大小
+      dpi: 300                        # 分辨率
+      color_palette: "viridis"        # 颜色主题
+      
+  # 数据导出
+  data_export:
+    enabled: true
+    formats:
+      - "csv"                         # CSV格式
+      - "parquet"                     # Parquet格式
+      - "excel"                       # Excel格式
+      
+    # 导出内容
+    contents:
+      - "daily_returns"               # 日度收益
+      - "positions"                   # 持仓数据
+      - "trades"                      # 交易记录
+      - "factor_exposure"             # 因子暴露
+      - "attribution"                 # 归因分析
+
+# 监控配置
+monitoring:
+  enabled: true
+  
+  # 监控指标
+  metrics:
+    - "daily_return"                  # 日收益率
+    - "drawdown"                      # 回撤
+    - "volatility"                    # 波动率
+    - "position_concentration"        # 持仓集中度
+    - "turnover_rate"                 # 换手率
+    - "tracking_error"                # 跟踪误差
+    
+  # 告警配置
+  alerts:
+    # 收益率告警
+    daily_return:
+      threshold: -0.05                # 日收益率低于-5%
+      severity: "high"
+      
+    # 回撤告警
+    drawdown:
+      threshold: -0.1                 # 回撤超过10%
+      severity: "high"
+      
+    # 波动率告警
+    volatility:
+      threshold: 0.3                  # 波动率超过30%
+      severity: "medium"
+      
+    # 集中度告警
+    concentration:
+      threshold: 0.3                  # 前5大持仓超过30%
+      severity: "medium"
+      
+    # 换手率告警
+    turnover:
+      threshold: 0.5                  # 换手率超过50%
+      severity: "low"
+      
+  # 告警通知
+  notifications:
+    enabled: true
+    methods:
+      - "email"                       # 邮件通知
+      - "sms"                         # 短信通知
+      - "webhook"                     # Webhook通知
+      
+    # 邮件配置
+    email:
+      smtp_server: "smtp.gmail.com"
+      smtp_port: 587
+      username: "your_email@gmail.com"
+      password: "your_password"
+      recipients:
+        - "admin@company.com"
+        - "trader@company.com"
+        
+    # 短信配置
+    sms:
+      provider: "twilio"
+      api_key: "your_api_key"
+      api_secret: "your_api_secret"
+      recipients:
+        - "+1234567890"
+        
+    # Webhook配置
+    webhook:
+      url: "https://your-webhook-url.com"
+      timeout: 10
+      retry: 3
+
+# 部署配置
+deployment:
+  # 环境配置
+  environment: "development"          # development, staging, production
+  
+  # 服务配置
+  service:
+    name: "qlib-strategy"
+    version: "1.0.0"
+    port: 8080
+    
+  # 资源配置
+  resources:
+    cpu: 4                            # CPU核心数
+    memory: "8Gi"                     # 内存大小
+    storage: "100Gi"                  # 存储大小
+    
+  # 日志配置
+  logging:
+    level: "INFO"                     # DEBUG, INFO, WARNING, ERROR
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    handlers:
+      - type: "console"
+        level: "INFO"
+      - type: "file"
+        level: "DEBUG"
+        filename: "strategy.log"
+        max_size: "100MB"
+        backup_count: 5
+        
+  # 数据库配置
+  database:
+    type: "mongodb"                   # mongodb, postgresql, mysql
+    host: "localhost"
+    port: 27017
+    username: "admin"
+    password: "password"
+    database: "qlib_strategy"
+    
+    # 连接池配置
+    pool_size: 20
+    max_overflow: 30
+    pool_timeout: 30
+    
+  # 缓存配置
+  cache:
+    type: "redis"                     # redis, memcached
+    host: "localhost"
+    port: 6379
+    password: ""
+    db: 0
+    
+    # 缓存策略
+    default_ttl: 3600                 # 默认TTL(秒)
+    max_memory: "1Gi"                 # 最大内存
+    
+  # 消息队列配置
+  message_queue:
+    type: "rabbitmq"                  # rabbitmq, kafka, redis
+    host: "localhost"
+    port: 5672
+    username: "admin"
+    password: "password"
+    
+    # 队列配置
+    queues:
+      - name: "strategy_signals"
+        durable: true
+        auto_delete: false
+      - name: "risk_alerts"
+        durable: true
+        auto_delete: false

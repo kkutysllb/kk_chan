@@ -1,0 +1,22 @@
+# Tushare Pro API配置示例
+# 将此文件重命名为 .env 并配置正确的Token
+
+# Tushare Pro Token（必须配置）
+# 请在 https://tushare.pro/register 注册账户并获取Token
+TUSHARE_TOKEN=934d84f65af0e2e58ec9da771e41b595bdf53f6ad45073c4207802a2
+
+# MongoDB连接配置
+# 本地数据库配置
+LOCAL_MONGO_URI=mongodb://root:example@127.0.0.1:27017/quant_analysis?authSource=admin
+LOCAL_DB_NAME=quant_analysis
+
+# 云端数据库配置
+CLOUD_MONGO_URI=mongodb://root:example@vip.cd.frp.one:48714/quant_analysis?authSource=admin
+CLOUD_DB_NAME=quant_analysis
+
+# 数据库优先级配置
+# 设置为true时优先使用本地数据库，false时优先使用云端数据库
+LOCAL_PRIORITY=true
+# 日志配置
+LOG_LEVEL=INFO
+LOG_FILE=data_collector.log
