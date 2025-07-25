@@ -14,11 +14,10 @@ xgboost>=1.6.0
 catboost>=1.1.0
 
 # 深度学习 (可选)
-torch>2.3.1
-tensorflow>=2.9.0
+torch>=2.0.0
 
-# 量化框架
-qlib>=0.9.0
+# 量化框架 (可选 - 如需要可单独安装)
+# qlib  # 注释掉，因为版本兼容性问题，建议按需安装
 
 # 可视化
 matplotlib>=3.5.0
@@ -31,8 +30,14 @@ tushare>=1.2.0
 akshare>=1.8.0
 
 # 技术分析
-talib>=0.4.0
+# talib>=0.4.0  # 需要系统依赖，请手动安装，见安装指南
 ta>=0.10.0
+
+# Web框架
+fastapi>=0.68.0
+uvicorn[standard]>=0.15.0
+pydantic>=1.8.0
+starlette>=0.14.0
 
 # 工具库
 python-dotenv>=0.19.0
@@ -80,7 +85,11 @@ omegaconf>=2.2.0
 
 # 数据验证
 pydantic>=1.9.0
+pydantic-settings>=2.0.0
 marshmallow>=3.17.0
+
+# 异步MongoDB驱动
+motor>=3.0.0
 
 # 并行处理
 joblib>=1.1.0
@@ -106,3 +115,7 @@ h5py>=3.7.0
 # 缓存
 diskcache>=5.4.0
 cachetools>=5.2.0
+
+fastapi==0.116.1
+starlette==0.47.2
+uvicorn==0.35.0
