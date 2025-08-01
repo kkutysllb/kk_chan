@@ -41,6 +41,11 @@ export const useGlobalStore = defineStore('global', {
       return this.analysisData?.analysis?.summary || null
     },
 
+    // 获取分析评估
+    analysisEvaluation() {
+      return this.analysisData?.analysis?.evaluation || null
+    },
+
     // 获取K线数据
     klineData() {
       return this.analysisData?.chart_data?.kline || null
@@ -54,8 +59,18 @@ export const useGlobalStore = defineStore('global', {
 
     // 获取交易信号
     tradingSignals() {
-      console.log('获取交易信号:', this.analysisData?.chart_data?.signals)
-      return this.analysisData?.chart_data?.signals || []
+      console.log('获取交易信号:', this.analysisData?.chart_data?.dynamics)
+      return this.analysisData?.chart_data?.dynamics || { buy_sell_points: [], backchi: [] }
+    },
+
+    // 获取买卖点信号
+    buySellingPoints() {
+      return this.analysisData?.chart_data?.dynamics?.buy_sell_points || []
+    },
+
+    // 获取背驰信号
+    backchiSignals() {
+      return this.analysisData?.chart_data?.dynamics?.backchi || []
     },
 
     // 是否有数据

@@ -230,8 +230,11 @@ const global = useGlobalStore()
 const hasData = computed(() => global.hasData)
 const analysisData = computed(() => global.analysisData)
 const summary = computed(() => global.analysisSummary)
+const evaluation = computed(() => global.analysisEvaluation)
 const currentStock = computed(() => global.currentStock)
 const tradingSignals = computed(() => global.tradingSignals)
+const buySellingPoints = computed(() => global.buySellingPoints)
+const backchiSignals = computed(() => global.backchiSignals)
 const chanStructures = computed(() => global.chanStructures)
 
 const timeframeText = computed(() => {
@@ -255,15 +258,15 @@ const formatTime = (timeStr) => {
 }
 
 const getTrendText = () => {
-  const biCount = summary.value?.bi_count || 0
-  const zhongshuCount = summary.value?.zhongshu_count || 0
+  const trendDirection = evaluation.value?.trend_direction
+  const trendStrength = evaluation.value?.trend_strength || 0
   
-  if (zhongshuCount > 0) {
-    return '震荡整理'
-  } else if (biCount > 3) {
-    return '趋势明确'
+  if (trendDirection === 'up') {
+    return trendStrength > 0.6 ? '强势上涨' : '温和上涨'
+  } else if (trendDirection === 'down') {
+    return trendStrength > 0.6 ? '强势下跌' : '温和下跌'
   } else {
-    return '方向不明'
+    return '震荡整理'
   }
 }
 
@@ -281,10 +284,13 @@ const getStructureScore = () => {
 }
 
 const getSignalQuality = () => {
-  const signalCount = summary.value?.signal_count || 0
-  if (signalCount === 0) return '无信号'
-  if (signalCount >= 5) return '丰富'
-  if (signalCount >= 3) return '适中'
+  const buyCount = buySellingPoints.value?.length || 0
+  const backchiCount = backchiSignals.value?.length || 0
+  const totalSignals = buyCount + backchiCount
+  
+  if (totalSignals === 0) return '无信号'
+  if (totalSignals >= 5) return '丰富'
+  if (totalSignals >= 3) return '适中'
   return '较少'
 }
 
@@ -389,30 +395,35 @@ const getSignalAnalysisText = () => {
 }
 
 const getBuySignalCount = () => {
-  return tradingSignals.value.filter(s => s.type === 'buy').length
+  return buySellingPoints.value?.filter(s => s.type === 'buy' || s.signal_type === 'buy').length || 0
 }
 
 const getSellSignalCount = () => {
-  return tradingSignals.value.filter(s => s.type === 'sell').length
+  return buySellingPoints.value?.filter(s => s.type === 'sell' || s.signal_type === 'sell').length || 0
 }
 
 const getAdviceLevel = () => {
-  const signalCount = summary.value?.signal_count || 0
-  const zhongshuCount = summary.value?.zhongshu_count || 0
-  const buyCount = getBuySignalCount()
-  const sellCount = getSellSignalCount()
+  const recommendedAction = evaluation.value?.recommended_action
+  const confidenceScore = evaluation.value?.confidence_score || 0
+  const riskLevel = evaluation.value?.risk_level || 0
   
-  if (buyCount > sellCount && signalCount >= 3) {
+  if (recommendedAction === 'buy' && confidenceScore > 0.7) {
     return {
       text: '积极关注',
       class: 'positive',
       description: '技术面显示积极信号，可适度关注'
     }
-  } else if (sellCount > buyCount && signalCount >= 3) {
+  } else if (recommendedAction === 'sell' && confidenceScore > 0.7) {
     return {
       text: '谨慎观望',
       class: 'negative',
       description: '技术面显示谨慎信号，建议观望'
+    }
+  } else if (riskLevel > 0.7) {
+    return {
+      text: '高风险警示',
+      class: 'negative',
+      description: '当前风险水平较高，建议谨慎操作'
     }
   } else {
     return {

@@ -18,7 +18,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 # 导入缠论分析模块
-from chan_api import ChanDataAPI
+from chan_api_v2 import ChanDataAPIv2
 
 app = FastAPI(
     title="KK缠论分析API",
@@ -36,7 +36,7 @@ app.add_middleware(
 )
 
 # 初始化缠论API
-chan_api = ChanDataAPI()
+chan_api = ChanDataAPIv2()
 
 # JSON序列化处理函数
 def clean_nan_values(obj):
@@ -101,10 +101,11 @@ async def get_analysis(
         print(f"🔍 API请求: symbol={symbol}, timeframe={timeframe}, days={days}")
         
         # 调用缠论分析
-        result = chan_api.analyze_symbol_for_frontend(
+        result = chan_api.analyze_symbol_complete(
             symbol=symbol,
             timeframe=timeframe,
-            days=days
+            days=days,
+            analysis_level="complete"
         )
         
         # 清理NaN值
@@ -123,10 +124,11 @@ async def post_analysis(request: AnalysisRequest):
     try:
         print(f"🔍 POST分析请求: {request.dict()}")
         
-        result = chan_api.analyze_symbol_for_frontend(
+        result = chan_api.analyze_symbol_complete(
             symbol=request.symbol,
             timeframe=request.timeframe,
-            days=request.days
+            days=request.days,
+            analysis_level="complete"
         )
         
         print(f"✅ POST分析完成")

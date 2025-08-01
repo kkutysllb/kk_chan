@@ -252,7 +252,26 @@ class ChanDataAPIv2:
             
             # 获取数据
             if time_level == TimeLevel.DAILY:
-                cursor = collection.find(query).sort("trade_date", 1).limit(limit)
+                # 添加日期范围限制，获取最近的数据
+                from datetime import datetime, timedelta
+                end_date = datetime.now()
+                start_date = end_date - timedelta(days=days)
+                
+                # 将日期转换为字符串格式，与数据库中的格式匹配
+                end_date_str = end_date.strftime('%Y%m%d')
+                start_date_str = start_date.strftime('%Y%m%d')
+                
+                # 确保使用字符串格式的日期进行查询，与数据库中的格式匹配
+                query.update({
+                    'trade_date': {
+                        '$gte': start_date_str,
+                        '$lte': end_date_str
+                    }
+                })
+                
+                # 按日期升序排序，获取指定日期范围内的数据
+                cursor = collection.find(query).sort("trade_date", 1)
+                logger.info(f"📅 日K查询范围: {start_date_str} 至 {end_date_str}")
             else:
                 cursor = collection.find(query).sort("trade_time", -1).limit(limit)
                 

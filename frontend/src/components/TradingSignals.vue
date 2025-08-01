@@ -101,10 +101,10 @@
             <el-table-column prop="type" label="类型" width="80">
               <template #default="{ row }">
                 <el-tag
-                  :type="row.type === 'buy' ? 'success' : 'danger'"
+                  :type="getSignalType(row) === 'buy' ? 'success' : 'danger'"
                   size="small"
                 >
-                  {{ row.type === 'buy' ? '买入' : '卖出' }}
+                  {{ getSignalType(row) === 'buy' ? '买入' : '卖出' }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -112,10 +112,10 @@
             <el-table-column prop="value" label="级别" width="80">
               <template #default="{ row }">
                 <el-tag
-                  :type="getLevelTagType(row.value)"
+                  :type="getLevelTagType(row.value || row.level)"
                   size="small"
                 >
-                  {{ getLevelText(row.value) }}
+                  {{ getLevelText(row.value || row.level) }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -123,7 +123,7 @@
             <el-table-column prop="coord" label="价格" width="100">
               <template #default="{ row }">
                 <span class="price-value">
-                  {{ row.coord?.[1]?.toFixed(2) || '-' }}
+                  {{ getSignalPrice(row) }}
                 </span>
               </template>
             </el-table-column>
@@ -155,7 +155,7 @@
             
             <el-table-column prop="coord" label="时间" width="120">
               <template #default="{ row }">
-                {{ row.coord?.[0] || '-' }}
+                {{ getSignalTime(row) }}
               </template>
             </el-table-column>
             
@@ -201,24 +201,24 @@
         <el-descriptions :column="2" border>
           <el-descriptions-item label="信号类型">
             <el-tag
-              :type="selectedSignal.type === 'buy' ? 'success' : 'danger'"
+              :type="getSignalType(selectedSignal) === 'buy' ? 'success' : 'danger'"
             >
-              {{ selectedSignal.type === 'buy' ? '买入信号' : '卖出信号' }}
+              {{ getSignalType(selectedSignal) === 'buy' ? '买入信号' : '卖出信号' }}
             </el-tag>
           </el-descriptions-item>
           
           <el-descriptions-item label="信号级别">
-            <el-tag :type="getLevelTagType(selectedSignal.value)">
-              {{ getLevelText(selectedSignal.value) }}
+            <el-tag :type="getLevelTagType(selectedSignal.value || selectedSignal.level)">
+              {{ getLevelText(selectedSignal.value || selectedSignal.level) }}
             </el-tag>
           </el-descriptions-item>
           
           <el-descriptions-item label="触发价格">
-            {{ selectedSignal.coord?.[1]?.toFixed(2) || '-' }}
+            {{ getSignalPrice(selectedSignal) }}
           </el-descriptions-item>
           
           <el-descriptions-item label="触发时间">
-            {{ selectedSignal.coord?.[0] || '-' }}
+            {{ getSignalTime(selectedSignal) }}
           </el-descriptions-item>
           
           <el-descriptions-item label="信号强度">
@@ -258,15 +258,30 @@ const detailDialogVisible = ref(false)
 const selectedSignal = ref(null)
 
 // 计算属性
-const allSignals = computed(() => global.tradingSignals || [])
+const buySellingPoints = computed(() => global.buySellingPoints || [])
+const backchiSignals = computed(() => global.backchiSignals || [])
+
+// 合并所有信号
+const allSignals = computed(() => {
+  const buySellingPointsData = buySellingPoints.value.map(signal => ({
+    ...signal,
+    source: 'buy_sell_point'
+  }))
+  const backchiData = backchiSignals.value.map(signal => ({
+    ...signal,
+    source: 'backchi'
+  }))
+  return [...buySellingPointsData, ...backchiData]
+})
+
 const hasSignals = computed(() => allSignals.value.length > 0)
 
 const buySignals = computed(() => 
-  allSignals.value.filter(signal => signal.type === 'buy')
+  allSignals.value.filter(signal => signal.type === 'buy' || signal.signal_type === 'buy')
 )
 
 const sellSignals = computed(() => 
-  allSignals.value.filter(signal => signal.type === 'sell')
+  allSignals.value.filter(signal => signal.type === 'sell' || signal.signal_type === 'sell')
 )
 
 const filteredSignals = computed(() => {
@@ -274,12 +289,12 @@ const filteredSignals = computed(() => {
 
   // 类型筛选
   if (signalFilter.value !== 'all') {
-    signals = signals.filter(signal => signal.type === signalFilter.value)
+    signals = signals.filter(signal => getSignalType(signal) === signalFilter.value)
   }
 
   // 级别筛选
   if (levelFilter.value !== 'all') {
-    signals = signals.filter(signal => signal.value === levelFilter.value)
+    signals = signals.filter(signal => (signal.value || signal.level) === levelFilter.value)
   }
 
   // 关键词搜索
@@ -294,6 +309,30 @@ const filteredSignals = computed(() => {
 })
 
 // 方法
+const getSignalType = (signal) => {
+  return signal.type || signal.signal_type || 'unknown'
+}
+
+const getSignalPrice = (signal) => {
+  if (signal.coord && signal.coord[1]) {
+    return signal.coord[1].toFixed(2)
+  }
+  if (signal.price) {
+    return signal.price.toFixed(2)
+  }
+  return '-'
+}
+
+const getSignalTime = (signal) => {
+  if (signal.coord && signal.coord[0]) {
+    return signal.coord[0]
+  }
+  if (signal.timestamp) {
+    return signal.timestamp
+  }
+  return '-'
+}
+
 const handleFilterChange = () => {
   // 筛选变化时的处理逻辑
   console.log('筛选条件变化:', {
@@ -350,12 +389,12 @@ const handleDetailClose = () => {
 const exportSignals = () => {
   try {
     const data = filteredSignals.value.map(signal => ({
-      类型: signal.type === 'buy' ? '买入' : '卖出',
-      级别: getLevelText(signal.value),
-      价格: signal.coord?.[1]?.toFixed(2) || '-',
-      时间: signal.coord?.[0] || '-',
-      强度: (signal.strength * 100).toFixed(1) + '%',
-      置信度: (signal.confidence * 100).toFixed(1) + '%',
+      类型: getSignalType(signal) === 'buy' ? '买入' : '卖出',
+      级别: getLevelText(signal.value || signal.level),
+      价格: getSignalPrice(signal),
+      时间: getSignalTime(signal),
+      强度: ((signal.strength || 0) * 100).toFixed(1) + '%',
+      置信度: ((signal.confidence || 0) * 100).toFixed(1) + '%',
       描述: signal.description || '-',
     }))
 

@@ -142,6 +142,8 @@ const chartData = computed(() => global.chartData)
 const klineData = computed(() => global.klineData)
 const chanStructures = computed(() => global.chanStructures)
 const tradingSignals = computed(() => global.tradingSignals)
+const buySellingPoints = computed(() => global.buySellingPoints)
+const backchiSignals = computed(() => global.backchiSignals)
 
 const chartTitle = computed(() => {
   if (!currentStock.value) return '缠论分析图表'
@@ -172,12 +174,14 @@ const mainChartOption = computed(() => {
   
   // 直接从global.analysisData获取数据，绕过computed属性
   const rawChanStructures = global.analysisData?.chart_data?.chan_structures
-  const rawSignals = global.analysisData?.chart_data?.signals
+  const rawDynamics = global.analysisData?.chart_data?.dynamics
   
   const fenxingData = rawChanStructures?.fenxing || []
   const biData = rawChanStructures?.bi || []
   const zhongshuData = rawChanStructures?.zhongshu || []
-  const signals = rawSignals || []
+  const buySellingPointsData = rawDynamics?.buy_sell_points || []
+  const backchiData = rawDynamics?.backchi || []
+  const signals = [...buySellingPointsData, ...backchiData]
   
   console.log('缠论数据:', {
     fenxingData: fenxingData.length,
