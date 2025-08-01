@@ -19,7 +19,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
 sys.path.append(project_root)
 
-from api.cloud_db_handler import CloudDBHandler
+from database.db_handler import DBHandler
 
 
 class DatabaseCollectionInspector:
@@ -27,12 +27,12 @@ class DatabaseCollectionInspector:
     
     def __init__(self):
         """初始化检查器"""
-        self.db_handler = CloudDBHandler()
+        self.db_handler = DBHandler()
         
     def list_all_collections(self) -> List[str]:
         """获取所有集合列表"""
         try:
-            collections = self.db_handler.list_collections()
+            collections = self.db_handler.db.list_collection_names()
             return sorted(collections)
         except Exception as e:
             print(f"获取集合列表失败: {e}")
@@ -44,7 +44,7 @@ class DatabaseCollectionInspector:
             collection = self.db_handler.get_collection(collection_name)
             
             # 获取集合统计信息
-            stats = self.db_handler.get_api_db().command("collStats", collection_name)
+            stats = self.db_handler.db.command("collStats", collection_name)
             
             # 文档总数
             total_count = collection.count_documents({})

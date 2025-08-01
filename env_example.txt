@@ -11,7 +11,7 @@ LOCAL_MONGO_URI=mongodb://root:example@127.0.0.1:27017/quant_analysis?authSource
 LOCAL_DB_NAME=quant_analysis
 
 # 云端数据库配置
-CLOUD_MONGO_URI=mongodb://root:example@vip.cd.frp.one:48714/quant_analysis?authSource=admin
+CLOUD_MONGO_URI=mongodb://root:example@cd-1.frp.one:48714/quant_analysis?authSource=admin
 CLOUD_DB_NAME=quant_analysis
 
 # 数据库优先级配置

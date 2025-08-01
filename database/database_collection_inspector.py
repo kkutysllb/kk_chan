@@ -19,7 +19,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
 sys.path.append(project_root)
 
-from api.cloud_db_handler import CloudDBHandler
+from database.db_handler import DBHandler
 
 
 class DatabaseCollectionInspector:
@@ -27,7 +27,7 @@ class DatabaseCollectionInspector:
     
     def __init__(self):
         """初始化检查器"""
-        self.db_handler = CloudDBHandler()
+        self.db_handler = DBHandler()
         
     def list_all_collections(self) -> List[str]:
         """获取所有集合列表"""

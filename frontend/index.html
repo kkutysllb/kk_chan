@@ -5,11 +5,41 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KK缠论量化分析平台</title>
-    <meta name="description" content="专业的缠论技术分析和量化投资平台" />
-    <meta name="keywords" content="缠论,量化,技术分析,股票,投资" />
+    <meta name="description" content="基于缠论理论的专业股票技术分析平台" />
+    <style>
+      /* 加载动画 */
+      .loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #f5f5f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e4e4e4;
+        border-top: 4px solid #409eff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+    <div id="app">
+      <div class="loading">
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>

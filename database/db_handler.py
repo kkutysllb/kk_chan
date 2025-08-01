@@ -14,7 +14,7 @@ from functools import wraps
 load_dotenv()
 
 # 数据库配置
-CLOUD_MONGO_URI = "mongodb://root:example@vip.cd.frp.one:48714/quant_analysis?authSource=admin"
+CLOUD_MONGO_URI = "mongodb://root:example@cd-1.frp.one:48714/quant_analysis?authSource=admin"
 LOCAL_MONGO_URI = "mongodb://root:example@127.0.0.1:27017/quant_analysis?authSource=admin"
 DB_NAME = os.getenv("DB_NAME", "quant_analysis")
 
@@ -77,7 +77,7 @@ class DBHandler:
         return logger
     
     def _connect_databases(self):
-        """建立数据库连接"""
+        """建立数据库连接 - 仅连接本地数据库，不连接云端数据库"""
         # 连接本地数据库（优先）
         try:
             self.logger.info("🏠 连接本地数据库...")
@@ -109,52 +109,19 @@ class DBHandler:
             print("   cd database && docker-compose -f docker-compose.single.yml up -d")
             self.local_available = False
         
-        # 连接云端数据库（作为备份）
-        try:
-            self.logger.info("🌐 连接云端数据库...")
-            self.cloud_client = MongoClient(
-                CLOUD_MONGO_URI,
-                serverSelectionTimeoutMS=10000,   # 进一步减少超时时间
-                connectTimeoutMS=10000,            # 进一步减少超时时间
-                socketTimeoutMS=30000,             # 减少到30秒
-                maxPoolSize=10,                    # 进一步减少连接池大小
-                minPoolSize=2,                     # 减少最小连接池
-                maxIdleTimeMS=20000,               # 减少空闲超时
-                retryWrites=True,
-                w=1,
-                heartbeatFrequencyMS=60000,        # 增加心跳频率到60秒，减少网络负担
-                retryReads=True,                   # 启用读重试
-                readPreference='secondaryPreferred' # 优先读从节点，减轻主节点压力
-            )
-            # 测试连接
-            self.cloud_client.admin.command('ismaster')
-            self.cloud_db = self.cloud_client[DB_NAME]
-            self.cloud_available = True
-            
-            cloud_info = self.cloud_client.server_info()
-            print("✅ 云端MongoDB连接成功")
-            print(f"📍 云端地址: {CLOUD_MONGO_URI.split('@')[1].split('/')[0]}")
-            print(f"🗄️  数据库: {DB_NAME}")
-            print(f"🔧 云端版本: {cloud_info['version']}")
-            
-        except Exception as e:
-            print(f"❌ 云端数据库连接失败: {e}")
-            print("💡 云端数据库将作为备份，连接失败不影响主要功能")
-            self.cloud_available = False
+        # 跳过云端数据库连接（仅用于API接口分析）
+        print("💡 API接口分析模式：跳过云端数据库连接，仅使用本地数据库")
+        self.cloud_available = False
+        self.cloud_client = None
+        self.cloud_db = None
         
         # 连接状态总结
         if self.local_available:
-            print("🎯 本地数据库连接成功，数据将写入本地数据库")
-            if self.cloud_available:
-                print("💡 云端数据库连接成功，将作为备份数据库")
-            else:
-                print("⚠️  云端数据库不可用，仅使用本地数据库")
+            print("🎯 本地数据库连接成功，数据将仅写入本地数据库")
+            print("💡 云端数据库连接已跳过，如需备份请稍后手动同步")
         else:
             print("❌ 本地数据库连接失败")
-            if self.cloud_available:
-                print("🔄 切换到云端数据库作为主数据库")
-            else:
-                raise Exception("无法连接到任何数据库，请检查数据库配置")
+            raise Exception("无法连接到本地数据库，请检查本地MongoDB服务")
 
     def get_collection(self, collection_name):
         """获取集合，优先返回本地数据库集合"""
@@ -207,109 +174,18 @@ class DBHandler:
             return []
 
     def _check_cloud_connection(self):
-        """快速检查云端连接状态，避免长时间等待"""
-        try:
-            if not self.cloud_available or not self.cloud_client:
-                return False
-            # 使用更短的超时时间进行快速检查
-            self.cloud_client.admin.command('ping', maxTimeMS=3000)
-            return True
-        except Exception as e:
-            logging.warning(f"云端连接检查失败: {e}")
-            return False
+        """快速检查云端连接状态，避免长时间等待 - API接口分析模式下禁用"""
+        return False
     
     def _reconnect_cloud(self):
-        """重新连接云端数据库"""
-        try:
-            if self.cloud_client:
-                self.cloud_client.close()
-            
-            self.cloud_client = MongoClient(
-                CLOUD_MONGO_URI,
-                serverSelectionTimeoutMS=10000,
-                connectTimeoutMS=10000,
-                socketTimeoutMS=30000,
-                maxPoolSize=5,
-                minPoolSize=1,
-                maxIdleTimeMS=20000,
-                retryWrites=True,
-                w=1,
-                heartbeatFrequencyMS=60000,
-                retryReads=True
-            )
-            
-            # 测试连接
-            self.cloud_client.admin.command('ismaster')
-            self.cloud_db = self.cloud_client[DB_NAME]
-            self.cloud_available = True
-            logging.info("云端数据库重连成功")
-            return True
-        except Exception as e:
-            logging.error(f"云端数据库重连失败: {e}")
-            self.cloud_available = False
-            return False
+        """重新连接云端数据库 - API接口分析模式下禁用"""
+        print("💡 API接口分析模式：跳过云端数据库重连")
+        self.cloud_available = False
+        return False
 
     def _write_to_cloud_with_retry(self, collection_name, updates, batch_size):
-        """写入云端数据库的内部方法，带智能重试机制"""
-        if not self.cloud_available:
-            return False, 0, 0
-        
-        max_retries = 2  # 减少重试次数，避免长时间阻塞
-        base_delay = 0.5  # 减少延迟时间
-        
-        for attempt in range(max_retries):
-            try:
-                # 写入前检查连接状态
-                if not self._check_cloud_connection():
-                    logging.warning(f"云端连接异常，尝试重连... (尝试 {attempt + 1}/{max_retries})")
-                    if not self._reconnect_cloud():
-                        if attempt == max_retries - 1:
-                            return False, 0, 0
-                        time.sleep(base_delay * (2 ** attempt))  # 指数退避
-                        continue
-                
-                print(f"🌐 写入云端数据库: {collection_name} (尝试 {attempt + 1}/{max_retries})")
-                cloud_collection = self.cloud_db[collection_name]
-                
-                total_upserted = 0
-                total_modified = 0
-                batch_count = 0
-                total_batches = (len(updates) + batch_size - 1) // batch_size
-                
-                for i in range(0, len(updates), batch_size):
-                    batch = updates[i:i + batch_size]
-                    batch_count += 1
-                    
-                    try:
-                        # 为每个批次设置超时时间，避免单个批次阻塞过久
-                        with timeout(15):  # 15秒超时
-                            result = cloud_collection.bulk_write(batch, ordered=False)
-                        total_upserted += result.upserted_count
-                        total_modified += result.modified_count
-                        
-                        # 显示进度
-                        if batch_count % 10 == 0 or batch_count == total_batches:
-                            print(f"   📝 进度: {batch_count}/{total_batches} 批次")
-                            
-                    except BulkWriteError as bwe:
-                        total_upserted += bwe.details.get('nUpserted', 0)
-                        total_modified += bwe.details.get('nModified', 0)
-                        error_count = len(bwe.details.get('writeErrors', []))
-                        if error_count > 0:
-                            logging.warning(f"批次 {batch_count} 部分失败: {error_count} 个错误")
-                
-                print(f"✅ 云端写入成功: 新增{total_upserted} 更新{total_modified}")
-                return True, total_upserted, total_modified
-                
-            except Exception as e:
-                if attempt == max_retries - 1:
-                    logging.error(f"云端写入最终失败: {e}")
-                    raise e
-                else:
-                    delay = base_delay * (2 ** attempt)
-                    logging.warning(f"云端写入失败 (尝试 {attempt + 1}/{max_retries}): {e}，{delay}秒后重试...")
-                    time.sleep(delay)
-        
+        """写入云端数据库的内部方法，带智能重试机制 - API接口分析模式下禁用"""
+        print("💡 API接口分析模式：跳过云端数据库写入")
         return False, 0, 0
 
     @retry_on_connection_error(max_retries=3, delay=2)
@@ -700,6 +576,17 @@ def get_db_handler():
     if _db_handler is None:
         _db_handler = DBHandler()
     return _db_handler
+
+def reset_db_handler():
+    """重置数据库处理器单例，强制重新初始化"""
+    global _db_handler
+    if _db_handler is not None:
+        try:
+            _db_handler.__del__()  # 关闭现有连接
+        except:
+            pass
+    _db_handler = None
+    print("🔄 数据库处理器已重置")
 
 def check_database_connection():
     """检查数据库连接"""

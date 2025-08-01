@@ -1,0 +1,244 @@
+/* 全局样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+}
+
+#app {
+  height: 100%;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--el-bg-color-page);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--el-border-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--el-border-color-dark);
+}
+
+/* Element Plus 主题定制 */
+:root {
+  --el-color-primary: #409eff;
+  --el-color-primary-light-3: #79bbff;
+  --el-color-primary-light-5: #a0cfff;
+  --el-color-primary-light-7: #c6e2ff;
+  --el-color-primary-light-8: #d9ecff;
+  --el-color-primary-light-9: #ecf5ff;
+  --el-color-primary-dark-2: #337ecc;
+  
+  /* 自定义颜色 */
+  --color-up: #ef5150;
+  --color-down: #26a69a;
+  --color-fenxing-top: #f44336;
+  --color-fenxing-bottom: #4caf50;
+  --color-bi-up: #e91e63;
+  --color-bi-down: #2196f3;
+  --color-zhongshu: #ff9800;
+  --color-signal-buy: #4caf50;
+  --color-signal-sell: #f44336;
+}
+
+/* 暗色主题 */
+.dark {
+  --el-bg-color: #141414;
+  --el-bg-color-page: #0a0a0a;
+  --el-bg-color-overlay: #1d1e1f;
+  --el-text-color-primary: #e5eaf3;
+  --el-text-color-regular: #b1b3b8;
+  --el-text-color-secondary: #8d9095;
+  --el-text-color-placeholder: #6c6e72;
+  --el-text-color-disabled: #5c5e66;
+  --el-border-color: #414243;
+  --el-border-color-light: #363637;
+  --el-border-color-lighter: #2b2b2c;
+  --el-border-color-extra-light: #2b2b2c;
+  --el-border-color-dark: #58585b;
+  --el-border-color-darker: #636466;
+  --el-fill-color: #303133;
+  --el-fill-color-light: #262727;
+  --el-fill-color-lighter: #1d1d1d;
+  --el-fill-color-extra-light: #191919;
+  --el-fill-color-dark: #39393a;
+  --el-fill-color-darker: #424243;
+  --el-fill-color-blank: transparent;
+}
+
+/* 工具类 */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* 动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.slide-enter-from {
+  transform: translateX(-100%);
+}
+
+.slide-leave-to {
+  transform: translateX(100%);
+}
+
+/* 页面布局 */
+.page-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--el-bg-color-page);
+}
+
+.page-header {
+  padding: 16px 20px;
+  background: var(--el-bg-color);
+  border-bottom: 1px solid var(--el-border-color-light);
+  flex-shrink: 0;
+}
+
+.page-content {
+  flex: 1;
+  padding: 20px;
+  overflow: hidden;
+}
+
+/* 卡片样式 */
+.custom-card {
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .custom-card {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 图表容器 */
+.chart-container {
+  background: var(--el-bg-color);
+  border-radius: 8px;
+  padding: 16px;
+  height: 100%;
+  position: relative;
+}
+
+.chart-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+/* 状态指示器 */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-success {
+  background-color: var(--el-color-success);
+}
+
+.status-warning {
+  background-color: var(--el-color-warning);
+}
+
+.status-danger {
+  background-color: var(--el-color-danger);
+}
+
+.status-info {
+  background-color: var(--el-color-info);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .page-content {
+    padding: 12px;
+  }
+  
+  .chart-container {
+    padding: 12px;
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .page-container {
+    background: white !important;
+  }
+  
+  .custom-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+}
