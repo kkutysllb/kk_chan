@@ -19,7 +19,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
 sys.path.append(project_root)
 
-from database.db_handler import DBHandler
+from database.db_handler import get_db_handler
 
 
 class DatabaseCollectionInspector:
@@ -27,13 +27,19 @@ class DatabaseCollectionInspector:
     
     def __init__(self):
         """初始化检查器"""
-        self.db_handler = DBHandler()
+        self.db_handler = get_db_handler()
         
     def list_all_collections(self) -> List[str]:
         """获取所有集合列表"""
         try:
-            collections = self.db_handler.list_collections()
-            return sorted(collections)
+            # 直接通过本地连接获取集合列表
+            if hasattr(self.db_handler, 'local_client') and self.db_handler.local_client:
+                db = self.db_handler.local_client[self.db_handler.local_client.get_database().name]
+                collections = db.list_collection_names()
+                return sorted(collections)
+            else:
+                print("无法获取数据库连接")
+                return []
         except Exception as e:
             print(f"获取集合列表失败: {e}")
             return []
@@ -44,7 +50,11 @@ class DatabaseCollectionInspector:
             collection = self.db_handler.get_collection(collection_name)
             
             # 获取集合统计信息
-            stats = self.db_handler.get_api_db().command("collStats", collection_name)
+            if hasattr(self.db_handler, 'local_client') and self.db_handler.local_client:
+                db = self.db_handler.local_client[self.db_handler.local_client.get_database().name]
+                stats = db.command("collStats", collection_name)
+            else:
+                stats = {}
             
             # 文档总数
             total_count = collection.count_documents({})

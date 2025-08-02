@@ -272,15 +272,16 @@ const mainChartOption = computed(() => {
       {
         type: 'inside',
         start: 80,
-        end: 100,
+        end: 100
       },
       {
         show: true,
         type: 'slider',
-        top: '90%',
+        top: '95%',
+        height: '5%',
         start: 80,
-        end: 100,
-      },
+        end: 100
+      }
     ],
     series: [
       // K线图
@@ -461,15 +462,37 @@ const macdChartOption = computed(() => {
   const { categories } = klineData.value
   const macdData = global.analysisData?.chart_data?.indicators?.macd || { dif: [], dea: [], macd: [] }
 
+  // 确保MACD数据与K线数据的日期对齐
   console.log('MACD数据调试:', {
+    timeframe: currentTimeframe.value,
     categories: categories?.length,
     dif: macdData.dif?.length,
     dea: macdData.dea?.length,
     macd: macdData.macd?.length,
     difSample: macdData.dif?.slice(0, 3),
     deaSample: macdData.dea?.slice(0, 3),
-    macdSample: macdData.macd?.slice(0, 3)
+    macdSample: macdData.macd?.slice(0, 3),
+    categoriesSample: categories?.slice(0, 3),
+    categoriesLast: categories?.slice(-3)
   })
+
+  // 确保数据长度一致
+  const minLength = Math.min(
+    categories?.length || 0,
+    macdData.dif?.length || 0,
+    macdData.dea?.length || 0,
+    macdData.macd?.length || 0
+  )
+
+  // 如果数据长度不一致，截取相同长度
+  // 所有时间维度都应该从尾部对齐，确保显示最新数据
+  let alignedCategories, alignedDif, alignedDea, alignedMacd
+  
+  // 所有时间维度（包括日线）都从尾部对齐（最新数据）
+  alignedCategories = categories?.slice(-minLength) || []
+  alignedDif = macdData.dif?.slice(-minLength) || []
+  alignedDea = macdData.dea?.slice(-minLength) || []
+  alignedMacd = macdData.macd?.slice(-minLength) || []
 
   return {
     animation: false,
@@ -489,15 +512,15 @@ const macdChartOption = computed(() => {
       }
     },
     grid: {
-      left: '8%',
-      right: '8%',
-      top: '10%',
-      bottom: '20%',
+      left: '3%',
+      right: '3%',
+      top: '5%',
+      bottom: '15%',
       containLabel: true
     },
     xAxis: {
       type: 'category',
-      data: categories,
+      data: alignedCategories,
       boundaryGap: false,
       axisLine: { 
         show: true,
@@ -538,6 +561,14 @@ const macdChartOption = computed(() => {
         type: 'inside',
         start: 80,
         end: 100
+      },
+      {
+        show: true,
+        type: 'slider',
+        top: '95%',
+        height: '5%',
+        start: 80,
+        end: 100
       }
     ],
     series: [
@@ -545,7 +576,7 @@ const macdChartOption = computed(() => {
       {
         name: 'MACD',
         type: 'bar',
-        data: (macdData.macd || []).map((value) => ({
+        data: alignedMacd.map((value) => ({
           value: value || 0,
           itemStyle: {
             color: (value || 0) >= 0 ? '#ff6b6b' : '#4ecdc4'
@@ -558,7 +589,7 @@ const macdChartOption = computed(() => {
       {
         name: 'DIF',
         type: 'line',
-        data: macdData.dif || [],
+        data: alignedDif,
         symbol: 'none',  // 去掉圆点标记
         smooth: false,   // 不平滑，显示真实数据点
         lineStyle: {
@@ -571,7 +602,7 @@ const macdChartOption = computed(() => {
       {
         name: 'DEA',
         type: 'line',
-        data: macdData.dea || [],
+        data: alignedDea,
         symbol: 'none',  // 去掉圆点标记
         smooth: false,   // 不平滑，显示真实数据点
         lineStyle: {
@@ -666,11 +697,11 @@ defineEmits(['analyze'])
 
 <style scoped>
 .chan-chart {
-  min-height: 600px;
+  min-height: 800px;
 }
 
 .chart-card {
-  min-height: 600px;
+  min-height: 800px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -684,7 +715,7 @@ defineEmits(['analyze'])
   }
   
   :deep(.el-card__body) {
-    min-height: calc(600px - 80px);
+    min-height: calc(800px - 80px);
     padding: 0;
     background: transparent;
   }
@@ -747,7 +778,7 @@ defineEmits(['analyze'])
 }
 
 .chart-container {
-  min-height: 520px;
+  min-height: 720px;
   position: relative;
   padding: 24px;
   background: transparent;
@@ -768,18 +799,18 @@ defineEmits(['analyze'])
 }
 
 .chart-content {
-  min-height: 400px;
+  min-height: 720px;
   display: flex;
   flex-direction: column;
 }
 
 .main-chart {
-  flex: 1;
-  min-height: 400px;
+  flex: 2;
+  min-height: 450px;
 }
 
 .macd-chart {
-  height: 200px;
+  height: 250px;
   margin-top: 16px;
 }
 
@@ -842,11 +873,11 @@ defineEmits(['analyze'])
   }
   
   .main-chart {
-    min-height: 250px;
+    min-height: 300px;
   }
   
   .macd-chart {
-    height: 150px;
+    height: 200px;
   }
 }
 </style>

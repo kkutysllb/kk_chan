@@ -20,15 +20,15 @@
           <div class="info-grid">
             <div class="info-item">
               <span class="info-label">股票代码:</span>
-              <span class="info-value">{{ analysisData?.meta?.symbol || '-' }}</span>
+              <span class="info-value">{{ global.currentSymbol || '-' }}</span>
             </div>
             <div class="info-item">
               <span class="info-label">时间级别:</span>
               <span class="info-value">{{ timeframeText }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">数据条数:</span>
-              <span class="info-value">{{ analysisData?.meta?.data_count || 0 }}</span>
+              <span class="info-label">K线条数:</span>
+              <span class="info-value">{{ chanStatistics?.klines_processed || 0 }}</span>
             </div>
             <div class="info-item">
               <span class="info-label">分析时间:</span>
@@ -44,20 +44,28 @@
           </template>
           <div class="stats-grid">
             <div class="stats-item">
-              <div class="stats-number">{{ summary?.fenxing_count || 0 }}</div>
+              <div class="stats-number">{{ chanStatistics?.fenxing_count || 0 }}</div>
               <div class="stats-label">分型</div>
             </div>
             <div class="stats-item">
-              <div class="stats-number">{{ summary?.bi_count || 0 }}</div>
+              <div class="stats-number">{{ chanStatistics?.bi_count || 0 }}</div>
               <div class="stats-label">笔</div>
             </div>
             <div class="stats-item">
-              <div class="stats-number">{{ summary?.zhongshu_count || 0 }}</div>
+              <div class="stats-number">{{ chanStatistics?.seg_count || 0 }}</div>
+              <div class="stats-label">线段</div>
+            </div>
+            <div class="stats-item">
+              <div class="stats-number">{{ chanStatistics?.zhongshu_count || 0 }}</div>
               <div class="stats-label">中枢</div>
             </div>
             <div class="stats-item">
-              <div class="stats-number">{{ summary?.signal_count || 0 }}</div>
-              <div class="stats-label">信号</div>
+              <div class="stats-number">{{ chanStatistics?.buy_sell_points_count || 0 }}</div>
+              <div class="stats-label">买卖点</div>
+            </div>
+            <div class="stats-item">
+              <div class="stats-number">{{ chanStatistics?.backchi_count || 0 }}</div>
+              <div class="stats-label">背驰</div>
             </div>
           </div>
         </el-card>
@@ -183,10 +191,10 @@ import { useGlobalStore } from '@/stores/global'
 
 const global = useGlobalStore()
 
-// 计算属性
+// 计算属性 - 基于缠论v2数据结构
 const hasData = computed(() => global.hasData)
 const analysisData = computed(() => global.analysisData)
-const summary = computed(() => global.analysisSummary)
+const chanStatistics = computed(() => global.chanStatistics)
 const chanStructures = computed(() => global.chanStructures)
 
 const timeframeText = computed(() => {
@@ -380,7 +388,7 @@ defineEmits(['analyze'])
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 

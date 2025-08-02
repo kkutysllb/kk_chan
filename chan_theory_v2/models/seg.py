@@ -340,7 +340,7 @@ class Seg:
         
         # 检查重叠
         overlap1 = self.overlaps_with(other2)  # 第一和第三线段的重叠
-        return overlap1 > 0.01  # 至少1%的重叠
+        return overlap1 > 0.001  # 降低到0.1%的重叠，适应实际市场情况
     
     def get_retracement_levels(self) -> Dict[str, float]:
         """

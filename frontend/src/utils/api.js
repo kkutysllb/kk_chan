@@ -131,6 +131,141 @@ export const pythonApi = {
       throw error
     }
   },
+
+  // 执行选股
+  async runStockSelection({ max_results = 50, min_backchi_strength = null, min_buy_point_strength = null }) {
+    try {
+      let url = `http://localhost:8000/stock-selection?max_results=${max_results}`
+      
+      if (min_backchi_strength !== null) {
+        url += `&min_backchi_strength=${min_backchi_strength}`
+      }
+      if (min_buy_point_strength !== null) {
+        url += `&min_buy_point_strength=${min_buy_point_strength}`
+      }
+      
+      console.log('执行选股:', { max_results, min_backchi_strength, min_buy_point_strength })
+      
+      const response = await fetch(url)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      
+      if (data.error) {
+        throw new Error(data.message || '选股失败')
+      }
+      
+      return data
+      
+    } catch (error) {
+      console.error('选股执行失败:', error)
+      throw error
+    }
+  },
+
+  // POST方式执行选股
+  async postStockSelection({ max_results = 50, custom_config = null }) {
+    try {
+      console.log('POST选股请求:', { max_results, custom_config })
+      
+      const response = await fetch('http://localhost:8000/stock-selection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          max_results,
+          custom_config
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      
+      if (data.error) {
+        throw new Error(data.message || '选股失败')
+      }
+      
+      return data
+      
+    } catch (error) {
+      console.error('POST选股失败:', error)
+      throw error
+    }
+  },
+
+  // 获取选股配置
+  async getStockSelectionConfig() {
+    try {
+      const response = await fetch('http://localhost:8000/stock-selection/config')
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      return data
+      
+    } catch (error) {
+      console.error('获取选股配置失败:', error)
+      throw error
+    }
+  },
+
+  // 更新选股配置
+  async updateStockSelectionConfig(config) {
+    try {
+      console.log('更新选股配置:', config)
+      
+      const response = await fetch('http://localhost:8000/stock-selection/config', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ config })
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      
+      if (data.error) {
+        throw new Error(data.message || '配置更新失败')
+      }
+      
+      return data
+      
+    } catch (error) {
+      console.error('更新选股配置失败:', error)
+      throw error
+    }
+  },
+
+  // 获取选股历史记录
+  async getStockSelectionHistory(limit = 20) {
+    try {
+      const response = await fetch(`http://localhost:8000/stock-selection/history?limit=${limit}`)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      return data
+      
+    } catch (error) {
+      console.error('获取选股历史失败:', error)
+      throw error
+    }
+  },
 }
 
 export default api

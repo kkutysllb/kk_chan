@@ -66,6 +66,13 @@ class StockInfo(BaseModel):
     label: str
     name: str
 
+class StockSelectionRequest(BaseModel):
+    max_results: int = 50
+    custom_config: Optional[Dict[str, Any]] = None
+
+class StockSelectionConfigRequest(BaseModel):
+    config: Dict[str, Any]
+
 @app.get("/")
 async def root():
     """根路径"""
@@ -198,6 +205,112 @@ async def get_analysis_history():
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"获取历史记录失败: {str(e)}")
+
+# ==================== 选股功能API ====================
+
+@app.get("/stock-selection")
+async def get_stock_selection(
+    max_results: int = Query(50, description="最大返回结果数量"),
+    min_backchi_strength: Optional[float] = Query(None, description="最小背驰强度阈值"),
+    min_buy_point_strength: Optional[float] = Query(None, description="最小买点强度阈值")
+):
+    """
+    执行缠论多级别背驰选股
+    """
+    try:
+        print(f"🎯 开始选股: max_results={max_results}")
+        
+        # 准备自定义配置
+        custom_config = {}
+        if min_backchi_strength is not None:
+            custom_config['min_backchi_strength'] = min_backchi_strength
+        if min_buy_point_strength is not None:
+            custom_config['min_buy_point_strength'] = min_buy_point_strength
+        
+        # 执行选股
+        result = chan_api.run_stock_selection(
+            max_results=max_results,
+            custom_config=custom_config if custom_config else None
+        )
+        
+        # 清理NaN值
+        cleaned_result = clean_nan_values(result)
+        
+        print(f"✅ 选股完成，筛选出 {len(cleaned_result.get('results', []))} 个信号")
+        return cleaned_result
+        
+    except Exception as e:
+        print(f"❌ 选股失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"选股失败: {str(e)}")
+
+@app.post("/stock-selection")
+async def post_stock_selection(request: StockSelectionRequest):
+    """
+    POST方式执行缠论多级别背驰选股
+    """
+    try:
+        print(f"🎯 POST选股请求: {request.dict()}")
+        
+        result = chan_api.run_stock_selection(
+            max_results=request.max_results,
+            custom_config=request.custom_config
+        )
+        
+        # 清理NaN值
+        cleaned_result = clean_nan_values(result)
+        
+        print(f"✅ POST选股完成，筛选出 {len(cleaned_result.get('results', []))} 个信号")
+        return cleaned_result
+        
+    except Exception as e:
+        print(f"❌ POST选股失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"选股失败: {str(e)}")
+
+@app.get("/stock-selection/config")
+async def get_stock_selection_config():
+    """
+    获取当前选股配置
+    """
+    try:
+        result = chan_api.get_stock_selection_config()
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"获取选股配置失败: {str(e)}")
+
+@app.put("/stock-selection/config")
+async def update_stock_selection_config(request: StockSelectionConfigRequest):
+    """
+    更新选股配置
+    """
+    try:
+        print(f"📝 更新选股配置: {request.config}")
+        
+        result = chan_api.update_stock_selection_config(request.config)
+        
+        if not result.get('success', False):
+            raise HTTPException(status_code=400, detail=result.get('message', '配置更新失败'))
+        
+        print(f"✅ 选股配置更新成功")
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ 更新选股配置失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"更新选股配置失败: {str(e)}")
+
+@app.get("/stock-selection/history")
+async def get_stock_selection_history(limit: int = Query(20, description="返回记录数量限制")):
+    """
+    获取选股历史记录
+    """
+    try:
+        result = chan_api.get_stock_selection_history(limit)
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"获取选股历史记录失败: {str(e)}")
 
 # 异常处理
 @app.exception_handler(HTTPException)

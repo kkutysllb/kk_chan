@@ -57,20 +57,45 @@ export const useGlobalStore = defineStore('global', {
       return this.analysisData?.chart_data?.chan_structures || null
     },
 
-    // 获取交易信号
+    // 获取交易信号 - 基于缠论v2引擎数据结构
     tradingSignals() {
       console.log('获取交易信号:', this.analysisData?.chart_data?.dynamics)
-      return this.analysisData?.chart_data?.dynamics || { buy_sell_points: [], backchi: [] }
+      return {
+        buy_sell_points: this.analysisData?.chart_data?.dynamics?.buy_sell_points || [],
+        backchi_analyses: this.analysisData?.chart_data?.dynamics?.backchi || []
+      }
     },
 
-    // 获取买卖点信号
+    // 获取买卖点信号 - 对应缠论v2的BuySellPoint
     buySellingPoints() {
       return this.analysisData?.chart_data?.dynamics?.buy_sell_points || []
     },
 
-    // 获取背驰信号
+    // 获取背驰信号 - 对应缠论v2的BackChiAnalysis
     backchiSignals() {
       return this.analysisData?.chart_data?.dynamics?.backchi || []
+    },
+
+    // 获取缠论结构统计信息
+    chanStatistics() {
+      return this.analysisData?.analysis?.summary || null
+    },
+
+    // 获取趋势分析
+    trendAnalysis() {
+      const evaluation = this.analysisData?.analysis?.evaluation
+      if (!evaluation) return null
+      
+      return {
+        trend_direction: evaluation.trend_direction,
+        trend_strength: evaluation.trend_strength,
+        confidence_score: evaluation.confidence_score,
+        risk_level: evaluation.risk_level,
+        recommended_action: evaluation.recommended_action,
+        entry_price: evaluation.entry_price,
+        stop_loss: evaluation.stop_loss,
+        take_profit: evaluation.take_profit
+      }
     },
 
     // 是否有数据

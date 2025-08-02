@@ -360,7 +360,7 @@ class KLineList:
         
         for item in data:
             # 处理时间字段
-            timestamp = item.get('trade_date') or item.get('datetime') or item.get('timestamp')
+            timestamp = item.get('trade_date') or item.get('datetime') or item.get('timestamp') or item.get('trade_time')
             if isinstance(timestamp, str):
                 timestamp = pd.to_datetime(timestamp)
             elif not isinstance(timestamp, datetime):

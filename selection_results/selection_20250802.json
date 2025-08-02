@@ -1,0 +1,49 @@
+{
+  "analysis_date": "2025-08-02",
+  "analysis_time": "2025-08-02 23:06:34",
+  "duration_seconds": 4.020567,
+  "summary": {
+    "total_signals": 2,
+    "buy_count": 2,
+    "buy_strong_count": 2,
+    "sell_count": 0,
+    "sell_strong_count": 0
+  },
+  "buy_signals": [
+    {
+      "symbol": "000006.SZ",
+      "name": "深振业A",
+      "signal_type": "买入",
+      "overall_score": 94.0,
+      "signal_strength": "strong",
+      "recommendation": "强烈推荐买入",
+      "backchi_type": "bottom",
+      "reliability": 0.9,
+      "description": "底背驰: 面积比7.74, 价差0.2%, 有金叉",
+      "has_macd_golden_cross": true,
+      "has_macd_death_cross": false,
+      "entry_price": 6.15,
+      "stop_loss": 5.8425,
+      "take_profit": 6.980250000000001,
+      "analysis_time": "2025-08-02T23:06:37.978757"
+    },
+    {
+      "symbol": "000016.SZ",
+      "name": "深康佳A",
+      "signal_type": "买入",
+      "overall_score": 83.22535428018327,
+      "signal_strength": "strong",
+      "recommendation": "强烈推荐买入",
+      "backchi_type": "bottom",
+      "reliability": 0.7204225713363879,
+      "description": "底背驰: 面积比2.43, 价差0.4%, 有金叉",
+      "has_macd_golden_cross": true,
+      "has_macd_death_cross": false,
+      "entry_price": 4.85,
+      "stop_loss": 4.607499999999999,
+      "take_profit": 5.374107420647222,
+      "analysis_time": "2025-08-02T23:06:37.999684"
+    }
+  ],
+  "sell_signals": []
+}

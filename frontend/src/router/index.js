@@ -19,6 +19,15 @@ const routes = [
       keepAlive: true,
     },
   },
+  {
+    path: '/stock-selection',
+    name: 'StockSelection',
+    component: () => import('@/views/StockSelectionPage.vue'),
+    meta: {
+      title: '智能选股',
+      keepAlive: true,
+    },
+  },
 ]
 
 const router = createRouter({

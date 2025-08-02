@@ -19,12 +19,16 @@
           </template>
           <div class="signal-stats">
             <div class="stat-item buy">
-              <div class="stat-number">{{ buySignals.length }}</div>
+              <div class="stat-number">{{ chanStatistics.buy_points_count || buySignals.length }}</div>
               <div class="stat-label">买入信号</div>
             </div>
             <div class="stat-item sell">
-              <div class="stat-number">{{ sellSignals.length }}</div>
+              <div class="stat-number">{{ chanStatistics.sell_points_count || sellSignals.length }}</div>
               <div class="stat-label">卖出信号</div>
+            </div>
+            <div class="stat-item backchi">
+              <div class="stat-number">{{ chanStatistics.backchi_count || 0 }}</div>
+              <div class="stat-label">背驰信号</div>
             </div>
             <div class="stat-item total">
               <div class="stat-number">{{ allSignals.length }}</div>
@@ -48,13 +52,17 @@
             <el-select
               v-model="levelFilter"
               placeholder="信号级别"
-              style="width: 120px; margin-left: 16px;"
+              style="width: 140px; margin-left: 16px;"
               @change="handleFilterChange"
             >
               <el-option label="全部" value="all" />
-              <el-option label="一类" value="1buy" />
-              <el-option label="二类" value="2buy" />
-              <el-option label="三类" value="3buy" />
+              <el-option label="一类买点" value="type1_buy" />
+              <el-option label="二类买点" value="type2_buy" />
+              <el-option label="三类买点" value="type3_buy" />
+              <el-option label="一类卖点" value="type1_sell" />
+              <el-option label="二类卖点" value="type2_sell" />
+              <el-option label="三类卖点" value="type3_sell" />
+              <el-option label="背驰信号" value="backchi" />
             </el-select>
             
             <el-input
@@ -257,20 +265,37 @@ const searchKeyword = ref('')
 const detailDialogVisible = ref(false)
 const selectedSignal = ref(null)
 
-// 计算属性
+// 计算属性 - 基于缠论v2数据结构
 const buySellingPoints = computed(() => global.buySellingPoints || [])
 const backchiSignals = computed(() => global.backchiSignals || [])
+const chanStatistics = computed(() => global.chanStatistics || {})
 
-// 合并所有信号
+// 合并所有信号 - 处理缠论v2的BuySellPoint和BackChiAnalysis
 const allSignals = computed(() => {
-  const buySellingPointsData = buySellingPoints.value.map(signal => ({
-    ...signal,
-    source: 'buy_sell_point'
+  const buySellingPointsData = buySellingPoints.value.map(point => ({
+    ...point,
+    source: 'buy_sell_point',
+    type: point.point_type?.includes('buy') ? 'buy' : 'sell',
+    level: point.point_type || 'unknown',
+    price: point.price,
+    timestamp: point.timestamp,
+    strength: point.strength || 0.8,
+    confidence: point.confidence || 0.7,
+    description: `${point.point_type} - ${point.description || '缠论买卖点'}`
   }))
-  const backchiData = backchiSignals.value.map(signal => ({
-    ...signal,
-    source: 'backchi'
+  
+  const backchiData = backchiSignals.value.map(analysis => ({
+    ...analysis,
+    source: 'backchi_analysis',
+    type: analysis.is_buy_signal ? 'buy' : 'sell',
+    level: analysis.backchi_type || 'backchi',
+    price: analysis.price,
+    timestamp: analysis.timestamp,
+    strength: analysis.backchi_strength || 0.6,
+    confidence: analysis.confidence || 0.6,
+    description: `${analysis.backchi_type}背驰 - ${analysis.description || 'MACD背驰信号'}`
   }))
+  
   return [...buySellingPointsData, ...backchiData]
 })
 
@@ -344,24 +369,30 @@ const handleFilterChange = () => {
 
 const getLevelTagType = (level) => {
   const typeMap = {
-    '1buy': 'success',
-    '2buy': 'warning', 
-    '3buy': 'info',
-    '1sell': 'success',
-    '2sell': 'warning',
-    '3sell': 'info',
+    'type1_buy': 'success',
+    'type2_buy': 'warning', 
+    'type3_buy': 'info',
+    'type1_sell': 'danger',
+    'type2_sell': 'warning',
+    'type3_sell': 'info',
+    'backchi': 'primary',
+    'trend_backchi': 'primary',
+    'range_backchi': 'warning',
   }
   return typeMap[level] || 'info'
 }
 
 const getLevelText = (level) => {
   const textMap = {
-    '1buy': '一类买',
-    '2buy': '二类买',
-    '3buy': '三类买',
-    '1sell': '一类卖',
-    '2sell': '二类卖',
-    '3sell': '三类卖',
+    'type1_buy': '一类买点',
+    'type2_buy': '二类买点',
+    'type3_buy': '三类买点',
+    'type1_sell': '一类卖点',
+    'type2_sell': '二类卖点',
+    'type3_sell': '三类卖点',
+    'backchi': '背驰',
+    'trend_backchi': '趋势背驰',
+    'range_backchi': '盘整背驰',
   }
   return textMap[level] || level || '-'
 }
@@ -515,7 +546,7 @@ defineEmits(['analyze'])
 
 .signal-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 
@@ -550,6 +581,12 @@ defineEmits(['analyze'])
   background: linear-gradient(135deg, #F56C6C 0%, #f78989 100%);
   color: white;
   box-shadow: 0 4px 20px rgba(245, 108, 108, 0.3);
+}
+
+.stat-item.backchi {
+  background: linear-gradient(135deg, #E6A23C 0%, #eebe77 100%);
+  color: white;
+  box-shadow: 0 4px 20px rgba(230, 162, 60, 0.3);
 }
 
 .stat-item.total {

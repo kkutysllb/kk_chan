@@ -22,6 +22,7 @@ from chan_theory_v2.core.chan_engine import ChanEngine, ChanAnalysisResult, Anal
 from chan_theory_v2.models.enums import TimeLevel, BiDirection, SegDirection, ZhongShuType
 from chan_theory_v2.models.dynamics import BuySellPointType, BackChi, DynamicsConfig
 from chan_theory_v2.config.chan_config import ChanConfig
+from chan_theory_v2.strategies.backchi_stock_selector import BackchiStockSelector
 from database.db_handler import get_db_handler
 
 # 设置日志
@@ -39,6 +40,9 @@ class ChanDataAPIv2:
         
         # 初始化缠论引擎
         self.chan_engine = ChanEngine()
+        
+        # 初始化选股器
+        self.stock_selector = BackchiStockSelector()
         
         logger.info("🚀 缠论数据API v2初始化完成")
     
@@ -252,26 +256,61 @@ class ChanDataAPIv2:
             
             # 获取数据
             if time_level == TimeLevel.DAILY:
-                # 添加日期范围限制，获取最近的数据
+                # 使用交易日历获取交易日范围
                 from datetime import datetime, timedelta
-                end_date = datetime.now()
-                start_date = end_date - timedelta(days=days)
+                from chan_theory_v2.core import get_trading_dates, get_nearest_trading_date
                 
-                # 将日期转换为字符串格式，与数据库中的格式匹配
-                end_date_str = end_date.strftime('%Y%m%d')
-                start_date_str = start_date.strftime('%Y%m%d')
+                # 获取当前日期的最近交易日作为结束日期
+                end_date = get_nearest_trading_date(datetime.now(), direction='backward')
+                if not end_date:
+                    end_date = datetime.now()
+                    
+                # 获取指定天数范围内的所有交易日
+                trading_dates = get_trading_dates(end_date - timedelta(days=days*2), end_date)
                 
-                # 确保使用字符串格式的日期进行查询，与数据库中的格式匹配
-                query.update({
-                    'trade_date': {
-                        '$gte': start_date_str,
-                        '$lte': end_date_str
-                    }
-                })
+                # 如果交易日数量不足，则扩大范围再次查询
+                if len(trading_dates) < days:
+                    trading_dates = get_trading_dates(end_date - timedelta(days=days*3), end_date)
+                
+                # 取最近的days个交易日
+                trading_dates = trading_dates[-days:] if len(trading_dates) >= days else trading_dates
+                
+                if trading_dates:
+                    # 设置查询的起止日期
+                    start_date = trading_dates[0]
+                    # 将日期转换为字符串格式，与数据库中的格式匹配
+                    end_date_str = end_date.strftime('%Y%m%d')
+                    start_date_str = start_date.strftime('%Y%m%d')
+                    
+                    # 确保使用字符串格式的日期进行查询，与数据库中的格式匹配
+                    query.update({
+                        'trade_date': {
+                            '$gte': start_date_str,
+                            '$lte': end_date_str
+                        }
+                    })
+                    
+                    logger.info(f"📅 日K查询范围: {start_date_str} 至 {end_date_str} (交易日总数: {len(trading_dates)})")                
+                else:
+                    # 如果无法获取交易日，则使用自然日作为备选
+                    end_date = datetime.now()
+                    start_date = end_date - timedelta(days=days)
+                    
+                    # 将日期转换为字符串格式
+                    end_date_str = end_date.strftime('%Y%m%d')
+                    start_date_str = start_date.strftime('%Y%m%d')
+                    
+                    query.update({
+                        'trade_date': {
+                            '$gte': start_date_str,
+                            '$lte': end_date_str
+                        }
+                    })
+                    
+                    logger.info(f"📅 日K查询范围(自然日): {start_date_str} 至 {end_date_str}")
                 
                 # 按日期升序排序，获取指定日期范围内的数据
                 cursor = collection.find(query).sort("trade_date", 1)
-                logger.info(f"📅 日K查询范围: {start_date_str} 至 {end_date_str}")
             else:
                 cursor = collection.find(query).sort("trade_time", -1).limit(limit)
                 
@@ -283,7 +322,14 @@ class ChanDataAPIv2:
             # 转换数据格式
             converted_data = self._convert_data_format(raw_data, time_level)
             
-            logger.info(f"📊 获取 {symbol} {time_level.value} 数据: {len(converted_data)} 条")
+            # 记录数据日期范围
+            if converted_data:
+                start_date = converted_data[0]['timestamp'].strftime('%Y-%m-%d')
+                end_date = converted_data[-1]['timestamp'].strftime('%Y-%m-%d')
+                logger.info(f"📊 获取 {symbol} {time_level.value} 数据: {len(converted_data)} 条, 日期范围: {start_date} 至 {end_date}")
+            else:
+                logger.warning(f"⚠️ 获取 {symbol} {time_level.value} 数据: 0 条")
+                
             return converted_data
             
         except Exception as e:
@@ -352,8 +398,16 @@ class ChanDataAPIv2:
         # 7. 背驰分析数据
         backchi_data = self._convert_backchi_to_echarts(result.backchi_analyses)
         
-        # 8. MACD数据（基于处理后的K线计算）
-        macd_data = self._calculate_macd_from_klines(result.processed_klines, kline_data.get("categories", []))
+        # 8. MACD数据（基于原始K线计算）
+        categories = kline_data.get("categories", [])
+        logger.info(f"MACD计算前: 原始K线数量={len(result.klines)}, 处理后K线数量={len(result.processed_klines)}, categories长度={len(categories)}")
+        
+        # 记录原始K线和处理后K线的时间范围，以便于调试
+        if len(result.klines) > 0 and len(result.processed_klines) > 0:
+            logger.info(f"原始K线时间范围: {result.klines[0].timestamp} 至 {result.klines[-1].timestamp}")
+            logger.info(f"处理后K线时间范围: {result.processed_klines[0].timestamp} 至 {result.processed_klines[-1].timestamp}")
+        
+        macd_data = self._calculate_macd_from_klines(result.klines, categories)
         
         # 构建完整的前端数据结构
         frontend_data = {
@@ -365,8 +419,8 @@ class ChanDataAPIv2:
                 "analysis_time": result.analysis_time.isoformat(),
                 "data_range": {
                     "days": days,
-                    "start_date": (datetime.now() - timedelta(days=days)).isoformat(),
-                    "end_date": datetime.now().isoformat()
+                    "start_date": result.processed_klines[0].timestamp.isoformat() if result.processed_klines else (datetime.now() - timedelta(days=days)).isoformat(),
+                    "end_date": result.processed_klines[-1].timestamp.isoformat() if result.processed_klines else datetime.now().isoformat()
                 },
                 "data_count": stats['processed_klines_count']
             },
@@ -715,6 +769,11 @@ class ChanDataAPIv2:
             # 提取收盘价
             close_prices = [float(kline.close) for kline in klines]
             
+            # 检查K线数量与categories长度是否一致
+            if len(klines) != len(categories):
+                logger.warning(f"MACD计算警告: 原始K线数量({len(klines)})与categories长度({len(categories)})不一致")
+                logger.info("这是正常的，因为categories是基于处理后的K线生成的，而MACD是基于原始K线计算的")
+            
             if len(close_prices) < 26:  # MACD需要至少26个数据点
                 return {"dif": [], "dea": [], "macd": []}
             
@@ -747,8 +806,38 @@ class ChanDataAPIv2:
             # 计算MACD柱
             macd = [(dif[i] - dea[i]) * 2 for i in range(len(dif))]
             
+            # 确保数据长度与K线数量一致
+            if len(categories) != len(klines):
+                logger.warning(f"MACD计算警告: categories长度({len(categories)})与K线数量({len(klines)})不一致")
+                
             # 保留精度并对齐数据长度
+            # 注意：当使用原始K线计算MACD时，K线数量可能与categories长度不一致
+            # 我们需要确保MACD数据长度与categories一致，以便前端正确显示
+            
+            # 如果原始K线数量多于categories长度，需要截取最新的数据
+            # 因为categories是基于处理后的K线生成的，而处理后的K线通常比原始K线少
+            if len(dif) > len(categories):
+                # 截取最新的数据（尾部数据）
+                dif = dif[-len(categories):]
+                dea = dea[-len(categories):]
+                macd = macd[-len(categories):]
+                logger.info(f"MACD数据已截取: 从{len(dif)}截取到{len(categories)}")
+            elif len(dif) < len(categories):
+                # 如果MACD数据少于categories，需要在前面补充0
+                padding_length = len(categories) - len(dif)
+                dif = [0.0] * padding_length + dif
+                dea = [0.0] * padding_length + dea
+                macd = [0.0] * padding_length + macd
+                logger.info(f"MACD数据已补充: 从{len(dif)-padding_length}补充到{len(categories)}")
+            
             min_length = min(len(categories), len(dif), len(dea), len(macd))
+            
+            # 记录MACD计算信息
+            logger.info(f"MACD计算完成: 原始K线数量={len(klines)}, categories长度={len(categories)}, 最终数据长度={min_length}")
+            
+            # 记录MACD数据的一些统计信息，以便于调试
+            if len(dif) > 0:
+                logger.info(f"MACD数据统计: DIF范围=[{min(dif):.4f}, {max(dif):.4f}], DEA范围=[{min(dea):.4f}, {max(dea):.4f}], MACD范围=[{min(macd):.4f}, {max(macd):.4f}]")
             
             return {
                 "dif": [round(dif[i], 6) for i in range(min_length)],
@@ -941,7 +1030,7 @@ class ChanDataAPIv2:
                 "timeframe": timeframe,
                 "analysis_level": "complete",
                 "analysis_time": datetime.now().isoformat(),
-                "data_range": {"days": 0, "start_date": "", "end_date": ""},
+                "data_range": {"days": 0, "start_date": datetime.now().isoformat(), "end_date": datetime.now().isoformat()},
                 "data_count": 0
             },
             "chart_data": {
@@ -1014,6 +1103,283 @@ class ChanDataAPIv2:
         except Exception as e:
             logger.error(f"❌ 保存文件失败: {e}")
             return ""
+    
+    # ==================== 选股功能 ====================
+    
+    def run_stock_selection(self, max_results: int = 50, custom_config: Dict = None) -> Dict[str, Any]:
+        """
+        执行缠论多级别背驰选股
+        
+        Args:
+            max_results: 最大返回结果数量
+            custom_config: 自定义配置参数
+            
+        Returns:
+            选股结果数据
+        """
+        try:
+            logger.info(f"🎯 开始执行缠论多级别背驰选股，最大结果数: {max_results}")
+            
+            # 如果有自定义配置，更新选股器配置
+            if custom_config:
+                self.stock_selector.config.update(custom_config)
+                logger.info(f"📝 已更新选股配置: {custom_config}")
+            
+            # 执行选股
+            signals = self.stock_selector.run_stock_selection(max_results)
+            
+            # 转换为前端格式
+            frontend_data = self._convert_stock_selection_to_frontend(signals, max_results)
+            
+            logger.info(f"✅ 选股完成，筛选出 {len(signals)} 个信号")
+            return frontend_data
+            
+        except Exception as e:
+            logger.error(f"❌ 选股执行失败: {e}")
+            import traceback
+            traceback.print_exc()
+            return self._generate_empty_stock_selection_result()
+    
+    def get_stock_selection_config(self) -> Dict[str, Any]:
+        """
+        获取当前选股配置
+        
+        Returns:
+            选股配置信息
+        """
+        try:
+            config = self.stock_selector.config.copy()
+            
+            return {
+                "current_config": config,
+                "config_description": {
+                    "days_30min": "30分钟级别分析天数",
+                    "days_5min": "5分钟级别分析天数", 
+                    "min_backchi_strength": "最小背驰强度阈值(0-1)",
+                    "min_buy_point_strength": "最小买点强度阈值(0-1)",
+                    "max_stocks_per_batch": "每批处理股票数量上限"
+                },
+                "recommendations": {
+                    "conservative": {
+                        "min_backchi_strength": 0.8,
+                        "min_buy_point_strength": 0.7,
+                        "description": "保守配置：高强度信号筛选"
+                    },
+                    "balanced": {
+                        "min_backchi_strength": 0.6,
+                        "min_buy_point_strength": 0.5,
+                        "description": "平衡配置：中等强度信号筛选"
+                    },
+                    "aggressive": {
+                        "min_backchi_strength": 0.4,
+                        "min_buy_point_strength": 0.3,
+                        "description": "激进配置：低强度信号筛选"
+                    }
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ 获取选股配置失败: {e}")
+            return {"current_config": {}, "config_description": {}, "recommendations": {}}
+    
+    def update_stock_selection_config(self, new_config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        更新选股配置
+        
+        Args:
+            new_config: 新的配置参数
+            
+        Returns:
+            更新结果
+        """
+        try:
+            old_config = self.stock_selector.config.copy()
+            
+            # 验证配置参数
+            valid_keys = {
+                'days_30min', 'days_5min', 'min_backchi_strength', 
+                'min_buy_point_strength', 'max_stocks_per_batch'
+            }
+            
+            validated_config = {}
+            for key, value in new_config.items():
+                if key in valid_keys:
+                    # 数值范围验证
+                    if key in ['min_backchi_strength', 'min_buy_point_strength']:
+                        if 0 <= value <= 1:
+                            validated_config[key] = value
+                        else:
+                            raise ValueError(f"{key} 必须在 0-1 范围内")
+                    elif key in ['days_30min', 'days_5min']:
+                        if value > 0:
+                            validated_config[key] = int(value)
+                        else:
+                            raise ValueError(f"{key} 必须大于 0")
+                    elif key == 'max_stocks_per_batch':
+                        if value >= 0:  # 允许0，表示不限制
+                            validated_config[key] = int(value)
+                        else:
+                            raise ValueError(f"{key} 必须大于等于 0（0表示不限制）")
+                    else:
+                        validated_config[key] = value
+                else:
+                    logger.warning(f"⚠️ 忽略无效配置项: {key}")
+            
+            # 更新配置
+            self.stock_selector.config.update(validated_config)
+            
+            logger.info(f"✅ 选股配置已更新: {validated_config}")
+            
+            return {
+                "success": True,
+                "message": "配置更新成功",
+                "old_config": old_config,
+                "new_config": self.stock_selector.config.copy(),
+                "updated_fields": list(validated_config.keys())
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ 更新选股配置失败: {e}")
+            return {
+                "success": False,
+                "message": f"配置更新失败: {str(e)}",
+                "old_config": {},
+                "new_config": {},
+                "updated_fields": []
+            }
+    
+    def get_stock_selection_history(self, limit: int = 20) -> Dict[str, Any]:
+        """
+        获取选股历史记录（简化版，后续可扩展到数据库存储）
+        
+        Args:
+            limit: 返回记录数量限制
+            
+        Returns:
+            历史记录数据
+        """
+        # 这里可以后续扩展为从数据库读取历史记录
+        # 目前返回空数据结构
+        return {
+            "history": [],
+            "total_count": 0,
+            "message": "历史记录功能待实现，可结合数据库存储选股结果"
+        }
+    
+    def _convert_stock_selection_to_frontend(self, signals: List, max_results: int) -> Dict[str, Any]:
+        """转换选股结果为前端格式"""
+        try:
+            frontend_data = {
+                "meta": {
+                    "analysis_time": datetime.now().isoformat(),
+                    "max_results": max_results,
+                    "actual_results": len(signals),
+                    "selection_criteria": {
+                        "min_30min_backchi_strength": self.stock_selector.config.get('min_backchi_strength', 0.6),
+                        "min_5min_buy_point_strength": self.stock_selector.config.get('min_buy_point_strength', 0.5),
+                        "analysis_days_30min": self.stock_selector.config.get('days_30min', 60),
+                        "analysis_days_5min": self.stock_selector.config.get('days_5min', 10)
+                    }
+                },
+                
+                "results": [],
+                
+                "statistics": {
+                    "total_processed": self.stock_selector.config.get('max_stocks_per_batch', 50),
+                    "signals_found": len(signals),
+                    "success_rate": len(signals) / max(self.stock_selector.config.get('max_stocks_per_batch', 50), 1) * 100,
+                    "strength_distribution": {
+                        "strong": 0,
+                        "medium": 0, 
+                        "weak": 0
+                    },
+                    "recommendation_distribution": {
+                        "强烈关注": 0,
+                        "密切监控": 0,
+                        "适度关注": 0,
+                        "观望": 0
+                    }
+                },
+                
+                "config_used": self.stock_selector.config.copy()
+            }
+            
+            # 转换每个信号
+            for signal in signals:
+                try:
+                    frontend_signal = {
+                        "basic_info": {
+                            "symbol": signal.symbol,
+                            "name": signal.name,
+                            "analysis_time": signal.analysis_time.isoformat()
+                        },
+                        
+                        "scoring": {
+                            "overall_score": round(signal.overall_score, 2),
+                            "signal_strength": signal.signal_strength.value,
+                            "recommendation": signal.recommendation
+                        },
+                        
+                        "min30_analysis": {
+                            "has_bottom_backchi": signal.min30_bottom_backchi is not None,
+                            "has_top_backchi": signal.min30_top_backchi is not None,
+                            "trend_direction": signal.min30_trend_direction,
+                            "backchi_strength": round(signal.min30_bottom_backchi.backchi_strength, 3) if signal.min30_bottom_backchi else 0,
+                            "backchi_type": str(signal.min30_bottom_backchi.backchi_type) if signal.min30_bottom_backchi else None
+                        },
+                        
+                        "min5_analysis": {
+                            "buy_points_count": len(signal.min5_buy_points),
+                            "has_latest_buy_signal": signal.min5_latest_buy_signal is not None,
+                            "latest_buy_strength": round(signal.min5_latest_buy_signal.strength, 3) if signal.min5_latest_buy_signal else 0,
+                            "latest_buy_type": str(signal.min5_latest_buy_signal.point_type) if signal.min5_latest_buy_signal else None,
+                            "latest_buy_time": signal.min5_latest_buy_signal.timestamp.isoformat() if signal.min5_latest_buy_signal else None
+                        },
+                        
+                        "key_prices": {
+                            "entry_price": round(signal.entry_price, 2) if signal.entry_price else None,
+                            "stop_loss": round(signal.stop_loss, 2) if signal.stop_loss else None,
+                            "take_profit": round(signal.take_profit, 2) if signal.take_profit else None,
+                            "risk_reward_ratio": round((signal.take_profit - signal.entry_price) / (signal.entry_price - signal.stop_loss), 2) if (signal.entry_price and signal.stop_loss and signal.take_profit) else None
+                        }
+                    }
+                    
+                    frontend_data["results"].append(frontend_signal)
+                    
+                    # 更新统计信息
+                    strength = signal.signal_strength.value
+                    frontend_data["statistics"]["strength_distribution"][strength] += 1
+                    frontend_data["statistics"]["recommendation_distribution"][signal.recommendation] += 1
+                    
+                except Exception as e:
+                    logger.warning(f"转换单个信号失败: {e}")
+                    continue
+            
+            return frontend_data
+            
+        except Exception as e:
+            logger.error(f"❌ 转换选股结果失败: {e}")
+            return self._generate_empty_stock_selection_result()
+    
+    def _generate_empty_stock_selection_result(self) -> Dict[str, Any]:
+        """生成空的选股结果"""
+        return {
+            "meta": {
+                "analysis_time": datetime.now().isoformat(),
+                "max_results": 0,
+                "actual_results": 0,
+                "selection_criteria": {}
+            },
+            "results": [],
+            "statistics": {
+                "total_processed": 0,
+                "signals_found": 0,
+                "success_rate": 0.0,
+                "strength_distribution": {"strong": 0, "medium": 0, "weak": 0},
+                "recommendation_distribution": {"强烈关注": 0, "密切监控": 0, "适度关注": 0, "观望": 0}
+            },
+            "config_used": {}
+        }
 
 
 # 创建全局API实例

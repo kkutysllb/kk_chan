@@ -32,7 +32,7 @@
               <h3>{{ currentStock?.symbol }} 缠论分析报告</h3>
               <div class="info-tags">
                 <el-tag type="primary">{{ timeframeText }}</el-tag>
-                <el-tag type="info">{{ analysisData?.meta?.data_count }}条数据</el-tag>
+                <el-tag type="info">{{ chanStatistics?.klines_processed || 0 }}条K线</el-tag>
                 <el-tag type="success">{{ formatTime(analysisData?.meta?.analysis_time) }}</el-tag>
               </div>
             </div>
@@ -66,7 +66,7 @@
               <h4>分型分析</h4>
               <div class="section-content">
                 <p class="analysis-text">
-                  本次分析共识别出 <strong>{{ summary?.fenxing_count || 0 }}</strong> 个分型，
+                  本次分析共识别出 <strong>{{ chanStatistics?.fenxing_count || 0 }}</strong> 个分型，
                   其中顶分型和底分型分布{{ getFenxingDistribution() }}。
                   分型的识别为后续笔段构造提供了基础支撑。
                 </p>
@@ -89,7 +89,7 @@
               <h4>笔段分析</h4>
               <div class="section-content">
                 <p class="analysis-text">
-                  识别出 <strong>{{ summary?.bi_count || 0 }}</strong> 条笔段，
+                  识别出 <strong>{{ chanStatistics?.bi_count || 0 }}</strong> 条笔段，
                   笔段的构造显示了价格运行的{{ getBiTrendText() }}特征。
                   {{ getBiAnalysisText() }}
                 </p>
@@ -112,7 +112,7 @@
               <h4>中枢分析</h4>
               <div class="section-content">
                 <p class="analysis-text">
-                  当前识别出 <strong>{{ summary?.zhongshu_count || 0 }}</strong> 个中枢结构。
+                  当前识别出 <strong>{{ chanStatistics?.zhongshu_count || 0 }}</strong> 个中枢结构。
                   {{ getZhongshuAnalysisText() }}
                 </p>
                 <div class="analysis-points">
@@ -134,7 +134,8 @@
               <h4>交易信号分析</h4>
               <div class="section-content">
                 <p class="analysis-text">
-                  本次分析产生 <strong>{{ summary?.signal_count || 0 }}</strong> 个交易信号，
+                  本次分析产生 <strong>{{ chanStatistics?.buy_sell_points_count || 0 }}</strong> 个交易信号，
+                  另有 <strong>{{ chanStatistics?.backchi_count || 0 }}</strong> 个背驰信号。
                   {{ getSignalAnalysisText() }}
                 </p>
                 <div class="signal-breakdown">
@@ -226,13 +227,12 @@ import { useGlobalStore } from '@/stores/global'
 
 const global = useGlobalStore()
 
-// 计算属性
+// 计算属性 - 基于缠论v2引擎数据结构
 const hasData = computed(() => global.hasData)
 const analysisData = computed(() => global.analysisData)
-const summary = computed(() => global.analysisSummary)
-const evaluation = computed(() => global.analysisEvaluation)
+const chanStatistics = computed(() => global.chanStatistics)
+const trendAnalysis = computed(() => global.trendAnalysis)
 const currentStock = computed(() => global.currentStock)
-const tradingSignals = computed(() => global.tradingSignals)
 const buySellingPoints = computed(() => global.buySellingPoints)
 const backchiSignals = computed(() => global.backchiSignals)
 const chanStructures = computed(() => global.chanStructures)
@@ -258,22 +258,28 @@ const formatTime = (timeStr) => {
 }
 
 const getTrendText = () => {
-  const trendDirection = evaluation.value?.trend_direction
-  const trendStrength = evaluation.value?.trend_strength || 0
+  const trend = trendAnalysis.value
+  if (!trend) return '数据不足'
   
-  if (trendDirection === 'up') {
-    return trendStrength > 0.6 ? '强势上涨' : '温和上涨'
-  } else if (trendDirection === 'down') {
-    return trendStrength > 0.6 ? '强势下跌' : '温和下跌'
+  const direction = trend.trend_direction
+  const strength = trend.trend_strength || 0
+  
+  if (direction === 'up') {
+    return strength > 0.6 ? '强势上涨' : '温和上涨'
+  } else if (direction === 'down') {
+    return strength > 0.6 ? '强势下跌' : '温和下跌'
   } else {
     return '震荡整理'
   }
 }
 
 const getStructureScore = () => {
-  const fenxingCount = summary.value?.fenxing_count || 0
-  const biCount = summary.value?.bi_count || 0
-  const zhongshuCount = summary.value?.zhongshu_count || 0
+  const stats = chanStatistics.value
+  if (!stats) return 0
+  
+  const fenxingCount = stats.fenxing_count || 0
+  const biCount = stats.bi_count || 0
+  const zhongshuCount = stats.zhongshu_count || 0
   
   let score = 0
   if (fenxingCount > 0) score += 30
@@ -306,7 +312,7 @@ const getFenxingDistribution = () => {
 
 const getFenxingAnalysisPoints = () => {
   const points = []
-  const count = summary.value?.fenxing_count || 0
+  const count = chanStatistics.value?.fenxing_count || 0
   
   if (count === 0) {
     points.push({ text: '无分型识别', type: 'info' })
@@ -330,7 +336,7 @@ const getBiTrendText = () => {
 }
 
 const getBiAnalysisText = () => {
-  const biCount = summary.value?.bi_count || 0
+  const biCount = chanStatistics.value?.bi_count || 0
   
   if (biCount === 0) {
     return '当前数据不足以构成完整笔段。'
@@ -343,7 +349,7 @@ const getBiAnalysisText = () => {
 
 const getBiAnalysisPoints = () => {
   const points = []
-  const count = summary.value?.bi_count || 0
+  const count = chanStatistics.value?.bi_count || 0
   
   if (count === 0) {
     points.push({ text: '无笔段构成', type: 'info' })
@@ -358,7 +364,7 @@ const getBiAnalysisPoints = () => {
 }
 
 const getZhongshuAnalysisText = () => {
-  const count = summary.value?.zhongshu_count || 0
+  const count = chanStatistics.value?.zhongshu_count || 0
   
   if (count === 0) {
     return '当前无中枢结构，表明价格运行趋势性较强或数据不足。'
@@ -371,7 +377,7 @@ const getZhongshuAnalysisText = () => {
 
 const getZhongshuAnalysisPoints = () => {
   const points = []
-  const count = summary.value?.zhongshu_count || 0
+  const count = chanStatistics.value?.zhongshu_count || 0
   
   if (count === 0) {
     points.push({ text: '无中枢结构', type: 'info' })
@@ -385,9 +391,10 @@ const getZhongshuAnalysisPoints = () => {
 }
 
 const getSignalAnalysisText = () => {
-  const count = summary.value?.signal_count || 0
+  const buySellingCount = chanStatistics.value?.buy_sell_points_count || 0
+  const backchiCount = chanStatistics.value?.backchi_count || 0
   
-  if (count === 0) {
+  if (buySellingCount === 0 && backchiCount === 0) {
     return '当前数据未产生明确的买卖点信号。'
   } else {
     return '信号质量和可靠性需要结合市场环境和其他技术指标综合判断。'
@@ -403,21 +410,30 @@ const getSellSignalCount = () => {
 }
 
 const getAdviceLevel = () => {
-  const recommendedAction = evaluation.value?.recommended_action
-  const confidenceScore = evaluation.value?.confidence_score || 0
-  const riskLevel = evaluation.value?.risk_level || 0
+  const trend = trendAnalysis.value
+  if (!trend) {
+    return {
+      text: '数据不足',
+      class: 'neutral',
+      description: '缺乏足够数据进行分析，建议等待更多数据'
+    }
+  }
+  
+  const recommendedAction = trend.recommended_action
+  const confidenceScore = trend.confidence_score || 0
+  const riskLevel = trend.risk_level || 0
   
   if (recommendedAction === 'buy' && confidenceScore > 0.7) {
     return {
       text: '积极关注',
       class: 'positive',
-      description: '技术面显示积极信号，可适度关注'
+      description: '缠论技术面显示积极信号，可适度关注'
     }
   } else if (recommendedAction === 'sell' && confidenceScore > 0.7) {
     return {
       text: '谨慎观望',
       class: 'negative',
-      description: '技术面显示谨慎信号，建议观望'
+      description: '缠论技术面显示谨慎信号，建议观望'
     }
   } else if (riskLevel > 0.7) {
     return {
@@ -429,23 +445,37 @@ const getAdviceLevel = () => {
     return {
       text: '中性观察',
       class: 'neutral',
-      description: '技术面信号不明确，保持观察'
+      description: '缠论技术面信号不明确，保持观察'
     }
   }
 }
 
 const getInvestmentAdvice = () => {
   const advice = []
-  const buyCount = getBuySignalCount()
-  const sellCount = getSellSignalCount()
-  const zhongshuCount = summary.value?.zhongshu_count || 0
+  const stats = chanStatistics.value
+  const trend = trendAnalysis.value
+  
+  if (!stats) {
+    advice.push({
+      icon: InfoFilled,
+      type: 'neutral',
+      title: '等待数据',
+      description: '缺乏足够的缠论分析数据，建议等待'
+    })
+    return advice
+  }
+  
+  const buyCount = stats.buy_points_count || 0
+  const sellCount = stats.sell_points_count || 0
+  const backchiCount = stats.backchi_count || 0
+  const zhongshuCount = stats.zhongshu_count || 0
   
   if (buyCount > 0) {
     advice.push({
       icon: TrendCharts,
       type: 'positive',
       title: '关注买点',
-      description: `识别出${buyCount}个买入信号，建议关注相应价位`
+      description: `识别出${buyCount}个缠论买入信号，建议关注相应价位`
     })
   }
   
@@ -454,7 +484,16 @@ const getInvestmentAdvice = () => {
       icon: Warning,
       type: 'negative',
       title: '注意风险',
-      description: `识别出${sellCount}个卖出信号，注意风险控制`
+      description: `识别出${sellCount}个缠论卖出信号，注意风险控制`
+    })
+  }
+  
+  if (backchiCount > 0) {
+    advice.push({
+      icon: Warning,
+      type: 'warning',
+      title: '背驰信号',
+      description: `识别出${backchiCount}个背驰信号，关注趋势转换`
     })
   }
   
@@ -463,7 +502,17 @@ const getInvestmentAdvice = () => {
       icon: InfoFilled,
       type: 'neutral',
       title: '震荡整理',
-      description: '存在中枢结构，价格可能在区间震荡'
+      description: `存在${zhongshuCount}个中枢结构，价格可能在区间震荡`
+    })
+  }
+  
+  // 如果有趋势分析结果，添加趋势建议
+  if (trend && trend.entry_price) {
+    advice.push({
+      icon: TrendCharts,
+      type: 'primary',
+      title: '参考价位',
+      description: `入场价位: ${trend.entry_price.toFixed(2)}, 止损: ${trend.stop_loss?.toFixed(2) || 'N/A'}`
     })
   }
   
@@ -472,7 +521,7 @@ const getInvestmentAdvice = () => {
       icon: InfoFilled,
       type: 'neutral',
       title: '观察等待',
-      description: '当前技术面信号不明确，建议继续观察'
+      description: '当前缠论技术面信号不明确，建议继续观察'
     })
   }
   
@@ -499,7 +548,8 @@ const exportReport = () => {
 
 const generateReportContent = () => {
   const stock = currentStock.value
-  const meta = analysisData.value?.meta
+  const stats = chanStatistics.value
+  const trend = trendAnalysis.value
   
   return `
 ${stock?.symbol} 缠论分析报告
@@ -508,20 +558,38 @@ ${stock?.symbol} 缠论分析报告
 基本信息:
 - 股票代码: ${stock?.symbol}
 - 分析级别: ${timeframeText.value}
-- 数据条数: ${meta?.data_count}
-- 分析时间: ${formatTime(meta?.analysis_time)}
+- K线数据: ${stats?.klines_processed || 0}条
+- 分析时间: ${formatTime(analysisData.value?.meta?.analysis_time)}
 
-技术分析:
-- 分型数量: ${summary.value?.fenxing_count || 0}
-- 笔段数量: ${summary.value?.bi_count || 0}
-- 中枢数量: ${summary.value?.zhongshu_count || 0}
-- 交易信号: ${summary.value?.signal_count || 0}
+缠论结构分析:
+- 分型数量: ${stats?.fenxing_count || 0}
+- 笔段数量: ${stats?.bi_count || 0}
+- 线段数量: ${stats?.seg_count || 0}
+- 中枢数量: ${stats?.zhongshu_count || 0}
+
+交易信号统计:
+- 买卖点信号: ${stats?.buy_sell_points_count || 0}
+- 买入信号: ${stats?.buy_points_count || 0}
+- 卖出信号: ${stats?.sell_points_count || 0}
+- 背驰信号: ${stats?.backchi_count || 0}
+
+趋势分析:
+- 趋势方向: ${trend?.trend_direction || '未知'}
+- 趋势强度: ${((trend?.trend_strength || 0) * 100).toFixed(1)}%
+- 置信度: ${((trend?.confidence_score || 0) * 100).toFixed(1)}%
+- 风险等级: ${((trend?.risk_level || 0) * 100).toFixed(1)}%
 
 投资建议:
 ${getAdviceLevel().text} - ${getAdviceLevel().description}
 
+${trend?.entry_price ? `参考价位:
+- 入场价位: ${trend.entry_price.toFixed(2)}
+- 止损价位: ${trend.stop_loss?.toFixed(2) || 'N/A'}
+- 止盈价位: ${trend.take_profit?.toFixed(2) || 'N/A'}` : ''}
+
 风险提示:
-本分析仅供参考，投资有风险，决策需谨慎。
+本分析基于缠论技术分析方法，仅供参考，不构成投资建议。
+股市有风险，投资需谨慎，请根据自身风险承受能力进行投资决策。
 
 生成时间: ${new Date().toLocaleString()}
   `.trim()
@@ -992,6 +1060,14 @@ defineEmits(['analyze'])
   
   .advice-icon.neutral {
     color: var(--el-color-info);
+  }
+  
+  .advice-icon.warning {
+    color: var(--el-color-warning);
+  }
+  
+  .advice-icon.primary {
+    color: var(--el-color-primary);
   }
   
   .advice-text {

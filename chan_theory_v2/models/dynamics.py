@@ -149,6 +149,16 @@ class BackChiAnalysis:
         return (self.backchi_type.is_backchi() and 
                 self.reliability > 0.6 and
                 abs(self.strength_ratio - 1.0) > 0.1)
+    
+    @property
+    def is_buy_signal(self) -> bool:
+        """是否为买入信号（底背驰）"""
+        return self.backchi_type == BackChi.BOTTOM_BACKCHI
+    
+    @property 
+    def is_sell_signal(self) -> bool:
+        """是否为卖出信号（顶背驰）"""
+        return self.backchi_type == BackChi.TOP_BACKCHI
 
 
 class MacdCalculator:
@@ -235,27 +245,30 @@ class DynamicsAnalyzer:
         backchi_results = []
         
         for zhongshu in zhongshus:
-            # 查找中枢前后的线段
-            before_segs = [seg for seg in segs if seg.end_time <= zhongshu.start_time][-2:]
-            after_segs = [seg for seg in segs if seg.start_time >= zhongshu.end_time][:2]
+            # 寻找离开中枢的线段（基于价格，而非时间）
+            leaving_segs = []
+            for seg in segs:
+                # 检查线段是否离开了中枢区间
+                if (seg.is_up and seg.end_price > zhongshu.high) or \
+                   (seg.is_down and seg.end_price < zhongshu.low):
+                    leaving_segs.append(seg)
             
-            if len(before_segs) >= 1 and len(after_segs) >= 1:
-                # 比较中枢前后线段的背驰
-                for i in range(len(after_segs)):
-                    current_seg = after_segs[i]
-                    
-                    # 选择比较的前段线段
-                    if len(before_segs) > 1 and i == 0:
-                        previous_seg = before_segs[-1]
-                    elif len(before_segs) >= 1:
-                        previous_seg = before_segs[-1] 
-                    else:
+            # 对每个离开中枢的线段，寻找同向的比较线段
+            for current_seg in leaving_segs:
+                # 寻找同向的前驱线段进行比较
+                previous_seg = None
+                
+                # 从当前线段往前找同向线段
+                for seg in reversed(segs):
+                    if seg == current_seg:
                         continue
-                    
-                    # 必须是同向线段才能比较
-                    if current_seg.direction != previous_seg.direction:
-                        continue
-                    
+                    if seg.end_time >= current_seg.start_time:
+                        continue  # 必须是之前的线段
+                    if seg.direction == current_seg.direction:
+                        previous_seg = seg
+                        break
+                
+                if previous_seg:
                     backchi = self._analyze_seg_backchi(
                         current_seg, previous_seg, zhongshu, macd_data, klines
                     )

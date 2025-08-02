@@ -26,6 +26,30 @@
           </div>
           
           <div class="header-actions">
+            <div class="nav-group">
+              <el-button 
+                type="primary" 
+                :class="{ active: $route.name === 'Home' }"
+                @click="$router.push('/')"
+                size="small"
+                round
+              >
+                <el-icon><TrendCharts /></el-icon>
+                缠论分析
+              </el-button>
+              
+              <el-button 
+                type="success" 
+                :class="{ active: $route.name === 'StockSelection' }"
+                @click="$router.push('/stock-selection')"
+                size="small"
+                round
+              >
+                <el-icon><DataAnalysis /></el-icon>
+                智能选股
+              </el-button>
+            </div>
+            
             <div class="action-group">
               <el-tooltip content="刷新数据" placement="bottom">
                 <button 
@@ -77,7 +101,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { RefreshRight, Sunny, Moon, Setting } from '@element-plus/icons-vue'
+import { RefreshRight, Sunny, Moon, Setting, TrendCharts, DataAnalysis } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useGlobalStore } from '@/stores/global'
 
@@ -309,6 +333,36 @@ onMounted(() => {
   flex: 1;
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-group .el-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.nav-group .el-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.nav-group .el-button.active {
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
 }
 
 .action-group {
@@ -404,6 +458,19 @@ onMounted(() => {
   
   .header-center {
     display: none;
+  }
+  
+  .nav-group {
+    gap: 8px;
+  }
+  
+  .nav-group .el-button span {
+    display: none;
+  }
+  
+  .nav-group .el-button {
+    min-width: 40px;
+    padding: 8px 12px;
   }
   
   .action-btn {

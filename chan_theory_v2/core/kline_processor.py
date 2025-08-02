@@ -101,6 +101,19 @@ class KlineProcessor:
         else:
             logger.info(f"跳过分型识别: K线数量{len(processed_klines)} < 最小窗口{self.fenxing_config.min_window_size if self.fenxing_config else 'N/A'}")
         
+        # 5. 缺口成笔处理（缠论标准）
+        logger.info("--- 步骤4: 缺口成笔分析 ---")
+        gap_fenxings = self._analyze_gaps_and_create_fenxings(processed_klines)
+        if gap_fenxings:
+            # 将缺口形成的分型合并到原有分型列表中
+            all_fenxings = fenxings.fenxings + gap_fenxings
+            # 按时间排序并去重
+            all_fenxings.sort(key=lambda x: x.timestamp)
+            fenxings = FenXingList(all_fenxings, processed_klines.level)
+            logger.info(f"缺口分析: 发现{len(gap_fenxings)}个缺口成笔分型，总分型数: {len(fenxings)}")
+        else:
+            logger.info("缺口分析: 未发现符合成笔条件的缺口")
+        
         # 5. 生成处理统计
         end_time = time.time()
         processing_time = end_time - start_time
@@ -937,19 +950,64 @@ class KlineProcessor:
         if zero_volume_count > 0:
             issues.append(f"{zero_volume_count}根K线成交量为0")
         
-        # 检查数据连续性（时间间隔）
+        # 检查数据连续性（时间间隔）- 增强跳空缺口识别
         if len(klines) > 1:
             time_gaps = []
+            price_gaps = []
+            normal_gaps = 0
             for i in range(1, len(klines)):
-                gap = (klines[i].timestamp - klines[i-1].timestamp).total_seconds()
-                time_gaps.append(gap)
+                time_gap = (klines[i].timestamp - klines[i-1].timestamp).total_seconds()
+                time_gaps.append(time_gap)
+                
+                # 计算价格缺口（用于区分跳空和数据异常）
+                prev_kline = klines[i-1]
+                curr_kline = klines[i]
+                
+                # 判断是否存在价格跳空
+                if curr_kline.low > prev_kline.high:  # 向上跳空
+                    price_gap_pct = (curr_kline.low - prev_kline.high) / prev_kline.high * 100
+                    price_gaps.append(('up', price_gap_pct, i))
+                elif curr_kline.high < prev_kline.low:  # 向下跳空
+                    price_gap_pct = (prev_kline.low - curr_kline.high) / prev_kline.low * 100
+                    price_gaps.append(('down', price_gap_pct, i))
+                else:
+                    normal_gaps += 1
             
-            # 检查是否有异常的时间间隔
+            # 检查异常时间间隔，但排除合理的跳空缺口和正常的市场休市
             if time_gaps:
-                avg_gap = sum(time_gaps) / len(time_gaps)
-                large_gaps = [gap for gap in time_gaps if gap > avg_gap * 3]
-                if large_gaps:
-                    issues.append(f"存在{len(large_gaps)}个异常大的时间间隔")
+                large_time_gaps = []
+                
+                for i, gap in enumerate(time_gaps):
+                    # 定义正常的市场时间间隔（秒）
+                    normal_intervals = {
+                        1800,    # 30分钟
+                        3600,    # 1小时
+                        7200,    # 2小时（午休）
+                        66600,   # 18.5小时（隔夜）
+                        239400,  # 66.5小时（周末：周五15:00到周一9:30）
+                        325800,  # 90.5小时（3天长假）
+                        499800,  # 138.8小时（4天假期）
+                    }
+                    
+                    # 允许10%的时间误差
+                    is_normal_interval = any(abs(gap - normal) / normal < 0.1 for normal in normal_intervals)
+                    
+                    if not is_normal_interval and gap > 7200:  # 超过2小时且不是正常间隔
+                        # 检查对应位置是否有价格跳空
+                        has_price_gap = any(gap_info[2] == i+1 for gap_info in price_gaps)
+                        if not has_price_gap:
+                            # 只有时间异常但无价格跳空且非正常休市的才是真正的数据异常
+                            large_time_gaps.append(gap)
+                
+                if large_time_gaps:
+                    issues.append(f"存在{len(large_time_gaps)}个异常时间间隔（非跳空缺口）")
+                
+                # 记录跳空缺口信息（仅作信息记录，不作为问题）
+                if price_gaps:
+                    significant_gaps = [gap for gap in price_gaps if gap[1] > 2.0]  # 超过2%的跳空
+                    if significant_gaps:
+                        logger.info(f"检测到{len(significant_gaps)}个显著价格跳空: {[f'{gap[0]}{gap[1]:.1f}%' for gap in significant_gaps[:3]]}")
+        
         
         return issues
     
@@ -1080,3 +1138,43 @@ class KlineProcessor:
         stats['quality_issues_count'] = len(quality_issues)
         
         return stats
+    
+    def _analyze_gaps_and_create_fenxings(self, klines: KLineList) -> List[FenXing]:
+        """
+        分析跳空缺口并创建相应的分型
+        
+        Args:
+            klines: 处理后的K线列表
+            
+        Returns:
+            缺口形成的分型列表
+        """
+        try:
+            # 导入缺口处理器
+            from .gap_processor import GapProcessor, analyze_gaps_in_klines
+            
+            # 判断是否为指数（简化判断：通过股票代码特征）
+            # 这里可以根据实际需要改进判断逻辑
+            is_index = False  # 默认为个股，实际应用中可以通过股票代码或其他信息判断
+            
+            # 分析缺口
+            gaps, gap_stats = analyze_gaps_in_klines(klines, klines.level, is_index)
+            
+            if not gaps:
+                return []
+            
+            # 记录缺口统计信息
+            if gap_stats:
+                logger.info(f"缺口统计: 总计{gap_stats.get('total_gaps', 0)}个, "
+                           f"可成笔{gap_stats.get('can_form_bi_gaps', 0)}个, "
+                           f"平均大小{gap_stats.get('avg_gap_size_percent', 0):.2f}%")
+            
+            # 创建缺口成笔的分型
+            gap_processor = GapProcessor(klines.level)
+            gap_fenxings = gap_processor.create_gap_bi_fenxings(gaps, klines)
+            
+            return gap_fenxings
+            
+        except Exception as e:
+            logger.error(f"缺口分析失败: {e}")
+            return []
