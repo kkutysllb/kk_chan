@@ -27,17 +27,43 @@ class MacdZone:
 class SimpleBackchiAnalyzer:
     """简化的背驰分析器"""
     
+    # 统一的默认配置 - 确保与DynamicsAnalyzer一致
+    DEFAULT_CONFIG = {
+        'min_area_ratio': 1.1,           # 绿柱面积比阈值
+        'max_area_shrink_ratio': 0.9,    # 红柱面积缩小比例
+        'confirm_days': 3,               # 金叉确认天数
+        'death_cross_confirm_days': 2,   # 死叉确认天数
+    }
+    
     def __init__(self, config=None):
         self.macd_calculator = MacdCalculator()
-        # 默认配置
-        self.config = {
-            'min_area_ratio': 1.1,           # 绿柱面积比阈值
-            'max_area_shrink_ratio': 0.9,    # 红柱面积缩小比例
-            'confirm_days': 3,               # 金叉确认天数
-            'death_cross_confirm_days': 2,   # 死叉确认天数
-        }
+        # 使用统一的默认配置
+        self.config = self.DEFAULT_CONFIG.copy()
         if config:
             self.config.update(config)
+    
+    @classmethod
+    def get_default_config(cls):
+        """获取默认配置，供其他类使用以确保一致性"""
+        return cls.DEFAULT_CONFIG.copy()
+    
+    @classmethod
+    def validate_config_consistency(cls, other_config: dict, source_name: str = "Unknown") -> bool:
+        """验证配置参数的一致性"""
+        default_config = cls.get_default_config()
+        inconsistent_params = []
+        
+        for key in default_config:
+            if key in other_config and other_config[key] != default_config[key]:
+                inconsistent_params.append(f"{key}: {other_config[key]} (expected {default_config[key]})")
+        
+        if inconsistent_params:
+            print(f"⚠️  配置不一致警告 - {source_name}:")
+            for param in inconsistent_params:
+                print(f"   • {param}")
+            return False
+        
+        return True
     
     def analyze_backchi(self, klines, macd_data: List[MacdData]) -> Tuple[Optional[str], float, str]:
         """

@@ -4,11 +4,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('@/views/HomePage.vue'),
-    meta: {
-      title: '首页',
-      keepAlive: true,
-    },
+    redirect: '/analysis'
   },
   {
     path: '/analysis/:symbol?',

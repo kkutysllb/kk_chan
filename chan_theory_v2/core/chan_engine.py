@@ -11,7 +11,7 @@
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Tuple, Any, Union
 from enum import Enum
 
@@ -29,6 +29,8 @@ from models.dynamics import (
     BackChiAnalysis, BuySellPoint, BuySellPointType, BackChi,
     DynamicsConfig, MultiLevelAnalysis
 )
+# 缠论买卖点分析器
+from models.chan_buy_sell_points import ChanBuySellPointAnalyzer, MultiLevelContext
 
 # 核心处理器
 from core.kline_processor import KlineProcessor
@@ -144,8 +146,12 @@ class ChanEngine:
         self.zhongshu_builder = ZhongShuBuilder(ZhongShuConfig())
         
         # 初始化动力学分析器
-        self.dynamics_analyzer = DynamicsAnalyzer(self.dynamics_config.macd_params)
-        self.multi_level_analyzer = MultiLevelDynamicsAnalyzer()
+        dynamics_config = self.dynamics_config.to_dict()
+        self.dynamics_analyzer = DynamicsAnalyzer(dynamics_config)
+        self.multi_level_analyzer = MultiLevelDynamicsAnalyzer(dynamics_config)
+        
+        # 初始化缠论买卖点分析器
+        self.chan_bsp_analyzer = ChanBuySellPointAnalyzer()
         
         # 分析历史缓存
         self._analysis_cache: Dict[str, ChanAnalysisResult] = {}
@@ -227,11 +233,37 @@ class ChanEngine:
                 print(f"⚠️ {level.value}级别分析失败: {e}")
                 continue
         
-        # 分析级别间关系
+        # 多级别买卖点分析
         if len(results) >= 2:
+            self._perform_multi_level_bsp_analysis(results)
             self._analyze_multi_level_relations(results)
         
         return results
+    
+    def _perform_multi_level_bsp_analysis(self, results: Dict[TimeLevel, ChanAnalysisResult]) -> None:
+        """执行多级别买卖点分析"""
+        try:
+            # 构建多级别上下文
+            contexts = {}
+            for level, result in results.items():
+                contexts[level] = MultiLevelContext(
+                    time_level=level,
+                    klines=result.processed_klines,
+                    bis=result.bis,
+                    segs=result.segs,
+                    zhongshus=result.zhongshus
+                )
+            
+            # 执行多级别买卖点分析
+            all_bsp = self.chan_bsp_analyzer.analyze_multi_level_bsp(contexts)
+            
+            # 更新各级别的买卖点结果
+            for level, bsp_list in all_bsp.items():
+                if level in results:
+                    results[level].buy_sell_points = bsp_list
+                    
+        except Exception as e:
+            print(f"⚠️ 多级别买卖点分析失败: {e}")
     
     def get_trading_signals(self, result: ChanAnalysisResult) -> Dict[str, Any]:
         """
@@ -257,7 +289,7 @@ class ChanEngine:
         
         # 处理买卖点信号
         for point in result.buy_sell_points:
-            if point.reliability >= self.dynamics_config.buy_sell_point_min_reliability:
+            if point.reliability >= self.dynamics_config.min_reliability:
                 signal = {
                     'type': 'buy' if point.point_type.is_buy() else 'sell',
                     'point_type': str(point.point_type),
@@ -285,14 +317,8 @@ class ChanEngine:
                 signal = {
                     'type': 'backchi',
                     'backchi_type': str(backchi.backchi_type),
-                    'current_seg': {
-                        'start_time': backchi.current_seg.start_time,
-                        'end_time': backchi.current_seg.end_time,
-                        'start_price': backchi.current_seg.start_price,
-                        'end_price': backchi.current_seg.end_price
-                    },
                     'reliability': backchi.reliability,
-                    'strength_ratio': backchi.strength_ratio
+                    'current_strength': backchi.current_strength
                 }
                 signals['signals'].append(signal)
                 signals['summary']['total_signals'] += 1
@@ -323,18 +349,29 @@ class ChanEngine:
     
     def _perform_dynamics_analysis(self, result: ChanAnalysisResult) -> None:
         """执行动力学分析"""
-        if len(result.segs) < 3 or len(result.zhongshus) == 0:
+        if len(result.processed_klines) < 20:
             return
         
         # 背驰分析
-        result.backchi_analyses = self.dynamics_analyzer.analyze_backchi(
-            result.segs, result.zhongshus, result.processed_klines
+        result.backchi_analyses = self.dynamics_analyzer.analyze_simple_backchi(
+            result.processed_klines
         )
         
-        # 买卖点识别
-        result.buy_sell_points = self.dynamics_analyzer.identify_buy_sell_points(
-            result.backchi_analyses, result.segs, result.zhongshus, result.processed_klines
+        # 缠论买卖点识别：使用独立的缠论分析器
+        context = MultiLevelContext(
+            time_level=result.time_level,
+            klines=result.processed_klines,
+            bis=result.bis,
+            segs=result.segs,
+            zhongshus=result.zhongshus
         )
+        
+        # 单级别买卖点分析
+        bsp_results = self.chan_bsp_analyzer.analyze_multi_level_bsp({
+            result.time_level: context
+        })
+        
+        result.buy_sell_points = bsp_results.get(result.time_level, [])
     
     def _perform_comprehensive_analysis(self, result: ChanAnalysisResult) -> None:
         """执行综合分析"""
@@ -476,42 +513,70 @@ class ChanEngine:
             result.recommended_action = "hold"
     
     def _analyze_multi_level_relations(self, results: Dict[TimeLevel, ChanAnalysisResult]) -> None:
-        """分析多级别关系"""
-        levels = [TimeLevel.DAILY, TimeLevel.MIN_30, TimeLevel.MIN_5]
+        """分析多级别关系和买卖点确认"""
+        if len(results) < 2:
+            return
+            
+        # 按时间级别排序（日线 > 30分钟 > 5分钟）
+        sorted_levels = sorted(results.keys(), key=lambda x: {
+            TimeLevel.DAILY: 3,
+            TimeLevel.MIN_30: 2, 
+            TimeLevel.MIN_5: 1
+        }.get(x, 0), reverse=True)
         
-        for i, level in enumerate(levels):
-            if level not in results:
+        # 进行多级别买卖点确认
+        for i in range(len(sorted_levels) - 1):
+            higher_level = sorted_levels[i]
+            lower_level = sorted_levels[i + 1]
+            
+            higher_result = results[higher_level]
+            lower_result = results[lower_level]
+            
+            # 用高级别确认低级别买卖点
+            self._confirm_buy_sell_points_across_levels(higher_result, lower_result, True)
+            
+            # 用低级别确认高级别买卖点
+            self._confirm_buy_sell_points_across_levels(lower_result, higher_result, False)
+            
+        # 计算级别一致性得分
+        self._calculate_level_consistency_scores(results)
+    
+    def _confirm_buy_sell_points_across_levels(self, 
+                                             confirming_result: ChanAnalysisResult,
+                                             target_result: ChanAnalysisResult,
+                                             is_higher_level_confirm: bool) -> None:
+        """跨级别买卖点确认"""
+        time_window = timedelta(days=7)  # 7天时间窗口
+        
+        for target_point in target_result.buy_sell_points:
+            for confirm_point in confirming_result.buy_sell_points:
+                # 检查时间接近和信号方向一致
+                time_diff = abs((target_point.timestamp - confirm_point.timestamp).total_seconds())
+                is_same_direction = (target_point.point_type.is_buy() == confirm_point.point_type.is_buy())
+                
+                if time_diff <= time_window.total_seconds() and is_same_direction:
+                    if is_higher_level_confirm:
+                        target_point.confirmed_by_higher_level = True
+                        # 高级别确认提升可靠度
+                        target_point.reliability = min(target_point.reliability + 0.2, 1.0)
+                    else:
+                        target_point.confirmed_by_lower_level = True
+                        # 低级别确认适度提升可靠度
+                        target_point.reliability = min(target_point.reliability + 0.1, 1.0)
+    
+    def _calculate_level_consistency_scores(self, results: Dict[TimeLevel, ChanAnalysisResult]) -> None:
+        """计算级别一致性得分"""
+        for level, result in results.items():
+            # 统计确认情况
+            total_points = len(result.buy_sell_points)
+            if total_points == 0:
+                result.level_consistency_score = 0.0
                 continue
+                
+            confirmed_points = sum(1 for point in result.buy_sell_points 
+                                 if point.confirmed_by_higher_level or point.confirmed_by_lower_level)
             
-            current_result = results[level]
-            
-            # 计算级别一致性得分
-            consistency_factors = []
-            
-            # 趋势方向一致性
-            if i > 0:
-                higher_level = levels[i-1]
-                if higher_level in results:
-                    if results[higher_level].trend_direction == current_result.trend_direction:
-                        consistency_factors.append(0.4)
-                    else:
-                        consistency_factors.append(0.0)
-            
-            if i < len(levels) - 1:
-                lower_level = levels[i+1]
-                if lower_level in results:
-                    if results[lower_level].trend_direction == current_result.trend_direction:
-                        consistency_factors.append(0.3)
-                    else:
-                        consistency_factors.append(0.0)
-            
-            # 信号一致性
-            if current_result.buy_sell_points:
-                consistency_factors.append(0.3)
-            
-            current_result.level_consistency_score = (
-                sum(consistency_factors) / len(consistency_factors) if consistency_factors else 0.0
-            )
+            result.level_consistency_score = confirmed_points / total_points
     
     def get_analysis_summary(self, result: ChanAnalysisResult) -> str:
         """获取分析摘要"""

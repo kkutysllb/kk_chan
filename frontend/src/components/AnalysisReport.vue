@@ -32,8 +32,8 @@
               <h3>{{ currentStock?.symbol }} 缠论分析报告</h3>
               <div class="info-tags">
                 <el-tag type="primary">{{ timeframeText }}</el-tag>
-                <el-tag type="info">{{ chanStatistics?.klines_processed || 0 }}条K线</el-tag>
-                <el-tag type="success">{{ formatTime(analysisData?.meta?.analysis_time) }}</el-tag>
+                <el-tag type="info">{{ klineCount }}条K线</el-tag>
+                <el-tag type="success">{{ formatTime(analysisTime) }}</el-tag>
               </div>
             </div>
             
@@ -243,7 +243,36 @@ const timeframeText = computed(() => {
     '30min': '30分钟',
     'daily': '日线',
   }
-  return timeframeMap[analysisData.value?.meta?.timeframe] || '-'
+  
+  // 多级别API：显示多级别分析
+  if (analysisData.value?.results) {
+    return '多级别分析'
+  }
+  
+  // 单级别API：从meta获取时间级别
+  const timeframe = analysisData.value?.meta?.timeframe || global.currentTimeframe
+  return timeframeMap[timeframe] || '-'
+})
+
+const klineCount = computed(() => {
+  // 多级别API：返回30分钟级别的K线数量
+  if (analysisData.value?.results) {
+    const mainLevel = analysisData.value.results['30min'] || analysisData.value.results['daily'] || analysisData.value.results['5min']
+    return mainLevel?.meta?.data_count || 0
+  }
+  
+  // 单级别API：从统计信息获取
+  return chanStatistics.value?.klines_processed || 0
+})
+
+const analysisTime = computed(() => {
+  // 多级别API：从根级别meta获取分析时间
+  if (analysisData.value?.meta) {
+    return analysisData.value.meta.analysis_time
+  }
+  
+  // 单级别API：从原来的路径获取
+  return analysisData.value?.meta?.analysis_time
 })
 
 // 方法
@@ -559,7 +588,7 @@ ${stock?.symbol} 缠论分析报告
 - 股票代码: ${stock?.symbol}
 - 分析级别: ${timeframeText.value}
 - K线数据: ${stats?.klines_processed || 0}条
-- 分析时间: ${formatTime(analysisData.value?.meta?.analysis_time)}
+- 分析时间: ${formatTime(analysisTime.value)}
 
 缠论结构分析:
 - 分型数量: ${stats?.fenxing_count || 0}

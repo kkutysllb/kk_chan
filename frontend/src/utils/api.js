@@ -66,8 +66,13 @@ api.interceptors.response.use(
 // API方法定义
 export const stockApi = {
   // 获取股票列表
-  getStockList() {
-    return api.get('/stocks')
+  getStockList(query = '') {
+    return api.get('/stocks', { params: { query } })
+  },
+
+  // 搜索股票
+  searchStocks(query) {
+    return this.getStockList(query)
   },
 
   // 获取缠论分析数据
@@ -83,12 +88,39 @@ export const stockApi = {
 
 // 直接调用Python API的方法
 export const pythonApi = {
-  // 调用后端代理服务获取分析数据
+  // 调用后端代理服务获取多级别分析数据
   async getAnalysisData({ symbol, timeframe = 'daily', days = 90 }) {
     try {
-      console.log(`获取分析数据: ${symbol}, ${timeframe}, ${days}天`)
+      console.log(`获取多级别分析数据: ${symbol}, ${days}天`)
       
-      // 调用后端代理服务API
+      // 调用多级别分析API
+      const response = await fetch(`http://localhost:8000/analysis/multi-level?symbol=${symbol}&levels=daily,30min,5min&days=${days}`)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      
+      // 检查是否有错误信息
+      if (data.error) {
+        throw new Error(data.message || '多级别分析失败')
+      }
+      
+      return data
+      
+    } catch (error) {
+      console.error('获取多级别分析数据失败:', error)
+      throw error
+    }
+  },
+
+  // 调用单级别分析数据（保留兼容性）
+  async getSingleLevelAnalysisData({ symbol, timeframe = 'daily', days = 90 }) {
+    try {
+      console.log(`获取单级别分析数据: ${symbol}, ${timeframe}, ${days}天`)
+      
+      // 调用单级别分析API
       const response = await fetch(`http://localhost:8000/analysis?symbol=${symbol}&timeframe=${timeframe}&days=${days}`)
       
       if (!response.ok) {
@@ -109,6 +141,7 @@ export const pythonApi = {
       throw error
     }
   },
+
 
   // 获取股票列表
   async getStockList(query = '') {

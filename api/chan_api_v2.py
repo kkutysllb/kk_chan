@@ -11,6 +11,7 @@ import os
 import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional, Union
+from pathlib import Path
 import logging
 
 # 添加项目路径
@@ -691,7 +692,7 @@ class ChanDataAPIv2:
         return zhongshu_areas
     
     def _convert_buy_sell_points_to_echarts(self, buy_sell_points) -> List[Dict[str, Any]]:
-        """转换买卖点数据为ECharts标记格式"""
+        """转换买卖点数据为ECharts标记格式 - 兼容新的BuySellPoint数据结构"""
         if not buy_sell_points:
             return []
         
@@ -699,11 +700,14 @@ class ChanDataAPIv2:
         
         for idx, point in enumerate(buy_sell_points):
             try:
+                # 基础字段
                 timestamp = point.timestamp.strftime('%Y-%m-%d %H:%M')
+                point_type_str = point.point_type.value if hasattr(point.point_type, 'value') else str(point.point_type)
                 
-                signal_marks.append({
+                # 构建基础标记数据
+                mark_data = {
                     "id": f"signal_{idx}",
-                    "name": str(point.point_type),
+                    "name": point_type_str,
                     "coord": [timestamp, float(point.price)],
                     "value": float(point.price),
                     "type": "buy" if point.point_type.is_buy() else "sell",
@@ -712,15 +716,51 @@ class ChanDataAPIv2:
                     "reliability": float(point.reliability),
                     "confirmed_higher": point.confirmed_by_higher_level,
                     "confirmed_lower": point.confirmed_by_lower_level,
+                    
+                    # 新增字段
+                    "kline_index": getattr(point, 'kline_index', -1),
+                    "backchi_type": getattr(point, 'backchi_type', 'NONE'),
+                    
+                    # ECharts显示配置
                     "symbol": "arrow",
                     "symbolSize": 12,
                     "symbolRotate": 90 if point.point_type.is_buy() else -90,
                     "itemStyle": {
                         "color": "#4caf50" if point.point_type.is_buy() else "#f44336"
                     }
-                })
+                }
+                
+                # 添加相关结构信息
+                if hasattr(point, 'related_zhongshu') and point.related_zhongshu:
+                    mark_data["related_zhongshu"] = {
+                        "start_time": point.related_zhongshu.start_time.strftime('%Y-%m-%d %H:%M'),
+                        "end_time": point.related_zhongshu.end_time.strftime('%Y-%m-%d %H:%M'),
+                        "low": float(point.related_zhongshu.low),
+                        "high": float(point.related_zhongshu.high),
+                        "strength": float(point.related_zhongshu.strength)
+                    }
+                
+                if hasattr(point, 'related_seg') and point.related_seg:
+                    mark_data["related_seg"] = {
+                        "direction": point.related_seg.direction.value if hasattr(point.related_seg.direction, 'value') else str(point.related_seg.direction),
+                        "start_time": point.related_seg.start_time.strftime('%Y-%m-%d %H:%M'),
+                        "end_time": point.related_seg.end_time.strftime('%Y-%m-%d %H:%M'),
+                        "strength": float(point.related_seg.strength)
+                    }
+                
+                # 添加MACD数据（如果存在）
+                if hasattr(point, 'macd_data') and point.macd_data:
+                    mark_data["macd_data"] = {
+                        "dif": float(point.macd_data.dif),
+                        "dea": float(point.macd_data.dea),
+                        "macd": float(point.macd_data.macd)
+                    }
+                
+                signal_marks.append(mark_data)
+                
             except Exception as e:
                 logger.warning(f"转换买卖点数据失败: {e}")
+                logger.warning(f"买卖点详情: {point}")
                 continue
         
         return signal_marks
@@ -868,12 +908,34 @@ class ChanDataAPIv2:
             }
         }
         
-        # 转换各级别结果
+        # 转换各级别结果 - 包含完整的图表数据
         for time_level, result in results.items():
             level_str = time_level.value
             
-            # 获取基础数据（简化版，避免重复大量K线数据）
+            # 获取基础数据和统计信息
             stats = result.get_statistics()
+            
+            # 转换K线数据
+            kline_data = self._convert_klines_to_echarts(result.processed_klines)
+            
+            # 转换缠论结构数据
+            chan_structures = {
+                "fenxing": self._convert_fenxings_to_echarts(result.fenxings),
+                "bi": self._convert_bis_to_echarts(result.bis),
+                "seg": self._convert_segs_to_echarts(result.segs),
+                "zhongshu": self._convert_zhongshus_to_echarts(result.zhongshus)
+            }
+            
+            # 转换动力学数据
+            dynamics = {
+                "buy_sell_points": self._convert_buy_sell_points_to_echarts(result.buy_sell_points),
+                "backchi": self._convert_backchi_to_echarts(result.backchi_analyses)
+            }
+            
+            # 计算MACD指标
+            indicators = {}
+            if kline_data.get("categories") and kline_data.get("values"):
+                indicators["macd"] = self._calculate_macd_from_klines(result.processed_klines, kline_data["categories"])
             
             multi_level_data["results"][level_str] = {
                 "meta": {
@@ -882,19 +944,31 @@ class ChanDataAPIv2:
                     "data_count": stats['processed_klines_count']
                 },
                 
+                # 完整的K线数据
+                "kline": kline_data,
+                
+                # 完整的缠论结构数据
                 "structures": {
+                    **chan_structures,
+                    # 保留统计信息
                     "fenxing_count": stats['fenxings_count'],
                     "bi_count": stats['bis_count'],
                     "seg_count": stats['segs_count'],
                     "zhongshu_count": stats['zhongshus_count']
                 },
                 
+                # 完整的动力学数据
                 "dynamics": {
+                    **dynamics,
+                    # 保留统计信息
                     "backchi_count": stats['backchi_count'],
                     "buy_sell_points_count": stats['buy_sell_points_count'],
                     "buy_points_count": stats['buy_points_count'],
                     "sell_points_count": stats['sell_points_count']
                 },
+                
+                # 技术指标数据
+                "indicators": indicators,
                 
                 "evaluation": {
                     "trend_direction": result.trend_direction,
@@ -1434,6 +1508,75 @@ class ChanDataAPIv2:
             },
             "config_used": {}
         }
+    
+    # ==================== 历史记录和保存功能 ====================
+    
+    def save_analysis_result(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """保存分析结果到文件"""
+        try:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            symbol = data.get('meta', {}).get('symbol', 'unknown')
+            timeframe = data.get('meta', {}).get('timeframe', 'daily')
+            
+            filename = f"analysis_{symbol}_{timeframe}_{timestamp}.json"
+            filepath = Path(filename)
+            
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2, default=str)
+            
+            return {
+                "success": True,
+                "message": "分析结果保存成功",
+                "filename": filename,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ 保存分析结果失败: {e}")
+            return {
+                "success": False,
+                "message": f"保存失败: {str(e)}",
+                "filename": "",
+                "timestamp": datetime.now().isoformat()
+            }
+    
+    def get_analysis_history(self) -> Dict[str, Any]:
+        """获取历史分析记录"""
+        try:
+            analysis_files = list(Path('.').glob('analysis_*.json'))
+            
+            history = []
+            for file in sorted(analysis_files, key=lambda x: x.stat().st_mtime, reverse=True):
+                try:
+                    with open(file, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        meta = data.get('meta', {})
+                        
+                        history.append({
+                            'filename': file.name,
+                            'symbol': meta.get('symbol'),
+                            'timeframe': meta.get('timeframe'),
+                            'analysis_time': meta.get('analysis_time'),
+                            'data_count': meta.get('data_count', 0),
+                            'file_size': file.stat().st_size,
+                            'created_time': datetime.fromtimestamp(file.stat().st_mtime).isoformat()
+                        })
+                except Exception:
+                    continue
+            
+            return {
+                "success": True,
+                "count": len(history),
+                "history": history[:20]
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ 获取分析历史失败: {e}")
+            return {
+                "success": False,
+                "count": 0,
+                "history": []
+            }
 
 
 # 创建全局API实例

@@ -24,110 +24,139 @@
           </div>
         </template>
 
-        <el-form :model="selectionConfig" label-width="150px" class="config-form">
-          <el-row :gutter="24">
-            <el-col :span="12">
-              <el-form-item label="最大结果数量">
-                <el-input-number
-                  v-model="selectionConfig.max_results"
-                  :min="10"
-                  :max="200"
-                  :step="10"
-                  placeholder="选股结果数量"
-                />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="配置预设">
-                <el-select 
-                  v-model="selectedPreset" 
-                  placeholder="选择预设配置"
-                  @change="applyPresetConfig"
-                >
-                  <el-option label="保守策略" value="conservative" />
-                  <el-option label="平衡策略" value="balanced" />
-                  <el-option label="激进策略" value="aggressive" />
-                  <el-option label="自定义" value="custom" />
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
+        <div class="config-container">
+          <!-- 基础配置 -->
+          <div class="config-section">
+            <div class="section-header">
+              <el-icon class="section-icon"><Setting /></el-icon>
+              <span class="section-title">基础配置</span>
+            </div>
+            <div class="section-content">
+              <el-form :model="selectionConfig" class="config-form">
+                <el-row :gutter="20">
+                  <el-col :span="12">
+                    <div class="form-group">
+                      <label class="form-label">最大结果数量</label>
+                      <el-input-number
+                        v-model="selectionConfig.max_results"
+                        :min="10"
+                        :max="200"
+                        :step="10"
+                        placeholder="选股结果数量"
+                        size="large"
+                        class="full-width"
+                      />
+                    </div>
+                  </el-col>
+                  <el-col :span="12">
+                    <div class="form-group">
+                      <label class="form-label">配置预设</label>
+                      <el-select 
+                        v-model="selectedPreset" 
+                        placeholder="选择预设配置"
+                        @change="applyPresetConfig"
+                        size="large"
+                        class="full-width"
+                      >
+                        <el-option label="保守策略" value="conservative" />
+                        <el-option label="平衡策略" value="balanced" />
+                        <el-option label="激进策略" value="aggressive" />
+                        <el-option label="自定义" value="custom" />
+                      </el-select>
+                    </div>
+                  </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                  <el-col :span="12">
+                    <div class="form-group">
+                      <label class="form-label">分析天数</label>
+                      <el-input-number
+                        v-model="selectionConfig.days"
+                        :min="30"
+                        :max="200"
+                        :step="10"
+                        size="large"
+                        class="full-width"
+                      />
+                    </div>
+                  </el-col>
+                  <el-col :span="12">
+                    <div class="form-group">
+                      <label class="form-label">金叉确认期间</label>
+                      <el-input-number
+                        v-model="selectionConfig.confirm_days"
+                        :min="1"
+                        :max="5"
+                        :step="1"
+                        size="large"
+                        class="full-width"
+                      />
+                    </div>
+                  </el-col>
+                </el-row>
+              </el-form>
+            </div>
+          </div>
 
-          <el-row :gutter="24">
-            <el-col :span="12">
-              <el-form-item label="背驰强度阈值">
-                <el-slider
-                  v-model="selectionConfig.min_backchi_strength"
-                  :min="0"
-                  :max="1"
-                  :step="0.1"
-                  :format-tooltip="formatTooltip"
-                  show-input
-                />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="绿柱面积比阈值（买入）">
-                <el-slider
-                  v-model="selectionConfig.min_area_ratio"
-                  :min="1.1"
-                  :max="3.0"
-                  :step="0.1"
-                  :format-tooltip="val => `${val.toFixed(1)}倍`"
-                  show-input
-                />
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <el-row :gutter="24">
-            <el-col :span="12">
-              <el-form-item label="红柱面积缩小比例（卖出）">
-                <el-slider
-                  v-model="selectionConfig.max_area_shrink_ratio"
-                  :min="0.5"
-                  :max="0.9"
-                  :step="0.05"
-                  :format-tooltip="val => `${(val*100).toFixed(0)}%`"
-                  show-input
-                />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="死叉确认期间（天）">
-                <el-input-number
-                  v-model="selectionConfig.death_cross_confirm_days"
-                  :min="1"
-                  :max="5"
-                  :step="1"
-                />
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <el-row :gutter="24">
-            <el-col :span="12">
-              <el-form-item label="分析天数">
-                <el-input-number
-                  v-model="selectionConfig.days"
-                  :min="30"
-                  :max="200"
-                  :step="10"
-                />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="金叉确认期间">
-                <el-input-number
-                  v-model="selectionConfig.confirm_days"
-                  :min="1"
-                  :max="5"
-                  :step="1"
-                />
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form>
+          <!-- 背驰参数 -->
+          <div class="config-section">
+            <div class="section-header">
+              <el-icon class="section-icon"><TrendCharts /></el-icon>
+              <span class="section-title">背驰参数</span>
+            </div>
+            <div class="section-content">
+              <el-form :model="selectionConfig" class="config-form">
+                <div class="slider-group">
+                  <label class="form-label">背驰强度阈值</label>
+                  <el-slider
+                    v-model="selectionConfig.min_backchi_strength"
+                    :min="0"
+                    :max="1"
+                    :step="0.1"
+                    :format-tooltip="formatTooltip"
+                    show-input
+                    class="config-slider"
+                  />
+                </div>
+                <div class="slider-group">
+                  <label class="form-label">绿柱面积比阈值（买入）</label>
+                  <el-slider
+                    v-model="selectionConfig.min_area_ratio"
+                    :min="1.1"
+                    :max="3.0"
+                    :step="0.1"
+                    :format-tooltip="val => `${val.toFixed(1)}倍`"
+                    show-input
+                    class="config-slider"
+                  />
+                </div>
+                <div class="slider-group">
+                  <label class="form-label">红柱面积缩小比例（卖出）</label>
+                  <el-slider
+                    v-model="selectionConfig.max_area_shrink_ratio"
+                    :min="0.5"
+                    :max="0.9"
+                    :step="0.05"
+                    :format-tooltip="val => `${(val*100).toFixed(0)}%`"
+                    show-input
+                    class="config-slider"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">死叉确认期间（天）</label>
+                  <el-input-number
+                    v-model="selectionConfig.death_cross_confirm_days"
+                    :min="1"
+                    :max="5"
+                    :step="1"
+                    size="large"
+                    style="width: 200px;"
+                  />
+                </div>
+              </el-form>
+            </div>
+          </div>
+        </div>
       </el-card>
 
       <!-- 选股结果 -->
@@ -135,13 +164,35 @@
         <template #header>
           <div class="card-header">
             <span class="card-title">选股结果</span>
-            <div class="result-stats">
-              <el-tag type="success" size="large">
-                筛选出 {{ totalResults }} 只股票
-              </el-tag>
-              <el-tag type="info" class="ml-2">
-                成功率 {{ (selectionResults.statistics?.success_rate || 0).toFixed(1) }}%
-              </el-tag>
+            <div class="result-actions">
+              <div class="result-stats">
+                <el-tag type="success" size="large">
+                  筛选出 {{ totalResults }} 只股票
+                </el-tag>
+                <el-tag type="info" class="ml-2">
+                  成功率 {{ (selectionResults.statistics?.success_rate || 0).toFixed(1) }}%
+                </el-tag>
+              </div>
+              <div class="export-buttons">
+                <el-button 
+                  type="success" 
+                  :icon="Download" 
+                  size="small"
+                  @click="exportToExcel"
+                  :disabled="!allResults || allResults.length === 0"
+                >
+                  导出Excel
+                </el-button>
+                <el-button 
+                  type="primary" 
+                  :icon="Document" 
+                  size="small"
+                  @click="exportToJson"
+                  :disabled="!allResults || allResults.length === 0"
+                >
+                  导出JSON
+                </el-button>
+              </div>
             </div>
           </div>
         </template>
@@ -176,10 +227,11 @@
             max-height="600"
             empty-text="暂无选股结果"
             @row-click="handleRowClick"
+            style="width: 100%"
           >
-            <el-table-column type="index" label="#" width="50" :index="getTableIndex" />
+            <el-table-column type="index" label="序号" width="60" :index="getTableIndex" />
             
-            <el-table-column prop="basic_info.symbol" label="股票代码" width="100">
+            <el-table-column prop="basic_info.symbol" label="股票代码" min-width="100">
               <template #default="{ row }">
                 <el-link type="primary" @click="viewStockDetail(row.basic_info.symbol)">
                   {{ row.basic_info.symbol }}
@@ -187,9 +239,9 @@
               </template>
             </el-table-column>
             
-            <el-table-column prop="basic_info.name" label="股票名称" width="120" />
+            <el-table-column prop="basic_info.name" label="股票名称" min-width="140" show-overflow-tooltip />
             
-            <el-table-column prop="scoring.overall_score" label="综合评分" width="100" sortable>
+            <el-table-column prop="scoring.overall_score" label="综合评分" min-width="120" sortable>
               <template #default="{ row }">
                 <el-progress
                   :percentage="Math.min(row.scoring.overall_score, 100)"
@@ -200,7 +252,7 @@
               </template>
             </el-table-column>
             
-            <el-table-column prop="scoring.signal_strength" label="信号强度" width="100">
+            <el-table-column prop="scoring.signal_strength" label="信号强度" min-width="100">
               <template #default="{ row }">
                 <el-tag 
                   :type="getStrengthType(row.scoring.signal_strength)"
@@ -211,7 +263,7 @@
               </template>
             </el-table-column>
             
-            <el-table-column prop="scoring.recommendation" label="投资建议" width="100">
+            <el-table-column prop="scoring.recommendation" label="投资建议" min-width="140" show-overflow-tooltip>
               <template #default="{ row }">
                 <el-tag 
                   :type="getRecommendationType(row.scoring.recommendation)"
@@ -222,7 +274,7 @@
               </template>
             </el-table-column>
             
-            <el-table-column label="背驰分析" width="150">
+            <el-table-column label="背驰分析" min-width="200">
               <template #default="{ row }">
                 <div class="analysis-info">
                   <div class="analysis-item">
@@ -249,7 +301,7 @@
               </template>
             </el-table-column>
             
-            <el-table-column label="技术分析" width="150">
+            <el-table-column label="技术分析" min-width="180">
               <template #default="{ row }">
                 <div class="analysis-info">
                   <div class="analysis-item">
@@ -271,7 +323,7 @@
               </template>
             </el-table-column>
             
-            <el-table-column label="关键价位" width="180">
+            <el-table-column label="关键价位" min-width="240">
               <template #default="{ row }">
                 <div class="price-info" v-if="row.key_prices.entry_price">
                   <div class="price-item">
@@ -295,7 +347,7 @@
               </template>
             </el-table-column>
             
-            <el-table-column label="分析时间" width="120">
+            <el-table-column label="分析时间" min-width="120">
               <template #default="{ row }">
                 <span class="text-sm text-gray-500">
                   {{ formatTime(row.basic_info.analysis_time) }}
@@ -346,7 +398,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { TrendCharts } from '@element-plus/icons-vue'
+import { TrendCharts, Download, Document, Setting } from '@element-plus/icons-vue'
 import { pythonApi } from '@/utils/api'
 import { useRouter } from 'vue-router'
 
@@ -425,6 +477,93 @@ const handleSizeChange = (val) => {
 
 const handleCurrentChange = (val) => {
   currentPage.value = val
+}
+
+// 导出功能函数
+const exportToExcel = () => {
+  try {
+    const data = allResults.value.map((row, index) => ({
+      '序号': index + 1,
+      '股票代码': row.basic_info?.symbol || '-',
+      '股票名称': row.basic_info?.name || '-',
+      '信号类型': row.basic_info?.signal_type || '-',
+      '综合评分': row.scoring?.overall_score || '-',
+      '信号强度': getStrengthText(row.scoring?.signal_strength) || '-',
+      '推荐等级': row.scoring?.recommendation || '-',
+      '背驰类型': row.backchi_analysis?.backchi_type === 'bottom' ? '底背驰' : (row.backchi_analysis?.backchi_type === 'top' ? '顶背驰' : '-'),
+      '可靠度': row.backchi_analysis?.reliability ? `${(row.backchi_analysis.reliability * 100).toFixed(1)}%` : '-',
+      'MACD状态': row.backchi_analysis?.has_macd_golden_cross ? '金叉' : (row.backchi_analysis?.has_macd_death_cross ? '死叉' : '中性'),
+      '入场价格': row.key_prices?.entry_price || '-',
+      '止损价格': row.key_prices?.stop_loss || '-',
+      '止盈价格': row.key_prices?.take_profit || '-',
+      '风险回报比': row.key_prices?.risk_reward_ratio || '-',
+      '分析时间': row.basic_info?.analysis_time ? new Date(row.basic_info.analysis_time).toLocaleString('zh-CN') : '-',
+      '背驰描述': row.backchi_analysis?.description || '-'
+    }))
+
+    // 创建CSV内容
+    const headers = Object.keys(data[0])
+    const csvContent = [
+      headers.join(','),
+      ...data.map(row => headers.map(header => `"${row[header]}"`).join(','))
+    ].join('\n')
+
+    // 添加BOM以支持中文
+    const BOM = '\uFEFF'
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' })
+    
+    // 创建下载链接
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '')
+    link.setAttribute('download', `缠论选股结果_${timestamp}.csv`)
+    
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    ElMessage.success('Excel文件导出成功！')
+  } catch (error) {
+    console.error('导出Excel失败:', error)
+    ElMessage.error('导出Excel失败，请重试')
+  }
+}
+
+const exportToJson = () => {
+  try {
+    const exportData = {
+      meta: {
+        export_time: new Date().toISOString(),
+        total_count: allResults.value.length,
+        selection_config: selectionConfig
+      },
+      statistics: selectionResults.value?.statistics || {},
+      results: allResults.value
+    }
+
+    const jsonContent = JSON.stringify(exportData, null, 2)
+    const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' })
+    
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '')
+    link.setAttribute('download', `缠论选股结果_${timestamp}.json`)
+    
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    ElMessage.success('JSON文件导出成功！')
+  } catch (error) {
+    console.error('导出JSON失败:', error)
+    ElMessage.error('导出JSON失败，请重试')
+  }
 }
 
 const getAreaRatioFromDescription = (description) => {
@@ -566,49 +705,111 @@ onMounted(() => {
 <style scoped>
 .stock-selection-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  background: var(--page-gradient);
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .page-header {
   text-align: center;
-  margin-bottom: 30px;
+  padding: var(--space-xl) var(--space-xl) 0;
+  margin-bottom: var(--space-2xl);
 }
 
 .page-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: white;
-  margin: 0 0 10px 0;
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #64b5f6 0%, #2196f3 50%, #1976d2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 var(--space-md) 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: var(--space-lg);
+  letter-spacing: -0.02em;
+}
+
+:root:not(.dark) .page-title {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark .page-title {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.page-title .el-icon {
+  color: #64b5f6;
+  font-size: 2.2rem;
+}
+
+:root:not(.dark) .page-title .el-icon {
+  filter: drop-shadow(0 1px 2px rgba(100, 181, 246, 0.2));
+}
+
+:root.dark .page-title .el-icon {
+  filter: drop-shadow(0 2px 4px rgba(100, 181, 246, 0.3));
 }
 
 .page-subtitle {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.8);
-  margin: 0;
-  max-width: 600px;
+  font-size: 1.125rem;
   margin: 0 auto;
-  line-height: 1.6;
+  max-width: 640px;
+  line-height: 1.7;
+  font-weight: 500;
+}
+
+:root:not(.dark) .page-subtitle {
+  color: #f57c00;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark .page-subtitle {
+  color: #ffa726;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 10px rgba(255, 167, 38, 0.3);
 }
 
 .page-content {
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
 }
 
 .config-panel,
 .results-panel,
 .empty-results {
-  margin-bottom: 20px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  background: var(--bg-glass);
+  backdrop-filter: var(--backdrop-blur);
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: none;
+  margin: 0;
+  padding: var(--space-xl);
+  width: 100%;
+  max-width: 100%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.results-panel .el-card__body {
+  padding: 0;
+}
+
+.results-panel,
+.empty-results {
+  border-bottom: none;
+}
+
+.config-panel:hover,
+.results-panel:hover {
+  transform: none;
+  background: var(--bg-elevated);
 }
 
 .card-header {
@@ -618,126 +819,584 @@ onMounted(() => {
 }
 
 .card-title {
-  font-weight: 600;
-  font-size: 18px;
-  color: var(--el-text-color-primary);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.result-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
 }
 
 .result-stats {
   display: flex;
   align-items: center;
+  gap: var(--space-md);
+}
+
+.export-buttons {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.config-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.config-section {
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-primary);
+  transition: all 0.3s ease;
+}
+
+.config-section:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-focus);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border-primary);
+}
+
+.section-icon {
+  font-size: 1.2rem;
+  color: var(--color-primary);
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.section-content {
+  padding: 0;
 }
 
 .config-form {
-  padding: 20px;
+  margin: 0;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.slider-group {
+  margin-bottom: 2rem;
+}
+
+.slider-group .form-label {
+  margin-bottom: 1rem;
+}
+
+.config-slider {
+  padding-right: 1rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.config-form :deep(.el-form-item__label) {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.config-form :deep(.el-input__wrapper) {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.config-form :deep(.el-input__wrapper:hover) {
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-sm);
+}
+
+.config-form :deep(.el-input__wrapper.is-focus) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 .statistics-section {
-  margin-bottom: 20px;
-  padding: 20px;
-  background: rgba(102, 126, 234, 0.05);
-  border-radius: 12px;
+  margin: 0 0 var(--space-xl) 0;
+  padding: var(--space-xl);
+  background: linear-gradient(135deg, 
+    var(--bg-elevated) 0%, 
+    rgba(255, 255, 255, 0.05) 50%, 
+    var(--bg-elevated) 100%);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-lg);
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: var(--space-lg);
+  width: 100%;
 }
 
 .stat-item {
   text-align: center;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 8px;
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  padding: var(--space-lg);
+  background: linear-gradient(135deg, 
+    var(--bg-secondary) 0%, 
+    rgba(255, 255, 255, 0.05) 50%, 
+    var(--bg-secondary) 100%);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--border-focus);
+  background: linear-gradient(135deg, 
+    var(--bg-elevated) 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    var(--bg-elevated) 100%);
+}
+
+.stat-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.stat-item:hover::before {
+  left: 100%;
 }
 
 .stat-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: #667eea;
-  margin-bottom: 4px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin-bottom: var(--space-xs);
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .stat-label {
-  font-size: 12px;
-  color: var(--el-text-color-secondary);
-  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .results-table {
-  padding: 0 20px 20px;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.results-panel {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* 现代化表格样式 */
+.results-table :deep(.el-table) {
+  background-color: var(--bg-elevated);
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+  border: none;
+  border-top: 1px solid var(--border-primary);
+  width: 100% !important;
+  table-layout: auto;
+}
+
+.results-table :deep(.el-table .el-table__cell) {
+  padding: var(--space-md) var(--space-sm);
+}
+
+.results-table :deep(.el-table__inner-wrapper) {
+  width: 100% !important;
+}
+
+.results-table :deep(.el-table__header-wrapper),
+.results-table :deep(.el-table__body-wrapper) {
+  width: 100% !important;
+}
+
+.results-table :deep(.el-table__header) {
+  background-color: var(--bg-secondary);
+}
+
+.results-table :deep(.el-table__header th) {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--border-primary);
+  padding: var(--space-lg) var(--space-md);
+}
+
+.results-table :deep(.el-table__body tr) {
+  background-color: var(--bg-elevated);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.results-table :deep(.el-table__body tr:hover) {
+  background-color: var(--bg-secondary);
+  transform: scale(1.005);
+  box-shadow: var(--shadow-md);
+}
+
+.results-table :deep(.el-table__body td) {
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-primary);
+  padding: var(--space-md);
+}
+
+.results-table :deep(.el-table__empty-text) {
+  color: var(--text-secondary);
 }
 
 .pagination-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
-  padding: 20px 0;
-  border-top: 1px solid var(--el-border-color-lighter);
+  margin: var(--space-xl) 0 0 0;
+  padding: var(--space-xl) var(--space-xl) 0;
+  border-top: 1px solid var(--border-primary);
+  background: var(--bg-elevated);
+}
+
+.pagination-wrapper :deep(.el-pagination) {
+  background-color: transparent;
+}
+
+.pagination-wrapper :deep(.el-pagination .el-pager li) {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  margin: 0 var(--space-xs);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pagination-wrapper :deep(.el-pagination .el-pager li:hover) {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.pagination-wrapper :deep(.el-pagination .el-pager li.is-active) {
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.pagination-wrapper :deep(.el-pagination .btn-prev),
+.pagination-wrapper :deep(.el-pagination .btn-next) {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pagination-wrapper :deep(.el-pagination .btn-prev:hover),
+.pagination-wrapper :deep(.el-pagination .btn-next:hover) {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
 }
 
 .analysis-info {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  font-size: 0.75rem;
 }
 
 .analysis-item {
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-wrap: wrap;
 }
+
+.analysis-item .text-sm {
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+
+/* 现代化按钮样式 */
+:deep(.el-button) {
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+:deep(.el-button:hover) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+:deep(.el-button--primary) {
+  background: var(--gradient-primary);
+  border: none;
+  color: var(--text-inverse);
+}
+
+:deep(.el-button--success) {
+  background: var(--gradient-success);
+  border: none;
+  color: var(--text-inverse);
+}
+
+:deep(.el-button--warning) {
+  background: var(--gradient-warning);
+  border: none;
+  color: var(--text-inverse);
+}
+
+/* 现代化标签样式 */
+:deep(.el-tag) {
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: var(--space-xs) var(--space-md);
+  border: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+:deep(.el-tag--success) {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+:deep(.el-tag--info) {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+:deep(.el-tag--warning) {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+:deep(.el-tag--danger) {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+
 
 .price-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: 12px;
+  gap: 3px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
 }
 
 .price-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  white-space: nowrap;
 }
 
 .price-label {
   font-weight: 500;
   color: var(--el-text-color-secondary);
-  min-width: 30px;
+  min-width: 35px;
+  font-size: 0.7rem;
 }
 
 .price-value {
   font-weight: 600;
   color: var(--el-text-color-primary);
+  font-size: 0.75rem;
 }
 
 /* 响应式设计 */
 @media (max-width: 1200px) {
+  .page-content {
+    max-width: 100%;
+    padding: 0;
+  }
+  
+  .config-panel,
+  .results-panel,
+  .empty-results {
+    padding: var(--space-lg);
+  }
+  
   .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-md);
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
   }
 }
 
 @media (max-width: 768px) {
-  .page-content {
-    padding: 0 10px;
+  .stock-selection-page {
+    padding: 0;
   }
   
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .page-header {
+    padding: var(--space-lg) var(--space-md) 0;
   }
   
   .page-title {
-    font-size: 24px;
+    font-size: 2rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1rem;
+  }
+  
+  .config-panel,
+  .results-panel,
+  .empty-results {
+    padding: var(--space-md);
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+  
+  .result-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .export-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--space-sm);
+  }
+  
+  .stat-item {
+    padding: var(--space-md);
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
+  }
+  
+  .stat-label {
+    font-size: 0.75rem;
   }
   
   .config-form {
-    padding: 10px;
+    padding: var(--space-md);
+  }
+  
+  .results-table {
+    padding: 0;
+    margin: 0;
+  }
+  
+  .results-table :deep(.el-table__header th) {
+    padding: var(--space-md) var(--space-sm);
+    font-size: 0.75rem;
+  }
+  
+  .results-table :deep(.el-table__body td) {
+    padding: var(--space-sm);
+    font-size: 0.875rem;
+  }
+  
+  .pagination-wrapper {
+    padding: var(--space-md) var(--space-md) 0;
   }
 }
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.75rem;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+  }
+  
+  .stat-item {
+    padding: var(--space-md);
+  }
+  
+  .results-table :deep(.el-table) {
+    font-size: 0.75rem;
+  }
+  
+  .analysis-info {
+    gap: 2px;
+  }
+  
+  .analysis-item .text-sm {
+    font-size: 0.625rem;
+  }
+}
+
+
+
+
+
+
 
 /* 工具类 */
 .ml-1 { margin-left: 4px; }

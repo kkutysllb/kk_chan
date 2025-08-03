@@ -7,9 +7,7 @@
           <div class="logo-section">
             <div class="logo-wrapper">
               <div class="logo-icon">
-                <svg viewBox="0 0 24 24" class="icon-svg">
-                  <path d="M3 13h8V3H9v6H3v4zm0 8h6v-6H3v6zm10 0h8v-6h-2v4h-6v2zm8-8V9h-6v4h6z" fill="currentColor"/>
-                </svg>
+                <img src="@/assets/images/logo.jpg" alt="KK缠论" class="logo-image" />
               </div>
               <div class="logo-text">
                 <h1 class="app-title">KK缠论</h1>
@@ -29,8 +27,8 @@
             <div class="nav-group">
               <el-button 
                 type="primary" 
-                :class="{ active: $route.name === 'Home' }"
-                @click="$router.push('/')"
+                :class="{ active: $route.name === 'Analysis' }"
+                @click="$router.push('/analysis')"
                 size="small"
                 round
               >
@@ -63,16 +61,8 @@
                 </button>
               </el-tooltip>
               
-              <el-tooltip :content="isDark ? '切换到亮色模式' : '切换到暗色模式'" placement="bottom">
-                <button 
-                  class="action-btn theme-btn"
-                  @click="toggleTheme"
-                >
-                  <el-icon>
-                    <component :is="isDark ? Sunny : Moon" />
-                  </el-icon>
-                </button>
-              </el-tooltip>
+              <!-- 主题切换组件 -->
+              <ThemeToggle />
               
               <el-tooltip content="设置" placement="bottom">
                 <button class="action-btn settings-btn">
@@ -101,13 +91,15 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { RefreshRight, Sunny, Moon, Setting, TrendCharts, DataAnalysis } from '@element-plus/icons-vue'
+import { RefreshRight, Setting, TrendCharts, DataAnalysis } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useGlobalStore } from '@/stores/global'
+import { useThemeStore } from '@/stores/theme'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 
 const global = useGlobalStore()
+const themeStore = useThemeStore()
 const refreshing = ref(false)
-const isDark = ref(false)
 const isConnected = ref(true)
 
 // 模拟连接状态
@@ -130,25 +122,9 @@ const refreshData = async () => {
   }
 }
 
-// 切换主题
-const toggleTheme = () => {
-  isDark.value = !isDark.value
-  const html = document.documentElement
-  if (isDark.value) {
-    html.classList.add('dark')
-  } else {
-    html.classList.remove('dark')
-  }
-  localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
-}
-
 // 初始化主题
 onMounted(() => {
-  const savedTheme = localStorage.getItem('theme')
-  isDark.value = savedTheme === 'dark'
-  if (isDark.value) {
-    document.documentElement.classList.add('dark')
-  }
+  themeStore.initTheme()
 })
 </script>
 
@@ -157,7 +133,7 @@ onMounted(() => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--bg-primary);
   position: relative;
 }
 
@@ -257,18 +233,19 @@ onMounted(() => {
 .logo-icon {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
 }
 
-.icon-svg {
-  width: 24px;
-  height: 24px;
-  color: white;
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
 }
 
 .logo-text {
@@ -276,7 +253,8 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.app-title {
+/* 深色主题 */
+:root.dark .app-title {
   margin: 0;
   font-size: 24px;
   font-weight: 700;
@@ -285,9 +263,26 @@ onMounted(() => {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.app-subtitle {
+:root.dark .app-subtitle {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* 浅色主题 */
+:root:not(.dark) .app-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.2;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+:root:not(.dark) .app-subtitle {
+  font-size: 12px;
+  color: #6b7280;
   font-weight: 500;
   letter-spacing: 0.5px;
 }
@@ -299,7 +294,8 @@ onMounted(() => {
   justify-content: center;
 }
 
-.status-indicator {
+/* 深色主题 */
+:root.dark .status-indicator {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -307,6 +303,30 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   backdrop-filter: blur(10px);
+}
+
+:root.dark .status-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+/* 浅色主题 */
+:root:not(.dark) .status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+:root:not(.dark) .status-text {
+  font-size: 12px;
+  color: #374151;
+  font-weight: 500;
 }
 
 .status-dot {
@@ -320,12 +340,6 @@ onMounted(() => {
 .status-dot.active {
   background: #10b981;
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
-}
-
-.status-text {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
 }
 
 /* 操作按钮区域 */
@@ -343,7 +357,8 @@ onMounted(() => {
   gap: 12px;
 }
 
-.nav-group .el-button {
+/* 深色主题导航按钮 */
+:root.dark .nav-group .el-button {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
@@ -351,17 +366,40 @@ onMounted(() => {
   transition: all 0.3s ease;
 }
 
-.nav-group .el-button:hover {
+:root.dark .nav-group .el-button:hover {
   background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-.nav-group .el-button.active {
+:root.dark .nav-group .el-button.active {
   background: rgba(255, 255, 255, 0.9);
   color: #667eea;
   border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+}
+
+/* 浅色主题导航按钮 */
+:root:not(.dark) .nav-group .el-button {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #374151;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+:root:not(.dark) .nav-group .el-button:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+:root:not(.dark) .nav-group .el-button.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
   box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
 }
 
@@ -371,7 +409,8 @@ onMounted(() => {
   gap: 8px;
 }
 
-.action-btn {
+/* 深色主题 */
+:root.dark .action-btn {
   width: 44px;
   height: 44px;
   border: none;
@@ -387,8 +426,32 @@ onMounted(() => {
   font-size: 18px;
 }
 
-.action-btn:hover {
+:root.dark .action-btn:hover {
   background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* 浅色主题 */
+:root:not(.dark) .action-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+  color: #374151;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+:root:not(.dark) .action-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
@@ -450,6 +513,13 @@ onMounted(() => {
   .logo-icon {
     width: 40px;
     height: 40px;
+  }
+  
+  .logo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
   }
   
   .app-title {

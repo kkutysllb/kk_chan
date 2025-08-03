@@ -217,306 +217,367 @@ class MacdCalculator:
 
 
 class DynamicsAnalyzer:
-    """动力学分析器 - 缠论动力学分析的核心类"""
+    """动力学分析器 - 基于简化MACD背驰算法的核心类"""
     
-    def __init__(self, macd_params: Tuple[int, int, int] = (12, 26, 9)):
-        self.macd_calculator = MacdCalculator(*macd_params)
-        self.macd_data_cache: Dict[str, List[MacdData]] = {}
+    def __init__(self, config=None):
+        self.macd_calculator = MacdCalculator()
+        # 使用SimpleBackchiAnalyzer的统一配置，确保完全一致
+        from .simple_backchi import SimpleBackchiAnalyzer
+        self.config = SimpleBackchiAnalyzer.get_default_config()
+        # 添加DynamicsAnalyzer特有的配置
+        self.config.update({
+            'min_reliability': 0.3,          # 最小可靠度 (与选股器的min_backchi_strength一致)
+        })
+        if config:
+            self.config.update(config)
     
-    def analyze_backchi(self, 
-                       segs: SegList, 
-                       zhongshus: ZhongShuList,
-                       klines: KLineList) -> List[BackChiAnalysis]:
+    def analyze_simple_backchi(self, klines: KLineList) -> List[BackChiAnalysis]:
         """
-        分析背驰
-        
-        背驰分析的核心原理：
-        1. 必须有中枢作为比较基准
-        2. 比较中枢前后两段的力度
-        3. 后段力度明显小于前段力度则形成背驰
+        简化背驰分析：基于MACD红绿柱面积对比
+        不依赖线段和中枢，直接分析MACD信号
         """
-        if len(segs) < 3 or len(zhongshus) == 0:
+        if len(klines) < 20:
             return []
         
         # 计算MACD数据
         close_prices = [kline.close for kline in klines]
         macd_data = self.macd_calculator.calculate(close_prices)
         
+        if len(macd_data) < 20:
+            return []
+        
+        # 使用简化背驰分析器，传递正确的配置
+        from .simple_backchi import SimpleBackchiAnalyzer
+        analyzer = SimpleBackchiAnalyzer(self.config)
+        backchi_type, reliability, description = analyzer.analyze_backchi(klines, macd_data)
+        
         backchi_results = []
         
-        for zhongshu in zhongshus:
-            # 寻找离开中枢的线段（基于价格，而非时间）
-            leaving_segs = []
-            for seg in segs:
-                # 检查线段是否离开了中枢区间
-                if (seg.is_up and seg.end_price > zhongshu.high) or \
-                   (seg.is_down and seg.end_price < zhongshu.low):
-                    leaving_segs.append(seg)
+        if backchi_type and reliability >= self.config['min_reliability']:
+            # 创建简化的背驰分析结果
+            latest_kline = klines[-1]
             
-            # 对每个离开中枢的线段，寻找同向的比较线段
-            for current_seg in leaving_segs:
-                # 寻找同向的前驱线段进行比较
-                previous_seg = None
-                
-                # 从当前线段往前找同向线段
-                for seg in reversed(segs):
-                    if seg == current_seg:
-                        continue
-                    if seg.end_time >= current_seg.start_time:
-                        continue  # 必须是之前的线段
-                    if seg.direction == current_seg.direction:
-                        previous_seg = seg
-                        break
-                
-                if previous_seg:
-                    backchi = self._analyze_seg_backchi(
-                        current_seg, previous_seg, zhongshu, macd_data, klines
-                    )
-                    
-                    if backchi and backchi.is_valid_backchi():
-                        backchi_results.append(backchi)
+            backchi = BackChiAnalysis(
+                backchi_type=BackChi.BOTTOM_BACKCHI if backchi_type == "bottom" else BackChi.TOP_BACKCHI,
+                current_seg=None,      # 简化算法不使用线段
+                previous_seg=None,     # 简化算法不使用线段
+                zhongshu=None,         # 简化算法不使用中枢
+                current_macd_area=0.0, # 实际值由analyzer计算
+                previous_macd_area=0.0,# 实际值由analyzer计算
+                macd_divergence=0.0,   # 简化版本不计算
+                current_strength=reliability,
+                previous_strength=0.0,
+                strength_ratio=reliability,
+                reliability=reliability
+            )
+            backchi_results.append(backchi)
         
         return backchi_results
     
-    def _analyze_seg_backchi(self, 
-                           current_seg: Seg,
-                           previous_seg: Seg, 
-                           zhongshu: ZhongShu,
-                           macd_data: List[MacdData],
-                           klines: KLineList) -> Optional[BackChiAnalysis]:
-        """分析两个线段之间的背驰"""
+    def get_latest_signals(self, klines: KLineList, timeframe: str = "30min") -> List[Dict[str, Any]]:
+        """获取最新的买卖信号"""
+        backchi_results = self.analyze_simple_backchi(klines)
         
-        # 计算线段对应的MACD面积
-        current_macd_area = self._calculate_macd_area(current_seg, macd_data, klines)
-        previous_macd_area = self._calculate_macd_area(previous_seg, macd_data, klines)
+        signals = []
+        for backchi in backchi_results:
+            if backchi.backchi_type != BackChi.NONE:
+                signal = {
+                    "type": "买入" if backchi.backchi_type == BackChi.BOTTOM_BACKCHI else "卖出",
+                    "timeframe": timeframe,
+                    "reliability": backchi.reliability,
+                    "strength": backchi.current_strength,
+                    "description": f"{'底背驰' if backchi.backchi_type == BackChi.BOTTOM_BACKCHI else '顶背驰'}信号"
+                }
+                signals.append(signal)
         
-        if current_macd_area == 0 or previous_macd_area == 0:
-            return None
-        
-        # 计算背离度
-        macd_divergence = abs(current_macd_area - previous_macd_area) / max(abs(current_macd_area), abs(previous_macd_area))
-        
-        # 计算线段力度
-        current_strength = self._calculate_seg_strength(current_seg)
-        previous_strength = self._calculate_seg_strength(previous_seg)
-        strength_ratio = current_strength / previous_strength if previous_strength > 0 else 1.0
-        
-        # 判断背驰类型
-        backchi_type = BackChi.NONE
-        if current_seg.is_up:
-            # 上升线段：价格创新高但MACD面积减小
-            if (current_seg.end_price > previous_seg.end_price and 
-                current_macd_area < previous_macd_area * 0.8):
-                backchi_type = BackChi.TOP_BACKCHI
-        else:
-            # 下降线段：价格创新低但MACD面积减小  
-            if (current_seg.end_price < previous_seg.end_price and
-                abs(current_macd_area) < abs(previous_macd_area) * 0.8):
-                backchi_type = BackChi.BOTTOM_BACKCHI
-        
-        # 计算可靠度
-        reliability = self._calculate_backchi_reliability(
-            current_seg, previous_seg, macd_divergence, strength_ratio
-        )
-        
-        return BackChiAnalysis(
-            backchi_type=backchi_type,
-            current_seg=current_seg,
-            previous_seg=previous_seg,
-            zhongshu=zhongshu,
-            current_macd_area=current_macd_area,
-            previous_macd_area=previous_macd_area,
-            macd_divergence=macd_divergence,
-            current_strength=current_strength,
-            previous_strength=previous_strength,
-            strength_ratio=strength_ratio,
-            reliability=reliability
-        )
+        return signals
     
-    def _calculate_macd_area(self, seg: Seg, macd_data: List[MacdData], klines: KLineList) -> float:
-        """计算线段对应的MACD面积"""
-        if not macd_data:
-            return 0.0
-        
-        # 找到线段对应的K线范围
-        start_idx = None
-        end_idx = None
-        
-        for i, kline in enumerate(klines):
-            if start_idx is None and kline.timestamp >= seg.start_time:
-                start_idx = i
-            if kline.timestamp <= seg.end_time:
-                end_idx = i
-        
-        if start_idx is None or end_idx is None or start_idx >= len(macd_data):
-            return 0.0
-        
-        # 计算MACD柱的面积（绝对值之和）
-        macd_area = 0.0
-        macd_start_idx = max(0, start_idx - len(klines) + len(macd_data))
-        macd_end_idx = min(len(macd_data) - 1, end_idx - len(klines) + len(macd_data))
-        
-        for i in range(macd_start_idx, macd_end_idx + 1):
-            if 0 <= i < len(macd_data):
-                macd_area += abs(macd_data[i].macd)
-        
-        return macd_area
     
-    def _calculate_seg_strength(self, seg: Seg) -> float:
-        """计算线段力度"""
-        # 综合考虑价格幅度、时间长度、成交量等因素
-        price_amplitude = abs(seg.end_price - seg.start_price) / seg.start_price
-        time_factor = 1.0 / max(1, seg.duration)  # 时间越短力度越大
-        
-        return price_amplitude * time_factor * seg.strength
-    
-    def _calculate_backchi_reliability(self, 
-                                     current_seg: Seg,
-                                     previous_seg: Seg, 
-                                     macd_divergence: float,
-                                     strength_ratio: float) -> float:
-        """计算背驰可靠度"""
-        reliability = 0.0
-        
-        # MACD背离度贡献
-        reliability += min(macd_divergence * 2, 0.4)
-        
-        # 力度比值贡献
-        strength_factor = abs(1.0 - strength_ratio)
-        reliability += min(strength_factor * 2, 0.3)
-        
-        # 线段质量贡献
-        seg_quality = (current_seg.integrity + previous_seg.integrity) / 2
-        reliability += seg_quality * 0.3
-        
-        return min(reliability, 1.0)
-    
-    def identify_buy_sell_points(self,
-                               backchi_analyses: List[BackChiAnalysis],
-                               segs: SegList,
-                               zhongshus: ZhongShuList,
-                               klines: KLineList) -> List[BuySellPoint]:
-        """识别一二三类买卖点"""
+    def identify_buy_sell_points(self, klines: KLineList) -> List[BuySellPoint]:
+        """识别简化买卖点（用于选股等简化场景）"""
         buy_sell_points = []
         
-        # 1类买卖点：背驰转折点
-        for backchi in backchi_analyses:
-            if backchi.is_valid_backchi():
+        # 直接使用简化背驰分析生成买卖点
+        backchi_results = self.analyze_simple_backchi(klines)
+        
+        for backchi in backchi_results:
+            if backchi.backchi_type != BackChi.NONE:
+                latest_kline = klines[-1]
+                
                 point_type = (BuySellPointType.BUY_1 if backchi.backchi_type == BackChi.BOTTOM_BACKCHI 
                             else BuySellPointType.SELL_1)
                 
                 point = BuySellPoint(
                     point_type=point_type,
-                    timestamp=backchi.current_seg.end_time,
-                    price=backchi.current_seg.end_price,
-                    kline_index=0,  # 需要实际计算
-                    related_zhongshu=backchi.zhongshu,
-                    related_seg=backchi.current_seg,
+                    timestamp=latest_kline.timestamp,
+                    price=latest_kline.close,
+                    kline_index=len(klines) - 1,
+                    related_zhongshu=None,     # 简化算法不依赖中枢
+                    related_seg=None,          # 简化算法不依赖线段
                     backchi_type=backchi.backchi_type,
                     strength=backchi.current_strength,
                     reliability=backchi.reliability
                 )
                 buy_sell_points.append(point)
         
-        # 2类买卖点：第一类买卖点后的回调确认
-        buy_sell_points.extend(self._identify_second_buy_sell_points(buy_sell_points, segs, zhongshus))
-        
-        # 3类买卖点：中枢突破后的回试
-        buy_sell_points.extend(self._identify_third_buy_sell_points(segs, zhongshus))
-        
-        return sorted(buy_sell_points, key=lambda x: x.timestamp)
+        return buy_sell_points
     
-    def _identify_second_buy_sell_points(self, 
-                                       first_points: List[BuySellPoint],
-                                       segs: SegList,
-                                       zhongshus: ZhongShuList) -> List[BuySellPoint]:
-        """识别二类买卖点"""
-        second_points = []
+    def identify_chan_buy_sell_points(self, 
+                                    klines: KLineList,
+                                    segs: SegList, 
+                                    zhongshus: ZhongShuList,
+                                    bis: BiList = None) -> List[BuySellPoint]:
+        """
+        识别经典缠论买卖点
+        基于缠中说禅理论的完整一二三类买卖点识别
+        
+        Args:
+            klines: K线数据
+            segs: 线段数据  
+            zhongshus: 中枢数据
+            bis: 笔数据（可选）
+            
+        Returns:
+            经典缠论买卖点列表
+        """
+        buy_sell_points = []
+        
+        if len(segs) < 3 or len(zhongshus) == 0:
+            # 没有足够的线段或中枢时，降级使用简化背驰分析
+            backchi_results = self.analyze_simple_backchi(klines)
+            
+            for backchi in backchi_results:
+                if backchi.backchi_type != BackChi.NONE:
+                    latest_kline = klines[-1]
+                    
+                    point_type = (BuySellPointType.BUY_1 if backchi.backchi_type == BackChi.BOTTOM_BACKCHI 
+                                else BuySellPointType.SELL_1)
+                    
+                    point = BuySellPoint(
+                        point_type=point_type,
+                        timestamp=latest_kline.timestamp,
+                        price=latest_kline.close,
+                        kline_index=len(klines) - 1,
+                        related_zhongshu=None,
+                        related_seg=None,
+                        backchi_type=backchi.backchi_type,
+                        strength=backchi.current_strength if hasattr(backchi, 'current_strength') else 0.5,
+                        reliability=backchi.reliability if hasattr(backchi, 'reliability') else 0.6
+                    )
+                    buy_sell_points.append(point)
+            
+            return buy_sell_points
+        
+        # 1. 识别第一类买卖点（基于背驰+中枢）
+        first_class_points = self._identify_first_class_points(klines, segs, zhongshus)
+        buy_sell_points.extend(first_class_points)
+        
+        # 2. 识别第二类买卖点（第一类买点的次级别回抽确认）
+        second_class_points = self._identify_second_class_points(klines, segs, zhongshus, first_class_points)
+        buy_sell_points.extend(second_class_points)
+        
+        # 3. 识别第三类买卖点（中枢突破后回试确认）
+        third_class_points = self._identify_third_class_points(klines, segs, zhongshus)
+        buy_sell_points.extend(third_class_points)
+        
+        # 按时间排序
+        buy_sell_points.sort(key=lambda x: x.timestamp)
+        
+        return buy_sell_points
+    
+    def _identify_first_class_points(self, klines: KLineList, segs: SegList, zhongshus: ZhongShuList) -> List[BuySellPoint]:
+        """识别第一类买卖点：背驰+趋势转折"""
+        points = []
+        
+        # 必须有足够的线段构成趋势
+        if len(segs) < 5:
+            return points
+            
+        # 寻找趋势段 + 中枢 + 背驰的组合
+        for i in range(2, len(zhongshus)):
+            zhongshu = zhongshus[i]
+            
+            # 获取中枢前后的线段
+            pre_segs = self._get_segs_before_zhongshu(segs, zhongshu)
+            post_segs = self._get_segs_after_zhongshu(segs, zhongshu)
+            
+            if len(pre_segs) < 2 or len(post_segs) < 1:
+                continue
+                
+            # 检查是否形成趋势
+            if self._is_trend_sequence(pre_segs):
+                # 检查背驰
+                last_trend_seg = post_segs[0] if post_segs else None
+                if last_trend_seg and self._check_backchi_with_zhongshu(pre_segs[-1], last_trend_seg, zhongshu):
+                    # 创建第一类买卖点
+                    point_type = (BuySellPointType.BUY_1 if last_trend_seg.direction == SegDirection.DOWN 
+                                else BuySellPointType.SELL_1)
+                    
+                    # 找到对应的K线
+                    seg_end_time = last_trend_seg.end_time
+                    kline_index = self._find_kline_index_by_time(klines, seg_end_time)
+                    
+                    if kline_index >= 0:
+                        point = BuySellPoint(
+                            point_type=point_type,
+                            timestamp=seg_end_time,
+                            price=last_trend_seg.end_price,
+                            kline_index=kline_index,
+                            related_zhongshu=zhongshu,
+                            related_seg=last_trend_seg,
+                            backchi_type=BackChi.BOTTOM_BACKCHI if point_type.is_buy() else BackChi.TOP_BACKCHI,
+                            strength=last_trend_seg.strength,
+                            reliability=0.8  # 第一类买点可靠度较高
+                        )
+                        points.append(point)
+        
+        return points
+    
+    def _identify_second_class_points(self, klines: KLineList, segs: SegList, 
+                                    zhongshus: ZhongShuList, first_points: List[BuySellPoint]) -> List[BuySellPoint]:
+        """识别第二类买卖点：第一类买点的次级别回抽确认"""
+        points = []
         
         for first_point in first_points:
-            if not first_point.point_type in [BuySellPointType.BUY_1, BuySellPointType.SELL_1]:
+            if not first_point.related_seg:
                 continue
-            
-            # 查找第一类买卖点后的首次回调
-            is_buy_point = first_point.point_type == BuySellPointType.BUY_1
-            
-            for seg in segs:
-                if seg.start_time <= first_point.timestamp:
-                    continue
                 
-                # 找到反向的第一个线段作为回调
-                if ((is_buy_point and seg.is_down) or 
-                    (not is_buy_point and seg.is_up)):
+            # 寻找第一类买点后的回抽
+            later_segs = self._get_segs_after_time(segs, first_point.timestamp)
+            
+            if len(later_segs) >= 2:
+                # 第一段：离开第一类买点
+                # 第二段：回抽测试
+                test_seg = later_segs[1] if len(later_segs) > 1 else None
+                
+                if test_seg and self._is_valid_second_class_test(first_point, test_seg):
+                    point_type = (BuySellPointType.BUY_2 if first_point.point_type.is_buy() 
+                                else BuySellPointType.SELL_2)
                     
-                    point_type = BuySellPointType.BUY_2 if is_buy_point else BuySellPointType.SELL_2
+                    kline_index = self._find_kline_index_by_time(klines, test_seg.end_time)
                     
-                    second_point = BuySellPoint(
-                        point_type=point_type,
-                        timestamp=seg.end_time,
-                        price=seg.end_price,
-                        kline_index=0,
-                        related_seg=seg,
-                        related_zhongshu=first_point.related_zhongshu,
-                        strength=seg.strength,
-                        reliability=0.7  # 二类买卖点相对可靠
-                    )
-                    second_points.append(second_point)
-                    break
+                    if kline_index >= 0:
+                        point = BuySellPoint(
+                            point_type=point_type,
+                            timestamp=test_seg.end_time,
+                            price=test_seg.end_price,
+                            kline_index=kline_index,
+                            related_zhongshu=first_point.related_zhongshu,
+                            related_seg=test_seg,
+                            strength=test_seg.strength,
+                            reliability=0.7  # 第二类买点可靠度中等
+                        )
+                        points.append(point)
         
-        return second_points
+        return points
     
-    def _identify_third_buy_sell_points(self, 
-                                      segs: SegList,
-                                      zhongshus: ZhongShuList) -> List[BuySellPoint]:
-        """识别三类买卖点"""
-        third_points = []
+    def _identify_third_class_points(self, klines: KLineList, segs: SegList, zhongshus: ZhongShuList) -> List[BuySellPoint]:
+        """识别第三类买卖点：次级别离开中枢后回试不破"""
+        points = []
         
         for zhongshu in zhongshus:
-            # 查找突破中枢的线段
-            breakout_segs = [seg for seg in segs if seg.start_time >= zhongshu.end_time]
-            
-            for i, seg in enumerate(breakout_segs[:3]):  # 只看前3个线段
-                # 向上突破后的回试
-                if (seg.is_up and seg.start_price > zhongshu.high and 
-                    i + 1 < len(breakout_segs)):
-                    
-                    next_seg = breakout_segs[i + 1]
-                    if (next_seg.is_down and 
-                        next_seg.end_price > zhongshu.high):  # 回试不破中枢上沿
-                        
-                        third_point = BuySellPoint(
-                            point_type=BuySellPointType.BUY_3,
-                            timestamp=next_seg.end_time,
-                            price=next_seg.end_price,
-                            kline_index=0,
-                            related_seg=next_seg,
-                            related_zhongshu=zhongshu,
-                            strength=next_seg.strength,
-                            reliability=0.6  # 三类买卖点相对风险较高
-                        )
-                        third_points.append(third_point)
+            if not zhongshu.is_finished:
+                continue
                 
-                # 向下突破后的回试
-                elif (seg.is_down and seg.start_price < zhongshu.low and
-                      i + 1 < len(breakout_segs)):
+            # 获取离开中枢的线段
+            leaving_segs = self._get_segs_leaving_zhongshu(segs, zhongshu)
+            
+            for leaving_seg in leaving_segs:
+                # 寻找回试线段
+                later_segs = self._get_segs_after_time(segs, leaving_seg.end_time)
+                
+                if len(later_segs) >= 1:
+                    test_seg = later_segs[0]
                     
-                    next_seg = breakout_segs[i + 1]
-                    if (next_seg.is_up and 
-                        next_seg.end_price < zhongshu.low):  # 回试不破中枢下沿
+                    # 检查是否为有效的第三类买卖点
+                    if self._is_valid_third_class_test(zhongshu, leaving_seg, test_seg):
+                        point_type = (BuySellPointType.BUY_3 if leaving_seg.direction == SegDirection.UP 
+                                    else BuySellPointType.SELL_3)
                         
-                        third_point = BuySellPoint(
-                            point_type=BuySellPointType.SELL_3,
-                            timestamp=next_seg.end_time,
-                            price=next_seg.end_price,
-                            kline_index=0,
-                            related_seg=next_seg,
-                            related_zhongshu=zhongshu,
-                            strength=next_seg.strength,
-                            reliability=0.6
-                        )
-                        third_points.append(third_point)
+                        kline_index = self._find_kline_index_by_time(klines, test_seg.end_time)
+                        
+                        if kline_index >= 0:
+                            point = BuySellPoint(
+                                point_type=point_type,
+                                timestamp=test_seg.end_time,
+                                price=test_seg.end_price,
+                                kline_index=kline_index,
+                                related_zhongshu=zhongshu,
+                                related_seg=test_seg,
+                                strength=test_seg.strength,
+                                reliability=0.9  # 第三类买点可靠度最高
+                            )
+                            points.append(point)
         
-        return third_points
+        return points
+    
+    def _get_segs_before_zhongshu(self, segs: SegList, zhongshu: ZhongShu) -> List[Seg]:
+        """获取中枢前的线段"""
+        return [seg for seg in segs if seg.end_time <= zhongshu.start_time]
+    
+    def _get_segs_after_zhongshu(self, segs: SegList, zhongshu: ZhongShu) -> List[Seg]:
+        """获取中枢后的线段"""
+        return [seg for seg in segs if seg.start_time >= zhongshu.end_time]
+    
+    def _get_segs_after_time(self, segs: SegList, timestamp) -> List[Seg]:
+        """获取指定时间后的线段"""
+        return [seg for seg in segs if seg.start_time > timestamp]
+    
+    def _get_segs_leaving_zhongshu(self, segs: SegList, zhongshu: ZhongShu) -> List[Seg]:
+        """获取离开中枢的线段"""
+        leaving_segs = []
+        for seg in segs:
+            if (seg.start_time >= zhongshu.end_time and 
+                ((seg.direction == SegDirection.UP and seg.end_price > zhongshu.high) or
+                 (seg.direction == SegDirection.DOWN and seg.end_price < zhongshu.low))):
+                leaving_segs.append(seg)
+        return leaving_segs
+    
+    def _is_trend_sequence(self, segs: List[Seg]) -> bool:
+        """判断线段序列是否构成趋势"""
+        if len(segs) < 2:
+            return False
+        
+        # 检查是否有同向的连续线段（趋势特征）
+        up_count = sum(1 for seg in segs if seg.direction == SegDirection.UP)
+        down_count = sum(1 for seg in segs if seg.direction == SegDirection.DOWN)
+        
+        # 趋势要求有明显的方向性
+        return abs(up_count - down_count) >= 2
+    
+    def _check_backchi_with_zhongshu(self, prev_seg: Seg, current_seg: Seg, zhongshu: ZhongShu) -> bool:
+        """检查基于中枢的背驰"""
+        if prev_seg.direction != current_seg.direction:
+            return False
+            
+        # 简化的背驰判断：力度减弱
+        return current_seg.strength < prev_seg.strength * 0.8
+    
+    def _is_valid_second_class_test(self, first_point: BuySellPoint, test_seg: Seg) -> bool:
+        """验证第二类买卖点的回抽测试是否有效"""
+        if first_point.point_type.is_buy():
+            # 买点：回抽不能跌破第一类买点
+            return test_seg.end_price > first_point.price
+        else:
+            # 卖点：回抽不能升破第一类卖点
+            return test_seg.end_price < first_point.price
+    
+    def _is_valid_third_class_test(self, zhongshu: ZhongShu, leaving_seg: Seg, test_seg: Seg) -> bool:
+        """验证第三类买卖点的回试是否有效"""
+        if leaving_seg.direction == SegDirection.UP:
+            # 向上离开后回试不能跌破中枢上沿
+            return test_seg.end_price > zhongshu.high
+        else:
+            # 向下离开后回试不能升破中枢下沿
+            return test_seg.end_price < zhongshu.low
+    
+    def _find_kline_index_by_time(self, klines: KLineList, timestamp) -> int:
+        """根据时间戳找到对应的K线索引"""
+        for i, kline in enumerate(klines):
+            if kline.timestamp >= timestamp:
+                return i
+        return len(klines) - 1  # 如果没找到，返回最后一个
+    
 
 
 @dataclass
@@ -533,29 +594,21 @@ class MultiLevelAnalysis:
 
 
 class MultiLevelDynamicsAnalyzer:
-    """多级别动力学分析器"""
+    """多级别动力学分析器 - 简化版本"""
     
-    def __init__(self):
-        self.analyzers: Dict[TimeLevel, DynamicsAnalyzer] = {
-            TimeLevel.MIN_5: DynamicsAnalyzer(),
-            TimeLevel.MIN_30: DynamicsAnalyzer(), 
-            TimeLevel.DAILY: DynamicsAnalyzer()
-        }
+    def __init__(self, config=None):
+        self.analyzer = DynamicsAnalyzer(config)
     
     def analyze_multi_level_dynamics(self,
-                                   level_data: Dict[TimeLevel, Tuple[SegList, ZhongShuList, KLineList]]
+                                   level_data: Dict[TimeLevel, KLineList]
                                    ) -> Dict[TimeLevel, MultiLevelAnalysis]:
-        """多级别动力学分析"""
+        """多级别简化动力学分析"""
         results = {}
         
-        # 单独分析各个级别
-        for level, (segs, zhongshus, klines) in level_data.items():
-            analyzer = self.analyzers[level]
-            
-            backchi_analyses = analyzer.analyze_backchi(segs, zhongshus, klines)
-            buy_sell_points = analyzer.identify_buy_sell_points(
-                backchi_analyses, segs, zhongshus, klines
-            )
+        # 单独分析各个级别 - 只需要K线数据
+        for level, klines in level_data.items():
+            backchi_analyses = self.analyzer.analyze_simple_backchi(klines)
+            buy_sell_points = self.analyzer.identify_buy_sell_points(klines)
             
             results[level] = MultiLevelAnalysis(
                 time_level=level,
@@ -563,95 +616,68 @@ class MultiLevelDynamicsAnalyzer:
                 buy_sell_points=buy_sell_points
             )
         
-        # 分析级别间关系
-        self._analyze_level_relationships(results)
-        
         return results
     
-    def _analyze_level_relationships(self, 
-                                   results: Dict[TimeLevel, MultiLevelAnalysis]) -> None:
-        """分析多级别间的递归关系"""
-        levels = [TimeLevel.DAILY, TimeLevel.MIN_30, TimeLevel.MIN_5]
+    def get_consensus_signals(self, 
+                            results: Dict[TimeLevel, MultiLevelAnalysis]
+                            ) -> List[Dict[str, Any]]:
+        """获取多级别共振信号"""
+        consensus_signals = []
         
-        for i, level in enumerate(levels):
-            if level not in results:
-                continue
-            
-            current_result = results[level]
-            
-            # 检查高级别确认
-            if i > 0:
-                higher_level = levels[i-1]
-                if higher_level in results:
-                    current_result.higher_level_confirmation = self._check_level_confirmation(
-                        results[higher_level], current_result
-                    )
-            
-            # 检查低级别确认  
-            if i < len(levels) - 1:
-                lower_level = levels[i+1]
-                if lower_level in results:
-                    current_result.lower_level_confirmation = self._check_level_confirmation(
-                        current_result, results[lower_level]
-                    )
-            
-            # 计算级别一致性得分
-            current_result.level_consistency_score = self._calculate_consistency_score(
-                current_result, results
-            )
-    
-    def _check_level_confirmation(self, 
-                                high_level: MultiLevelAnalysis,
-                                low_level: MultiLevelAnalysis) -> bool:
-        """检查级别间确认关系"""
-        # 简化的确认逻辑：同方向的买卖点在时间上相近
-        for high_point in high_level.buy_sell_points:
-            for low_point in low_level.buy_sell_points:
-                if (high_point.point_type.is_buy() == low_point.point_type.is_buy() and
-                    abs((high_point.timestamp - low_point.timestamp).total_seconds()) < 86400 * 7):  # 7天内
-                    return True
-        return False
-    
-    def _calculate_consistency_score(self, 
-                                   current: MultiLevelAnalysis,
-                                   all_results: Dict[TimeLevel, MultiLevelAnalysis]) -> float:
-        """计算级别一致性得分"""
-        score = 0.0
-        count = 0
+        # 寻找多级别共振的买卖点
+        for level, analysis in results.items():
+            for point in analysis.buy_sell_points:
+                # 检查其他级别是否有同向信号
+                confirmations = 0
+                for other_level, other_analysis in results.items():
+                    if other_level == level:
+                        continue
+                    
+                    for other_point in other_analysis.buy_sell_points:
+                        if (point.point_type.is_buy() == other_point.point_type.is_buy() and
+                            abs((point.timestamp - other_point.timestamp).total_seconds()) < 86400 * 3):  # 3天内
+                            confirmations += 1
+                            break
+                
+                if confirmations > 0:  # 至少有一个级别确认
+                    signal = {
+                        "type": "买入" if point.point_type.is_buy() else "卖出",
+                        "primary_timeframe": level.value,
+                        "price": point.price,
+                        "timestamp": point.timestamp,
+                        "reliability": point.reliability,
+                        "confirmations": confirmations,
+                        "strength": point.strength
+                    }
+                    consensus_signals.append(signal)
         
-        if current.higher_level_confirmation:
-            score += 0.4
-            count += 1
-        
-        if current.lower_level_confirmation:
-            score += 0.3
-            count += 1
-        
-        # 背驰一致性
-        if len(current.backchi_analyses) > 0:
-            score += 0.3
-            count += 1
-        
-        return score / max(count, 1)
+        return consensus_signals
 
 
 # 配置类
 @dataclass
 class DynamicsConfig:
-    """动力学分析配置"""
+    """简化动力学分析配置"""
+    # MACD参数
     macd_params: Tuple[int, int, int] = (12, 26, 9)
-    backchi_threshold: float = 0.6      # 背驰可靠度阈值
-    strength_ratio_threshold: float = 0.1  # 力度比值阈值
     
-    # 买卖点识别参数
-    buy_sell_point_min_reliability: float = 0.5
-    multi_level_confirmation_window_days: int = 7
+    # 简化背驰参数 - 恢复原始阈值设置
+    min_area_ratio: float = 1.2           # 绿柱面积比阈值
+    max_area_shrink_ratio: float = 0.8    # 红柱面积缩小比例
+    confirm_days: int = 3                 # 金叉确认天数
+    death_cross_confirm_days: int = 2     # 死叉确认天数
+    min_reliability: float = 0.5          # 最小可靠度
+    
+    # 多级别确认参数
+    multi_level_confirmation_window_days: int = 3
     
     def to_dict(self) -> Dict[str, Any]:
         return {
             'macd_params': self.macd_params,
-            'backchi_threshold': self.backchi_threshold,
-            'strength_ratio_threshold': self.strength_ratio_threshold,
-            'buy_sell_point_min_reliability': self.buy_sell_point_min_reliability,
+            'min_area_ratio': self.min_area_ratio,
+            'max_area_shrink_ratio': self.max_area_shrink_ratio,
+            'confirm_days': self.confirm_days,
+            'death_cross_confirm_days': self.death_cross_confirm_days,
+            'min_reliability': self.min_reliability,
             'multi_level_confirmation_window_days': self.multi_level_confirmation_window_days
         }

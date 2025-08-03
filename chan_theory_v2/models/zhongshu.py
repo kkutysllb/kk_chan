@@ -48,6 +48,9 @@ class ZhongShu:
     enter_segs: List[Seg] = field(default_factory=list)    # 进入中枢的线段
     exit_segs: List[Seg] = field(default_factory=list)     # 离开中枢的线段
     
+    # 状态标记
+    is_finished: bool = True                                # 中枢是否完成（默认为True）
+    
     def __post_init__(self):
         """初始化后处理"""
         self._validate()

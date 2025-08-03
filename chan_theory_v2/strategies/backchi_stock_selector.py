@@ -75,15 +75,20 @@ class SimpleBackchiStockSelector:
         """初始化选股器"""
         self.db_handler = get_db_handler()
         
-        # 选股参数配置
+        # 选股参数配置 - 与DynamicsAnalyzer保持一致
         self.config = {
             'days_30min': 30,      # 30分钟分析天数
-            'min_backchi_strength': 0.3,  # 最小背驰强度
+            'min_backchi_strength': 0.3,  # 最小背驰强度 (与DynamicsAnalyzer的min_reliability一致)
             'require_macd_golden_cross': True,  # 买入要求MACD金叉
             'max_stocks_per_batch': 0,     # 0表示处理全市场所有股票
             'min_price': 2.0,      # 最低股价过滤
             'max_price': 1000.0,   # 最高股价过滤
             'min_volume_ratio': 0.5,  # 最小成交量比率
+            # 背驰分析参数 - 与DynamicsAnalyzer保持完全一致
+            'min_area_ratio': 1.1,           # 绿柱面积比阈值
+            'max_area_shrink_ratio': 0.9,    # 红柱面积缩小比例
+            'confirm_days': 3,               # 金叉确认天数
+            'death_cross_confirm_days': 2,   # 死叉确认天数
         }
         
         logger.info("🎯 简化MACD背驰选股器初始化完成")

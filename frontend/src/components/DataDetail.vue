@@ -28,11 +28,11 @@
             </div>
             <div class="info-item">
               <span class="info-label">K线条数:</span>
-              <span class="info-value">{{ chanStatistics?.klines_processed || 0 }}</span>
+              <span class="info-value">{{ klineCount }}</span>
             </div>
             <div class="info-item">
               <span class="info-label">分析时间:</span>
-              <span class="info-value">{{ formatTime(analysisData?.meta?.analysis_time) }}</span>
+              <span class="info-value">{{ formatTime(analysisTime) }}</span>
             </div>
           </div>
         </el-card>
@@ -188,8 +188,10 @@
 <script setup>
 import { computed } from 'vue'
 import { useGlobalStore } from '@/stores/global'
+import { useThemeStore } from '@/stores/theme'
 
 const global = useGlobalStore()
+const theme = useThemeStore()
 
 // 计算属性 - 基于缠论v2数据结构
 const hasData = computed(() => global.hasData)
@@ -203,7 +205,15 @@ const timeframeText = computed(() => {
     '30min': '30分钟',
     'daily': '日线',
   }
-  return timeframeMap[analysisData.value?.meta?.timeframe] || '-'
+  
+  // 多级别API：从全局状态获取当前时间级别
+  if (analysisData.value?.results) {
+    return '多级别分析'
+  }
+  
+  // 单级别API：从meta获取时间级别
+  const timeframe = analysisData.value?.meta?.timeframe || global.currentTimeframe
+  return timeframeMap[timeframe] || '-'
 })
 
 const fenxingList = computed(() => {
@@ -216,6 +226,27 @@ const biList = computed(() => {
 
 const zhongshuList = computed(() => {
   return chanStructures.value?.zhongshu || []
+})
+
+const klineCount = computed(() => {
+  // 多级别API：返回30分钟级别的K线数量
+  if (analysisData.value?.results) {
+    const mainLevel = analysisData.value.results['30min'] || analysisData.value.results['daily'] || analysisData.value.results['5min']
+    return mainLevel?.meta?.data_count || 0
+  }
+  
+  // 单级别API：从统计信息获取
+  return chanStatistics.value?.klines_processed || 0
+})
+
+const analysisTime = computed(() => {
+  // 多级别API：从根级别meta获取分析时间
+  if (analysisData.value?.meta) {
+    return analysisData.value.meta.analysis_time
+  }
+  
+  // 单级别API：从原来的路径获取
+  return analysisData.value?.meta?.analysis_time
 })
 
 // 方法
@@ -245,17 +276,21 @@ defineEmits(['analyze'])
 }
 
 .data-detail::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--el-fill-color-lighter);
   border-radius: 3px;
 }
 
+.dark .data-detail::-webkit-scrollbar-track {
+  background: var(--el-fill-color-dark);
+}
+
 .data-detail::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--el-border-color);
   border-radius: 3px;
 }
 
 .data-detail::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  background: var(--el-border-color-dark);
 }
 
 .detail-container {
@@ -305,19 +340,18 @@ defineEmits(['analyze'])
 
 .info-card {
   grid-column: span 2;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-light);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: all 0.3s ease;
 }
 
 .dark .info-card {
-  background: rgba(44, 62, 80, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-light);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
 }
 
 .info-card:hover {
@@ -337,15 +371,20 @@ defineEmits(['analyze'])
   align-items: center;
   padding: 12px 16px;
   margin: 4px 0;
-  background: rgba(102, 126, 234, 0.05);
+  background: var(--el-fill-color-light);
   border-radius: 8px;
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  border: 1px solid var(--el-border-color-lighter);
   transition: all 0.3s ease;
 }
 
+.dark .info-item {
+  background: var(--el-fill-color-dark);
+  border: 1px solid var(--el-border-color);
+}
+
 .info-item:hover {
-  background: rgba(102, 126, 234, 0.1);
-  border-color: rgba(102, 126, 234, 0.2);
+  background: var(--el-fill-color);
+  border-color: var(--el-border-color);
   transform: translateX(4px);
 }
 
@@ -366,19 +405,18 @@ defineEmits(['analyze'])
 
 .stats-card {
   grid-column: span 2;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-light);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: all 0.3s ease;
 }
 
 .dark .stats-card {
-  background: rgba(44, 62, 80, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-light);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
 }
 
 .stats-card:hover {
@@ -395,12 +433,17 @@ defineEmits(['analyze'])
 .stats-item {
   text-align: center;
   padding: 20px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  border: 1px solid rgba(102, 126, 234, 0.2);
+  background: var(--el-fill-color-lighter);
+  border: 1px solid var(--el-border-color-light);
   border-radius: 12px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+}
+
+.dark .stats-item {
+  background: var(--el-fill-color-dark);
+  border: 1px solid var(--el-border-color);
 }
 
 .stats-item::before {
@@ -442,19 +485,18 @@ defineEmits(['analyze'])
 
 .detail-card {
   min-height: 200px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-light);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: all 0.3s ease;
 }
 
 .dark .detail-card {
-  background: rgba(44, 62, 80, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-light);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
 }
 
 .detail-card:hover {
@@ -463,10 +505,15 @@ defineEmits(['analyze'])
 }
 
 :deep(.el-card__header) {
-  background: rgba(102, 126, 234, 0.05);
-  border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+  background: var(--el-fill-color-light);
+  border-bottom: 1px solid var(--el-border-color-light);
   padding: 20px 24px;
   border-radius: 16px 16px 0 0;
+}
+
+.dark :deep(.el-card__header) {
+  background: var(--el-fill-color-dark);
+  border-bottom: 1px solid var(--el-border-color);
 }
 
 :deep(.el-card__body) {
@@ -481,18 +528,31 @@ defineEmits(['analyze'])
 }
 
 :deep(.el-table th) {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: var(--el-fill-color-lighter);
   color: var(--el-text-color-primary);
   font-weight: 600;
-  border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+  border-bottom: 2px solid var(--el-border-color-light);
+}
+
+.dark :deep(.el-table th) {
+  background: var(--el-fill-color-dark);
+  border-bottom: 2px solid var(--el-border-color);
 }
 
 :deep(.el-table td) {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--el-border-color-lighter);
+}
+
+.dark :deep(.el-table td) {
+  border-bottom: 1px solid var(--el-border-color);
 }
 
 :deep(.el-table tr:hover) {
-  background: rgba(102, 126, 234, 0.05);
+  background: var(--el-fill-color-light);
+}
+
+.dark :deep(.el-table tr:hover) {
+  background: var(--el-fill-color);
 }
 
 :deep(.el-tag) {

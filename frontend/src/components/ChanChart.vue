@@ -65,7 +65,7 @@
           <v-chart
             ref="mainChartRef"
             :option="mainChartOption"
-            :theme="isDark ? 'dark' : 'light'"
+            :theme="theme.isDark ? 'dark' : 'light'"
             autoresize
             class="main-chart"
             @click="handleChartClick"
@@ -75,7 +75,7 @@
           <v-chart
             ref="macdChartRef"
             :option="macdChartOption"
-            :theme="isDark ? 'dark' : 'light'"
+            :theme="theme.isDark ? 'dark' : 'light'"
             autoresize
             class="macd-chart"
           />
@@ -113,17 +113,18 @@ import VChart from 'vue-echarts'
 import { RefreshRight, Download } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useGlobalStore } from '@/stores/global'
+import { useThemeStore } from '@/stores/theme'
 
 // 注册 CustomChart
 use([CustomChart])
 
 const global = useGlobalStore()
+const theme = useThemeStore()
 
 // 组件状态
 const mainChartRef = ref()
 const macdChartRef = ref()
 const refreshing = ref(false)
-const isDark = ref(false)
 
 // 时间级别预设
 const timePresets = [
@@ -153,7 +154,8 @@ const chartTitle = computed(() => {
     '30min': '30分钟',
     'daily': '日线',
   }
-  return `${symbol} - ${timeframeMap[timeframe] || timeframe}`
+  const timeText = timeframeMap[timeframe] || timeframe
+  return `${symbol} (${timeText})`
 })
 
 // 主图表配置
@@ -167,38 +169,46 @@ const mainChartOption = computed(() => {
 
   const { categories, values } = klineData.value
   
-  // 调试：直接从全局状态获取数据
-  console.log('全局状态数据:', global.analysisData?.chart_data)
-  console.log('chanStructures路径:', global.analysisData?.chart_data?.chan_structures)
-  console.log('signals路径:', global.analysisData?.chart_data?.signals)
+  // 使用全局状态的getter方法获取数据（兼容多级别API）
+  console.log('全局状态数据:', global.analysisData)
+  console.log('chartData:', chartData.value)
+  console.log('chanStructures:', chanStructures.value)
+  console.log('tradingSignals:', tradingSignals.value)
   
-  // 直接从global.analysisData获取数据，绕过computed属性
-  const rawChanStructures = global.analysisData?.chart_data?.chan_structures
-  const rawDynamics = global.analysisData?.chart_data?.dynamics
-  
-  const fenxingData = rawChanStructures?.fenxing || []
-  const biData = rawChanStructures?.bi || []
-  const zhongshuData = rawChanStructures?.zhongshu || []
-  const buySellingPointsData = rawDynamics?.buy_sell_points || []
-  const backchiData = rawDynamics?.backchi || []
+  // 使用computed属性获取数据（已兼容多级别API）
+  const fenxingData = chanStructures.value?.fenxing || []
+  const biData = chanStructures.value?.bi || []
+  const segData = chanStructures.value?.seg || []
+  const zhongshuData = chanStructures.value?.zhongshu || []
+  const buySellingPointsData = tradingSignals.value?.buy_sell_points || []
+  const backchiData = tradingSignals.value?.backchi_analyses || []
   const signals = [...buySellingPointsData, ...backchiData]
   
   console.log('缠论数据:', {
     fenxingData: fenxingData.length,
-    biData: biData.length, 
+    biData: biData.length,
+    segData: segData.length,
     zhongshuData: zhongshuData.length,
     signals: signals.length
   })
-  console.log('具体数据:', { fenxingData, biData, zhongshuData, signals })
+  console.log('具体数据:', { fenxingData, biData, segData, zhongshuData, signals })
 
   return {
+    backgroundColor: theme.isDark ? '#1a1a1a' : '#ffffff',
     title: {
       text: chartTitle.value,
       left: 'center',
+      top: 10,
       textStyle: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 18,
+        fontWeight: '600',
+        color: theme.isDark ? '#e8eaed' : '#2c3e50',
+        fontFamily: '"Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif'
       },
+      subtextStyle: {
+        fontSize: 12,
+        color: theme.isDark ? '#9aa0a6' : '#7f8c8d'
+      }
     },
     tooltip: {
       trigger: 'axis',
@@ -240,6 +250,8 @@ const mainChartOption = computed(() => {
         ...(fenxingData.filter(f => f.type === 'bottom').length > 0 ? [{ name: '底分型', icon: 'triangle' }] : []),
         ...(biData.filter(b => b.direction === 'up').length > 0 ? [{ name: '上笔', icon: 'line', textStyle: { color: '#e91e63' } }] : []),
         ...(biData.filter(b => b.direction === 'down').length > 0 ? [{ name: '下笔', icon: 'line', textStyle: { color: '#2196f3' } }] : []),
+        ...(segData.filter(s => s.direction === 'up').length > 0 ? [{ name: '上线段', icon: 'line', textStyle: { color: '#ff5722' } }] : []),
+        ...(segData.filter(s => s.direction === 'down').length > 0 ? [{ name: '下线段', icon: 'line', textStyle: { color: '#00E5FF' } }] : []),
         ...(zhongshuData.length > 0 ? [{ name: '中枢', icon: 'rect', textStyle: { color: '#ff9800' } }] : []),
         ...(signals.filter(s => s.type === 'buy').length > 0 ? [{ name: '买点', icon: 'arrow' }] : []),
         ...(signals.filter(s => s.type === 'sell').length > 0 ? [{ name: '卖点', icon: 'arrow' }] : [])
@@ -372,6 +384,44 @@ const mainChartOption = computed(() => {
         },
         zlevel: 5,
       })),
+      // 上线段
+      ...segData.filter(seg => seg.direction === 'up').map((seg, index) => ({
+        name: index === 0 ? '上线段' : '',
+        type: 'line',
+        data: [
+          { name: seg.coords[0][0], value: [seg.coords[0][0], seg.coords[0][1]] },
+          { name: seg.coords[1][0], value: [seg.coords[1][0], seg.coords[1][1]] }
+        ],
+        lineStyle: {
+          color: '#ff5722',
+          width: 3,
+          type: 'solid'
+        },
+        symbol: 'none',
+        tooltip: {
+          formatter: `${seg.name}<br/>幅度: ${(seg.amplitude * 100).toFixed(2)}%<br/>强度: ${seg.strength?.toFixed(3) || 'N/A'}`,
+        },
+        zlevel: 3,
+      })),
+      // 下线段
+      ...segData.filter(seg => seg.direction === 'down').map((seg, index) => ({
+        name: index === 0 ? '下线段' : '',
+        type: 'line',
+        data: [
+          { name: seg.coords[0][0], value: [seg.coords[0][0], seg.coords[0][1]] },
+          { name: seg.coords[1][0], value: [seg.coords[1][0], seg.coords[1][1]] }
+        ],
+        lineStyle: {
+          color: '#00E5FF',
+          width: 3,
+          type: 'solid'
+        },
+        symbol: 'none',
+        tooltip: {
+          formatter: `${seg.name}<br/>幅度: ${(seg.amplitude * 100).toFixed(2)}%<br/>强度: ${seg.strength?.toFixed(3) || 'N/A'}`,
+        },
+        zlevel: 3,
+      })),
       // 中枢区域
       ...zhongshuData.map((zs, index) => ({
         name: index === 0 ? '中枢' : '',
@@ -460,7 +510,8 @@ const macdChartOption = computed(() => {
   }
 
   const { categories } = klineData.value
-  const macdData = global.analysisData?.chart_data?.indicators?.macd || { dif: [], dea: [], macd: [] }
+  // 从chartData获取MACD数据（兼容多级别API）
+  const macdData = chartData.value?.indicators?.macd || { dif: [], dea: [], macd: [] }
 
   // 确保MACD数据与K线数据的日期对齐
   console.log('MACD数据调试:', {
@@ -495,6 +546,7 @@ const macdChartOption = computed(() => {
   alignedMacd = macdData.macd?.slice(-minLength) || []
 
   return {
+    backgroundColor: theme.isDark ? '#1a1a1a' : '#ffffff',
     animation: false,
     legend: {
       bottom: 5,
@@ -502,7 +554,7 @@ const macdChartOption = computed(() => {
       data: ['DIF', 'DEA', 'MACD'],
       textStyle: {
         fontSize: 12,
-        color: '#666'
+        color: theme.isDark ? '#e8eaed' : '#666'
       }
     },
     tooltip: {
@@ -524,13 +576,13 @@ const macdChartOption = computed(() => {
       boundaryGap: false,
       axisLine: { 
         show: true,
-        lineStyle: { color: '#ccc' }
+        lineStyle: { color: theme.isDark ? '#555' : '#ccc' }
       },
       axisTick: { show: false },
       axisLabel: { 
         show: true,
         fontSize: 10,
-        color: '#666',
+        color: theme.isDark ? '#aaa' : '#666',
         interval: 'auto',
         rotate: 0
       },
@@ -541,18 +593,18 @@ const macdChartOption = computed(() => {
       scale: true,
       axisLine: { 
         show: true,
-        lineStyle: { color: '#ccc' }
+        lineStyle: { color: theme.isDark ? '#555' : '#ccc' }
       },
       axisTick: { show: false },
       axisLabel: {
         show: true,
         fontSize: 10,
-        color: '#666'
+        color: theme.isDark ? '#aaa' : '#666'
       },
       splitLine: { 
         show: true,
         lineStyle: {
-          color: '#f0f0f0'
+          color: theme.isDark ? '#333' : '#f0f0f0'
         }
       }
     },
@@ -620,7 +672,15 @@ const changeTimeframe = async (timeframe) => {
   if (timeframe === currentTimeframe.value) return
   
   try {
-    await global.fetchAnalysisData({ timeframe })
+    // 检查是否为多级别分析模式
+    if (global.analysisData?.results) {
+      // 多级别模式：只更新当前时间周期，不重新请求数据
+      global.setCurrentStock({ timeframe })
+      console.log(`切换到时间周期: ${timeframe}`)
+    } else {
+      // 单级别模式：重新请求对应时间周期的数据
+      await global.fetchAnalysisData({ timeframe })
+    }
   } catch (error) {
     ElMessage.error('切换时间级别失败')
   }
@@ -702,32 +762,36 @@ defineEmits(['analyze'])
 
 .chart-card {
   min-height: 800px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-light);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   
   :deep(.el-card__header) {
-    background: transparent;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    background: var(--el-bg-color);
+    border-bottom: 1px solid var(--el-border-color-light);
     padding: 20px 24px;
   }
   
   :deep(.el-card__body) {
     min-height: calc(800px - 80px);
     padding: 0;
-    background: transparent;
+    background: var(--el-bg-color);
   }
 }
 
 .dark .chart-card {
-  background: rgba(44, 62, 80, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+  border: 1px solid #404040;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
   
   :deep(.el-card__header) {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+    border-bottom: 1px solid #404040;
+  }
+  
+  :deep(.el-card__body) {
+    background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
   }
 }
 
@@ -784,6 +848,10 @@ defineEmits(['analyze'])
   background: transparent;
 }
 
+.dark .chart-container {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
 .chart-loading {
   min-height: 400px;
   display: flex;
@@ -820,22 +888,23 @@ defineEmits(['analyze'])
   right: 20px;
   display: flex;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  padding: 10px 14px;
-  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+  backdrop-filter: blur(15px);
+  padding: 12px 16px;
+  border-radius: 12px;
   font-size: 12px;
   z-index: 10;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(226, 232, 240, 0.6);
   max-width: calc(100% - 40px);
   flex-wrap: wrap;
 }
 
 .dark .chart-stats {
-  background: rgba(44, 62, 80, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(45, 45, 45, 0.95) 0%, rgba(26, 26, 26, 0.95) 100%);
+  border: 1px solid rgba(64, 64, 64, 0.8);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(15px);
 }
 
 .stats-item {
@@ -851,6 +920,10 @@ defineEmits(['analyze'])
 .stats-value {
   color: #667eea;
   font-weight: 600;
+}
+
+.dark .stats-value {
+  color: #8b9cf7;
 }
 
 @media (max-width: 768px) {

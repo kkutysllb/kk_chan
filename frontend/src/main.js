@@ -11,6 +11,7 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
 // 自定义样式
 import './styles/index.css'
+import './styles/themes.css'
 
 // ECharts注册
 import { use } from 'echarts/core'
