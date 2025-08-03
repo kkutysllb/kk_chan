@@ -5,7 +5,6 @@ import { useZIndex, defaultInitialZIndex, zIndexContextKey } from '../../../../h
 import { useLocale, localeContextKey } from '../../../../hooks/use-locale/index.mjs';
 import { SIZE_INJECTION_KEY } from '../../../../hooks/use-size/index.mjs';
 import { emptyValuesContextKey } from '../../../../hooks/use-empty-values/index.mjs';
-import { debugWarn } from '../../../../utils/error.mjs';
 import { keysOf } from '../../../../utils/objects.mjs';
 
 const globalConfig = ref();
@@ -52,7 +51,6 @@ const provideGlobalConfig = (config, app, global = false) => {
   const oldConfig = inSetup ? useGlobalConfig() : void 0;
   const provideFn = (_a = app == null ? void 0 : app.provide) != null ? _a : inSetup ? provide : void 0;
   if (!provideFn) {
-    debugWarn("provideGlobalConfig", "provideGlobalConfig() can only be used inside setup().");
     return;
   }
   const context = computed(() => {

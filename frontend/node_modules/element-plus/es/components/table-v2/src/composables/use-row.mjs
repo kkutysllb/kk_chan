@@ -1,4 +1,4 @@
-import { getCurrentInstance, shallowRef, ref, computed, unref } from 'vue';
+import { getCurrentInstance, shallowRef, ref, computed, unref, nextTick } from 'vue';
 import { debounce } from 'lodash-unified';
 import { FixedDir } from '../constants.mjs';
 import { isNumber } from '../../../../utils/types.mjs';
@@ -69,6 +69,11 @@ const useRow = (props, {
       rowKey
     });
     (_b = props.onExpandedRowsChange) == null ? void 0 : _b.call(props, _expandedRowKeys);
+    const tableRoot = tableInstance.vnode.el;
+    const hoverRow = tableRoot.querySelector(`.${ns.is("hovered")}[rowkey="${String(rowKey)}"]`);
+    if (hoverRow) {
+      nextTick(() => onRowHovered({ hovered: true, rowKey }));
+    }
   }
   const flushingRowHeights = debounce(() => {
     var _a, _b, _c, _d;

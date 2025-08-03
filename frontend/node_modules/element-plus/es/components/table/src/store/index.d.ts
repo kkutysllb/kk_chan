@@ -10,7 +10,7 @@ declare function useStore<T extends DefaultRow>(): {
         setData(states: {
             _currentRowKey: Ref<string | null>;
             currentRow: Ref<T | null>;
-            expandRowKeys: Ref<(string | number)[]>;
+            expandRowKeys: Ref<string[]>;
             treeData: Ref<Record<string, import("./tree").TreeData>>;
             indent: Ref<number>;
             lazy: Ref<boolean>;
@@ -52,7 +52,7 @@ declare function useStore<T extends DefaultRow>(): {
         insertColumn(states: {
             _currentRowKey: Ref<string | null>;
             currentRow: Ref<T | null>;
-            expandRowKeys: Ref<(string | number)[]>;
+            expandRowKeys: Ref<string[]>;
             treeData: Ref<Record<string, import("./tree").TreeData>>;
             indent: Ref<number>;
             lazy: Ref<boolean>;
@@ -94,7 +94,7 @@ declare function useStore<T extends DefaultRow>(): {
         updateColumnOrder(states: {
             _currentRowKey: Ref<string | null>;
             currentRow: Ref<T | null>;
-            expandRowKeys: Ref<(string | number)[]>;
+            expandRowKeys: Ref<string[]>;
             treeData: Ref<Record<string, import("./tree").TreeData>>;
             indent: Ref<number>;
             lazy: Ref<boolean>;
@@ -136,7 +136,7 @@ declare function useStore<T extends DefaultRow>(): {
         removeColumn(states: {
             _currentRowKey: Ref<string | null>;
             currentRow: Ref<T | null>;
-            expandRowKeys: Ref<(string | number)[]>;
+            expandRowKeys: Ref<string[]>;
             treeData: Ref<Record<string, import("./tree").TreeData>>;
             indent: Ref<number>;
             lazy: Ref<boolean>;
@@ -178,7 +178,7 @@ declare function useStore<T extends DefaultRow>(): {
         sort(states: {
             _currentRowKey: Ref<string | null>;
             currentRow: Ref<T | null>;
-            expandRowKeys: Ref<(string | number)[]>;
+            expandRowKeys: Ref<string[]>;
             treeData: Ref<Record<string, import("./tree").TreeData>>;
             indent: Ref<number>;
             lazy: Ref<boolean>;
@@ -220,7 +220,7 @@ declare function useStore<T extends DefaultRow>(): {
         changeSortCondition(states: {
             _currentRowKey: Ref<string | null>;
             currentRow: Ref<T | null>;
-            expandRowKeys: Ref<(string | number)[]>;
+            expandRowKeys: Ref<string[]>;
             treeData: Ref<Record<string, import("./tree").TreeData>>;
             indent: Ref<number>;
             lazy: Ref<boolean>;
@@ -262,7 +262,7 @@ declare function useStore<T extends DefaultRow>(): {
         filterChange(_states: {
             _currentRowKey: Ref<string | null>;
             currentRow: Ref<T | null>;
-            expandRowKeys: Ref<(string | number)[]>;
+            expandRowKeys: Ref<string[]>;
             treeData: Ref<Record<string, import("./tree").TreeData>>;
             indent: Ref<number>;
             lazy: Ref<boolean>;
@@ -305,7 +305,7 @@ declare function useStore<T extends DefaultRow>(): {
         rowSelectedChanged(_states: {
             _currentRowKey: Ref<string | null>;
             currentRow: Ref<T | null>;
-            expandRowKeys: Ref<(string | number)[]>;
+            expandRowKeys: Ref<string[]>;
             treeData: Ref<Record<string, import("./tree").TreeData>>;
             indent: Ref<number>;
             lazy: Ref<boolean>;
@@ -347,7 +347,7 @@ declare function useStore<T extends DefaultRow>(): {
         setHoverRow(states: {
             _currentRowKey: Ref<string | null>;
             currentRow: Ref<T | null>;
-            expandRowKeys: Ref<(string | number)[]>;
+            expandRowKeys: Ref<string[]>;
             treeData: Ref<Record<string, import("./tree").TreeData>>;
             indent: Ref<number>;
             lazy: Ref<boolean>;
@@ -389,7 +389,7 @@ declare function useStore<T extends DefaultRow>(): {
         setCurrentRow(_states: {
             _currentRowKey: Ref<string | null>;
             currentRow: Ref<T | null>;
-            expandRowKeys: Ref<(string | number)[]>;
+            expandRowKeys: Ref<string[]>;
             treeData: Ref<Record<string, import("./tree").TreeData>>;
             indent: Ref<number>;
             lazy: Ref<boolean>;
@@ -453,7 +453,7 @@ declare function useStore<T extends DefaultRow>(): {
     clearFilter: (columnKeys?: string[] | string) => void;
     clearSort: () => void;
     toggleRowExpansion: (row: T, expanded?: boolean) => void;
-    setExpandRowKeysAdapter: (val: (string | number)[]) => void;
+    setExpandRowKeysAdapter: (val: string[]) => void;
     setCurrentRowKey: (key: string) => void;
     toggleRowExpansionAdapter: (row: T, expanded?: boolean) => void;
     isRowExpanded: (row: T) => boolean;
@@ -465,7 +465,7 @@ declare function useStore<T extends DefaultRow>(): {
     states: {
         _currentRowKey: Ref<string | null>;
         currentRow: Ref<T | null>;
-        expandRowKeys: Ref<(string | number)[]>;
+        expandRowKeys: Ref<string[]>;
         treeData: Ref<Record<string, import("./tree").TreeData>>;
         indent: Ref<number>;
         lazy: Ref<boolean>;
@@ -530,7 +530,7 @@ declare class HelperStore<T extends DefaultRow> {
             setData(states: {
                 _currentRowKey: Ref<string | null>;
                 currentRow: Ref<T | null>;
-                expandRowKeys: Ref<(string | number)[]>;
+                expandRowKeys: Ref<string[]>;
                 treeData: Ref<Record<string, import("./tree").TreeData>>;
                 indent: Ref<number>;
                 lazy: Ref<boolean>;
@@ -572,7 +572,7 @@ declare class HelperStore<T extends DefaultRow> {
             insertColumn(states: {
                 _currentRowKey: Ref<string | null>;
                 currentRow: Ref<T | null>;
-                expandRowKeys: Ref<(string | number)[]>;
+                expandRowKeys: Ref<string[]>;
                 treeData: Ref<Record<string, import("./tree").TreeData>>;
                 indent: Ref<number>;
                 lazy: Ref<boolean>;
@@ -614,7 +614,7 @@ declare class HelperStore<T extends DefaultRow> {
             updateColumnOrder(states: {
                 _currentRowKey: Ref<string | null>;
                 currentRow: Ref<T | null>;
-                expandRowKeys: Ref<(string | number)[]>;
+                expandRowKeys: Ref<string[]>;
                 treeData: Ref<Record<string, import("./tree").TreeData>>;
                 indent: Ref<number>;
                 lazy: Ref<boolean>;
@@ -656,7 +656,7 @@ declare class HelperStore<T extends DefaultRow> {
             removeColumn(states: {
                 _currentRowKey: Ref<string | null>;
                 currentRow: Ref<T | null>;
-                expandRowKeys: Ref<(string | number)[]>;
+                expandRowKeys: Ref<string[]>;
                 treeData: Ref<Record<string, import("./tree").TreeData>>;
                 indent: Ref<number>;
                 lazy: Ref<boolean>;
@@ -698,7 +698,7 @@ declare class HelperStore<T extends DefaultRow> {
             sort(states: {
                 _currentRowKey: Ref<string | null>;
                 currentRow: Ref<T | null>;
-                expandRowKeys: Ref<(string | number)[]>;
+                expandRowKeys: Ref<string[]>;
                 treeData: Ref<Record<string, import("./tree").TreeData>>;
                 indent: Ref<number>;
                 lazy: Ref<boolean>;
@@ -740,7 +740,7 @@ declare class HelperStore<T extends DefaultRow> {
             changeSortCondition(states: {
                 _currentRowKey: Ref<string | null>;
                 currentRow: Ref<T | null>;
-                expandRowKeys: Ref<(string | number)[]>;
+                expandRowKeys: Ref<string[]>;
                 treeData: Ref<Record<string, import("./tree").TreeData>>;
                 indent: Ref<number>;
                 lazy: Ref<boolean>;
@@ -782,7 +782,7 @@ declare class HelperStore<T extends DefaultRow> {
             filterChange(_states: {
                 _currentRowKey: Ref<string | null>;
                 currentRow: Ref<T | null>;
-                expandRowKeys: Ref<(string | number)[]>;
+                expandRowKeys: Ref<string[]>;
                 treeData: Ref<Record<string, import("./tree").TreeData>>;
                 indent: Ref<number>;
                 lazy: Ref<boolean>;
@@ -825,7 +825,7 @@ declare class HelperStore<T extends DefaultRow> {
             rowSelectedChanged(_states: {
                 _currentRowKey: Ref<string | null>;
                 currentRow: Ref<T | null>;
-                expandRowKeys: Ref<(string | number)[]>;
+                expandRowKeys: Ref<string[]>;
                 treeData: Ref<Record<string, import("./tree").TreeData>>;
                 indent: Ref<number>;
                 lazy: Ref<boolean>;
@@ -867,7 +867,7 @@ declare class HelperStore<T extends DefaultRow> {
             setHoverRow(states: {
                 _currentRowKey: Ref<string | null>;
                 currentRow: Ref<T | null>;
-                expandRowKeys: Ref<(string | number)[]>;
+                expandRowKeys: Ref<string[]>;
                 treeData: Ref<Record<string, import("./tree").TreeData>>;
                 indent: Ref<number>;
                 lazy: Ref<boolean>;
@@ -909,7 +909,7 @@ declare class HelperStore<T extends DefaultRow> {
             setCurrentRow(_states: {
                 _currentRowKey: Ref<string | null>;
                 currentRow: Ref<T | null>;
-                expandRowKeys: Ref<(string | number)[]>;
+                expandRowKeys: Ref<string[]>;
                 treeData: Ref<Record<string, import("./tree").TreeData>>;
                 indent: Ref<number>;
                 lazy: Ref<boolean>;
@@ -973,7 +973,7 @@ declare class HelperStore<T extends DefaultRow> {
         clearFilter: (columnKeys?: string[] | string) => void;
         clearSort: () => void;
         toggleRowExpansion: (row: T, expanded?: boolean) => void;
-        setExpandRowKeysAdapter: (val: (string | number)[]) => void;
+        setExpandRowKeysAdapter: (val: string[]) => void;
         setCurrentRowKey: (key: string) => void;
         toggleRowExpansionAdapter: (row: T, expanded?: boolean) => void;
         isRowExpanded: (row: T) => boolean;
@@ -985,7 +985,7 @@ declare class HelperStore<T extends DefaultRow> {
         states: {
             _currentRowKey: Ref<string | null>;
             currentRow: Ref<T | null>;
-            expandRowKeys: Ref<(string | number)[]>;
+            expandRowKeys: Ref<string[]>;
             treeData: Ref<Record<string, import("./tree").TreeData>>;
             indent: Ref<number>;
             lazy: Ref<boolean>;

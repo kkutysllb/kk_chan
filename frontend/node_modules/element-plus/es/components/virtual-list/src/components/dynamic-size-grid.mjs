@@ -1,11 +1,8 @@
 import createGrid from '../builders/build-grid.mjs';
 import { DEFAULT_DYNAMIC_LIST_ITEM_SIZE, AUTO_ALIGNMENT, CENTERED_ALIGNMENT, END_ALIGNMENT, START_ALIGNMENT, SMART_ALIGNMENT } from '../defaults.mjs';
-import { isFunction } from '@vue/shared';
-import { throwError } from '../../../../utils/error.mjs';
 import { isNumber, isUndefined } from '../../../../utils/types.mjs';
 
 const { max, min, floor } = Math;
-const SCOPE = "ElDynamicSizeGrid";
 const ACCESS_SIZER_KEY_MAP = {
   column: "columnWidth",
   row: "rowHeight"
@@ -227,20 +224,6 @@ const DynamicSizeGrid = createGrid({
   },
   clearCache: false,
   validateProps: ({ columnWidth, rowHeight }) => {
-    if (process.env.NODE_ENV !== "production") {
-      if (!isFunction(columnWidth)) {
-        throwError(SCOPE, `
-          "columnWidth" must be passed as function,
-            instead ${typeof columnWidth} was given.
-        `);
-      }
-      if (!isFunction(rowHeight)) {
-        throwError(SCOPE, `
-          "rowHeight" must be passed as function,
-            instead ${typeof rowHeight} was given.
-        `);
-      }
-    }
   }
 });
 

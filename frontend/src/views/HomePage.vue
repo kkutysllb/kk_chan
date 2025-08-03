@@ -60,7 +60,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useGlobalStore } from '@/stores/global'
 import { Setting, ArrowLeft, ArrowRight, TrendCharts, DataAnalysis, Bell, Document } from '@element-plus/icons-vue'
 import StockSelector from '@/components/StockSelector.vue'
@@ -69,6 +70,7 @@ import DataDetail from '@/components/DataDetail.vue'
 import TradingSignals from '@/components/TradingSignals.vue'
 import AnalysisReport from '@/components/AnalysisReport.vue'
 
+const route = useRoute()
 const global = useGlobalStore()
 const activeTab = ref('chart')
 const sidebarCollapsed = ref(false)
@@ -96,6 +98,17 @@ const currentComponent = computed(() => {
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value
 }
+
+// 处理路由参数
+onMounted(() => {
+  // 检查URL查询参数中是否有股票代码
+  const symbol = route.query.symbol
+  if (symbol) {
+    console.log('从URL参数获取股票代码:', symbol)
+    // 设置到全局状态，这会触发StockSelector组件的自动分析
+    global.setCurrentStock({ symbol })
+  }
+})
 </script>
 
 <style scoped>

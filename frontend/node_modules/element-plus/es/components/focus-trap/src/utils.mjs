@@ -28,8 +28,6 @@ const getVisibleElement = (elements, container) => {
   }
 };
 const isHidden = (element, container) => {
-  if (process.env.NODE_ENV === "test")
-    return false;
   if (getComputedStyle(element).visibility === "hidden")
     return true;
   while (element) {

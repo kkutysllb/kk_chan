@@ -1,7 +1,5 @@
 const FOCUSABLE_ELEMENT_SELECTORS = `a[href],button:not([disabled]),button:not([hidden]),:not([tabindex="-1"]),input:not([disabled]),input:not([type="hidden"]),select:not([disabled]),textarea:not([disabled])`;
 const isVisible = (element) => {
-  if (process.env.NODE_ENV === "test")
-    return true;
   const computed = getComputedStyle(element);
   return computed.position === "fixed" ? false : element.offsetParent !== null;
 };

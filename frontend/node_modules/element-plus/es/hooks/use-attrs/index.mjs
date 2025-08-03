@@ -1,6 +1,5 @@
 import { computed, getCurrentInstance } from 'vue';
 import { fromPairs } from 'lodash-unified';
-import { debugWarn } from '../../utils/error.mjs';
 
 const DEFAULT_EXCLUDE_KEYS = ["class", "style"];
 const LISTENER_PREFIX = /^on[A-Z]/;
@@ -11,7 +10,6 @@ const useAttrs = (params = {}) => {
   });
   const instance = getCurrentInstance();
   if (!instance) {
-    debugWarn("use-attrs", "getCurrentInstance() returned null. useAttrs() must be called at the top of a setup function");
     return computed(() => ({}));
   }
   return computed(() => {

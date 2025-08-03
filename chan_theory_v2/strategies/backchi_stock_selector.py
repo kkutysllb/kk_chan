@@ -171,8 +171,14 @@ class SimpleBackchiStockSelector:
                 logger.debug(f"📊 {symbol} MACD数据不足: {len(macd_data)}条")
                 return None
             
-            # 执行简化背驰分析
-            analyzer = SimpleBackchiAnalyzer()
+            # 执行简化背驰分析（传入配置参数）
+            analyzer_config = {
+                'min_area_ratio': self.config.get('min_area_ratio', 1.1),
+                'max_area_shrink_ratio': self.config.get('max_area_shrink_ratio', 0.9),
+                'confirm_days': self.config.get('confirm_days', 3),
+                'death_cross_confirm_days': self.config.get('death_cross_confirm_days', 2),
+            }
+            analyzer = SimpleBackchiAnalyzer(analyzer_config)
             backchi_type, reliability, description = analyzer.analyze_backchi(klines, macd_data)
             
             # 检查MACD金叉/死叉
@@ -256,23 +262,154 @@ class SimpleBackchiStockSelector:
             return symbol
     
     def _calculate_signal_score(self, signal: StockSignal) -> float:
-        """计算信号综合评分"""
+        """
+        计算信号综合评分 - 改进版
+        使用多维度精细化评分，提高区分度
+        """
         score = 0.0
         
-        # 背驰可靠度得分 (60分)
-        score += signal.reliability * 60
+        # 1. 背驰基础可靠度 (30分)
+        score += signal.reliability * 30
         
-        # MACD金叉得分 (25分)
-        if signal.has_macd_golden_cross and signal.signal_type == "买入":
-            score += 25
-        elif signal.has_macd_death_cross and signal.signal_type == "卖出":
-            score += 25
+        # 2. 背驰强度细分评分 (25分) - 基于面积比
+        area_ratio_score = self._calculate_area_ratio_score(signal.description)
+        score += area_ratio_score
         
-        # 信号类型得分 (15分)
-        if signal.signal_type in ["买入", "卖出"]:
-            score += 15
+        # 3. 价格背离度评分 (20分) - 基于价差百分比  
+        price_divergence_score = self._calculate_price_divergence_score(signal.description)
+        score += price_divergence_score
+        
+        # 4. MACD技术指标质量 (15分)
+        macd_quality_score = self._calculate_macd_quality_score(signal)
+        score += macd_quality_score
+        
+        # 5. 风险回报比评分 (10分)
+        risk_reward_score = self._calculate_risk_reward_score(signal)
+        score += risk_reward_score
+        
+        # 添加小数位精度，避免完全相同的分数
+        precision_adjustment = hash(signal.symbol) % 100 / 10000  # 0-0.0099的微调
+        score += precision_adjustment
         
         return min(score, 100.0)
+    
+    def _calculate_area_ratio_score(self, description: str) -> float:
+        """
+        基于MACD面积比计算评分
+        面积比越大，背驰越显著，得分越高
+        """
+        try:
+            # 从描述中提取面积比 "面积比7.74"
+            import re
+            match = re.search(r'面积比([\d.]+)', description)
+            if not match:
+                return 12.5  # 默认中等分数
+            
+            area_ratio = float(match.group(1))
+            
+            # 面积比评分规则：
+            # 5-10: 基础分 10-15分
+            # 10-20: 优秀分 15-20分  
+            # 20-50: 极佳分 20-25分
+            # >50: 满分 25分
+            if area_ratio >= 50:
+                return 25.0
+            elif area_ratio >= 20:
+                return 20.0 + (area_ratio - 20) / 30 * 5  # 20-25分
+            elif area_ratio >= 10:
+                return 15.0 + (area_ratio - 10) / 10 * 5  # 15-20分
+            elif area_ratio >= 5:
+                return 10.0 + (area_ratio - 5) / 5 * 5    # 10-15分
+            else:
+                return 5.0 + area_ratio                    # 5-10分
+                
+        except:
+            return 12.5  # 解析失败时给默认分
+    
+    def _calculate_price_divergence_score(self, description: str) -> float:
+        """
+        基于价格背离度计算评分
+        价差越大，背驰越明显，得分越高
+        """
+        try:
+            # 从描述中提取价差 "价差1.2%"
+            import re
+            match = re.search(r'价差([\d.]+)%', description)
+            if not match:
+                return 10.0  # 默认中等分数
+            
+            price_diff_pct = float(match.group(1))
+            
+            # 价差评分规则：
+            # 0-0.5%: 5-10分 (背离较小)
+            # 0.5-1.0%: 10-15分 (背离中等)
+            # 1.0-2.0%: 15-20分 (背离显著)
+            # >2.0%: 满分 20分 (背离极强)
+            if price_diff_pct >= 2.0:
+                return 20.0
+            elif price_diff_pct >= 1.0:
+                return 15.0 + (price_diff_pct - 1.0) * 5  # 15-20分
+            elif price_diff_pct >= 0.5:
+                return 10.0 + (price_diff_pct - 0.5) * 10 # 10-15分
+            else:
+                return 5.0 + price_diff_pct * 10          # 5-10分
+                
+        except:
+            return 10.0  # 解析失败时给默认分
+    
+    def _calculate_macd_quality_score(self, signal: StockSignal) -> float:
+        """
+        计算MACD技术指标质量评分
+        """
+        score = 0.0
+        
+        # 基础金叉/死叉确认 (10分)
+        if signal.signal_type == "买入" and signal.has_macd_golden_cross:
+            score += 10.0
+        elif signal.signal_type == "卖出" and signal.has_macd_death_cross:
+            score += 10.0
+        else:
+            score += 5.0  # 没有技术确认的信号降分
+        
+        # 信号明确性 (5分)
+        if signal.signal_type in ["买入", "卖出"]:
+            score += 5.0
+        
+        return score
+    
+    def _calculate_risk_reward_score(self, signal: StockSignal) -> float:
+        """
+        计算风险回报比评分
+        """
+        if not signal.entry_price or not signal.stop_loss or not signal.take_profit:
+            return 5.0  # 默认分数
+        
+        try:
+            # 计算风险回报比
+            risk = abs(signal.entry_price - signal.stop_loss)
+            reward = abs(signal.take_profit - signal.entry_price)
+            
+            if risk <= 0:
+                return 5.0
+            
+            risk_reward_ratio = reward / risk
+            
+            # 风险回报比评分：
+            # <1.5: 2-5分 (风险过高)
+            # 1.5-2.0: 5-7分 (一般)
+            # 2.0-3.0: 7-9分 (良好) 
+            # >3.0: 9-10分 (优秀)
+            if risk_reward_ratio >= 3.0:
+                return 10.0
+            elif risk_reward_ratio >= 2.0:
+                return 7.0 + (risk_reward_ratio - 2.0) * 2  # 7-9分
+            elif risk_reward_ratio >= 1.5:
+                return 5.0 + (risk_reward_ratio - 1.5) * 4  # 5-7分
+            else:
+                return 2.0 + risk_reward_ratio * 2           # 2-5分
+                
+        except:
+            return 5.0
     
     def _determine_signal_strength(self, score: float) -> SignalStrength:
         """确定信号强度"""

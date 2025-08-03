@@ -10,5 +10,6 @@ import type { NotificationOptions, Notify } from './notification';
  */
 export declare function close(id: string, position: NotificationOptions['position'], userOnClose?: (vm: VNode) => void): void;
 export declare function closeAll(): void;
+export declare function updateOffsets(position?: NotificationOptions['position']): void;
 declare const _default: Notify;
 export default _default;

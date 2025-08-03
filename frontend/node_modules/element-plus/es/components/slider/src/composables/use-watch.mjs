@@ -36,7 +36,7 @@ const useWatch = (props, initData, minValue, maxValue, emit, elFormItem) => {
         initData.secondValue = val[1];
         if (valueChanged()) {
           if (props.validateEvent) {
-            (_a = elFormItem == null ? void 0 : elFormItem.validate) == null ? void 0 : _a.call(elFormItem, "change").catch((err) => debugWarn(err));
+            (_a = elFormItem == null ? void 0 : elFormItem.validate) == null ? void 0 : _a.call(elFormItem, "change").catch((err) => debugWarn());
           }
           initData.oldValue = val.slice();
         }
@@ -50,7 +50,7 @@ const useWatch = (props, initData, minValue, maxValue, emit, elFormItem) => {
         initData.firstValue = val;
         if (valueChanged()) {
           if (props.validateEvent) {
-            (_b = elFormItem == null ? void 0 : elFormItem.validate) == null ? void 0 : _b.call(elFormItem, "change").catch((err) => debugWarn(err));
+            (_b = elFormItem == null ? void 0 : elFormItem.validate) == null ? void 0 : _b.call(elFormItem, "change").catch((err) => debugWarn());
           }
           initData.oldValue = val;
         }

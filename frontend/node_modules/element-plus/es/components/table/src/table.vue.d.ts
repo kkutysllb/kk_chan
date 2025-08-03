@@ -89,6 +89,7 @@ declare const _default: import("vue").DefineComponent<{
         default: boolean;
     };
     preserveExpandedContent: BooleanConstructor;
+    nativeScrollbar: BooleanConstructor;
 }, {
     ns: {
         namespace: import("vue").ComputedRef<string>;
@@ -114,7 +115,7 @@ declare const _default: import("vue").DefineComponent<{
             setData(states: {
                 _currentRowKey: import("vue").Ref<string | null>;
                 currentRow: import("vue").Ref<any>;
-                expandRowKeys: import("vue").Ref<(string | number)[]>;
+                expandRowKeys: import("vue").Ref<string[]>;
                 treeData: import("vue").Ref<Record<string, import("./store/tree").TreeData>>;
                 indent: import("vue").Ref<number>;
                 lazy: import("vue").Ref<boolean>;
@@ -156,7 +157,7 @@ declare const _default: import("vue").DefineComponent<{
             insertColumn(states: {
                 _currentRowKey: import("vue").Ref<string | null>;
                 currentRow: import("vue").Ref<any>;
-                expandRowKeys: import("vue").Ref<(string | number)[]>;
+                expandRowKeys: import("vue").Ref<string[]>;
                 treeData: import("vue").Ref<Record<string, import("./store/tree").TreeData>>;
                 indent: import("vue").Ref<number>;
                 lazy: import("vue").Ref<boolean>;
@@ -198,7 +199,7 @@ declare const _default: import("vue").DefineComponent<{
             updateColumnOrder(states: {
                 _currentRowKey: import("vue").Ref<string | null>;
                 currentRow: import("vue").Ref<any>;
-                expandRowKeys: import("vue").Ref<(string | number)[]>;
+                expandRowKeys: import("vue").Ref<string[]>;
                 treeData: import("vue").Ref<Record<string, import("./store/tree").TreeData>>;
                 indent: import("vue").Ref<number>;
                 lazy: import("vue").Ref<boolean>;
@@ -240,7 +241,7 @@ declare const _default: import("vue").DefineComponent<{
             removeColumn(states: {
                 _currentRowKey: import("vue").Ref<string | null>;
                 currentRow: import("vue").Ref<any>;
-                expandRowKeys: import("vue").Ref<(string | number)[]>;
+                expandRowKeys: import("vue").Ref<string[]>;
                 treeData: import("vue").Ref<Record<string, import("./store/tree").TreeData>>;
                 indent: import("vue").Ref<number>;
                 lazy: import("vue").Ref<boolean>;
@@ -282,7 +283,7 @@ declare const _default: import("vue").DefineComponent<{
             sort(states: {
                 _currentRowKey: import("vue").Ref<string | null>;
                 currentRow: import("vue").Ref<any>;
-                expandRowKeys: import("vue").Ref<(string | number)[]>;
+                expandRowKeys: import("vue").Ref<string[]>;
                 treeData: import("vue").Ref<Record<string, import("./store/tree").TreeData>>;
                 indent: import("vue").Ref<number>;
                 lazy: import("vue").Ref<boolean>;
@@ -324,7 +325,7 @@ declare const _default: import("vue").DefineComponent<{
             changeSortCondition(states: {
                 _currentRowKey: import("vue").Ref<string | null>;
                 currentRow: import("vue").Ref<any>;
-                expandRowKeys: import("vue").Ref<(string | number)[]>;
+                expandRowKeys: import("vue").Ref<string[]>;
                 treeData: import("vue").Ref<Record<string, import("./store/tree").TreeData>>;
                 indent: import("vue").Ref<number>;
                 lazy: import("vue").Ref<boolean>;
@@ -366,7 +367,7 @@ declare const _default: import("vue").DefineComponent<{
             filterChange(_states: {
                 _currentRowKey: import("vue").Ref<string | null>;
                 currentRow: import("vue").Ref<any>;
-                expandRowKeys: import("vue").Ref<(string | number)[]>;
+                expandRowKeys: import("vue").Ref<string[]>;
                 treeData: import("vue").Ref<Record<string, import("./store/tree").TreeData>>;
                 indent: import("vue").Ref<number>;
                 lazy: import("vue").Ref<boolean>;
@@ -409,7 +410,7 @@ declare const _default: import("vue").DefineComponent<{
             rowSelectedChanged(_states: {
                 _currentRowKey: import("vue").Ref<string | null>;
                 currentRow: import("vue").Ref<any>;
-                expandRowKeys: import("vue").Ref<(string | number)[]>;
+                expandRowKeys: import("vue").Ref<string[]>;
                 treeData: import("vue").Ref<Record<string, import("./store/tree").TreeData>>;
                 indent: import("vue").Ref<number>;
                 lazy: import("vue").Ref<boolean>;
@@ -451,7 +452,7 @@ declare const _default: import("vue").DefineComponent<{
             setHoverRow(states: {
                 _currentRowKey: import("vue").Ref<string | null>;
                 currentRow: import("vue").Ref<any>;
-                expandRowKeys: import("vue").Ref<(string | number)[]>;
+                expandRowKeys: import("vue").Ref<string[]>;
                 treeData: import("vue").Ref<Record<string, import("./store/tree").TreeData>>;
                 indent: import("vue").Ref<number>;
                 lazy: import("vue").Ref<boolean>;
@@ -493,7 +494,7 @@ declare const _default: import("vue").DefineComponent<{
             setCurrentRow(_states: {
                 _currentRowKey: import("vue").Ref<string | null>;
                 currentRow: import("vue").Ref<any>;
-                expandRowKeys: import("vue").Ref<(string | number)[]>;
+                expandRowKeys: import("vue").Ref<string[]>;
                 treeData: import("vue").Ref<Record<string, import("./store/tree").TreeData>>;
                 indent: import("vue").Ref<number>;
                 lazy: import("vue").Ref<boolean>;
@@ -557,7 +558,7 @@ declare const _default: import("vue").DefineComponent<{
         clearFilter: (columnKeys?: string[] | string) => void;
         clearSort: () => void;
         toggleRowExpansion: (row: any, expanded?: boolean) => void;
-        setExpandRowKeysAdapter: (val: (string | number)[]) => void;
+        setExpandRowKeysAdapter: (val: string[]) => void;
         setCurrentRowKey: (key: string) => void;
         toggleRowExpansionAdapter: (row: any, expanded?: boolean) => void;
         isRowExpanded: (row: any) => boolean;
@@ -569,7 +570,7 @@ declare const _default: import("vue").DefineComponent<{
         states: {
             _currentRowKey: import("vue").Ref<string | null>;
             currentRow: import("vue").Ref<any>;
-            expandRowKeys: import("vue").Ref<(string | number)[]>;
+            expandRowKeys: import("vue").Ref<string[]>;
             treeData: import("vue").Ref<Record<string, import("./store/tree").TreeData>>;
             indent: import("vue").Ref<number>;
             lazy: import("vue").Ref<boolean>;
@@ -821,6 +822,7 @@ declare const _default: import("vue").DefineComponent<{
         default: boolean;
     };
     preserveExpandedContent: BooleanConstructor;
+    nativeScrollbar: BooleanConstructor;
 }>> & {
     onScroll?: ((...args: any[]) => any) | undefined;
     onSelect?: ((...args: any[]) => any) | undefined;
@@ -861,6 +863,7 @@ declare const _default: import("vue").DefineComponent<{
     highlightCurrentRow: boolean;
     flexible: boolean;
     scrollbarTabindex: string | number;
+    nativeScrollbar: boolean;
     preserveExpandedContent: boolean;
 }>;
 export default _default;

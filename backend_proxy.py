@@ -73,6 +73,13 @@ class StockSelectionRequest(BaseModel):
 class StockSelectionConfigRequest(BaseModel):
     config: Dict[str, Any]
 
+class IndustryStockSelectionRequest(BaseModel):
+    industry: str
+    max_results: int = 50
+    min_backchi_strength: Optional[float] = 0.6
+    min_area_ratio: Optional[float] = 1.5
+    max_area_shrink_ratio: Optional[float] = 0.8
+
 @app.get("/")
 async def root():
     """根路径"""
@@ -212,7 +219,10 @@ async def get_analysis_history():
 async def get_stock_selection(
     max_results: int = Query(50, description="最大返回结果数量"),
     min_backchi_strength: Optional[float] = Query(None, description="最小背驰强度阈值"),
-    min_buy_point_strength: Optional[float] = Query(None, description="最小买点强度阈值")
+    min_area_ratio: Optional[float] = Query(None, description="绿柱面积比阈值"),
+    max_area_shrink_ratio: Optional[float] = Query(None, description="红柱面积缩小比例"),
+    confirm_days: Optional[int] = Query(None, description="金叉确认天数"),
+    death_cross_confirm_days: Optional[int] = Query(None, description="死叉确认天数")
 ):
     """
     执行缠论多级别背驰选股
@@ -224,8 +234,14 @@ async def get_stock_selection(
         custom_config = {}
         if min_backchi_strength is not None:
             custom_config['min_backchi_strength'] = min_backchi_strength
-        if min_buy_point_strength is not None:
-            custom_config['min_buy_point_strength'] = min_buy_point_strength
+        if min_area_ratio is not None:
+            custom_config['min_area_ratio'] = min_area_ratio
+        if max_area_shrink_ratio is not None:
+            custom_config['max_area_shrink_ratio'] = max_area_shrink_ratio
+        if confirm_days is not None:
+            custom_config['confirm_days'] = confirm_days
+        if death_cross_confirm_days is not None:
+            custom_config['death_cross_confirm_days'] = death_cross_confirm_days
         
         # 执行选股
         result = chan_api.run_stock_selection(
@@ -236,7 +252,8 @@ async def get_stock_selection(
         # 清理NaN值
         cleaned_result = clean_nan_values(result)
         
-        print(f"✅ 选股完成，筛选出 {len(cleaned_result.get('results', []))} 个信号")
+        total_signals = cleaned_result.get('statistics', {}).get('total_signals', 0)
+        print(f"✅ 选股完成，筛选出 {total_signals} 个信号")
         return cleaned_result
         
     except Exception as e:
@@ -259,7 +276,8 @@ async def post_stock_selection(request: StockSelectionRequest):
         # 清理NaN值
         cleaned_result = clean_nan_values(result)
         
-        print(f"✅ POST选股完成，筛选出 {len(cleaned_result.get('results', []))} 个信号")
+        total_signals = cleaned_result.get('statistics', {}).get('total_signals', 0)
+        print(f"✅ POST选股完成，筛选出 {total_signals} 个信号")
         return cleaned_result
         
     except Exception as e:
@@ -311,6 +329,7 @@ async def get_stock_selection_history(limit: int = Query(20, description="返回
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"获取选股历史记录失败: {str(e)}")
+
 
 # 异常处理
 @app.exception_handler(HTTPException)

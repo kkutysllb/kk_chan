@@ -48,7 +48,7 @@ const formProps = buildProps({
   hideRequiredAsterisk: Boolean,
   scrollToError: Boolean,
   scrollIntoViewOptions: {
-    type: [Object, Boolean],
+    type: definePropType([Object, Boolean]),
     default: true
   }
 });

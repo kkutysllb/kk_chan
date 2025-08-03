@@ -1,12 +1,12 @@
 {
   "analysis_date": "2025-08-02",
-  "analysis_time": "2025-08-02 23:06:34",
-  "duration_seconds": 4.020567,
+  "analysis_time": "2025-08-02 23:11:15",
+  "duration_seconds": 2.632976,
   "summary": {
-    "total_signals": 2,
-    "buy_count": 2,
-    "buy_strong_count": 2,
-    "sell_count": 0,
+    "total_signals": 9,
+    "buy_count": 6,
+    "buy_strong_count": 6,
+    "sell_count": 3,
     "sell_strong_count": 0
   },
   "buy_signals": [
@@ -25,7 +25,75 @@
       "entry_price": 6.15,
       "stop_loss": 5.8425,
       "take_profit": 6.980250000000001,
-      "analysis_time": "2025-08-02T23:06:37.978757"
+      "analysis_time": "2025-08-02T23:11:17.797693"
+    },
+    {
+      "symbol": "000058.SZ",
+      "name": "深赛格",
+      "signal_type": "买入",
+      "overall_score": 94.0,
+      "signal_strength": "strong",
+      "recommendation": "强烈推荐买入",
+      "backchi_type": "bottom",
+      "reliability": 0.9,
+      "description": "底背驰: 面积比10.23, 价差1.2%, 有金叉",
+      "has_macd_golden_cross": true,
+      "has_macd_death_cross": false,
+      "entry_price": 8.13,
+      "stop_loss": 7.7235000000000005,
+      "take_profit": 9.22755,
+      "analysis_time": "2025-08-02T23:11:17.875825"
+    },
+    {
+      "symbol": "000409.SZ",
+      "name": "云鼎科技",
+      "signal_type": "买入",
+      "overall_score": 94.0,
+      "signal_strength": "strong",
+      "recommendation": "强烈推荐买入",
+      "backchi_type": "bottom",
+      "reliability": 0.9,
+      "description": "底背驰: 面积比11.51, 价差1.7%, 有金叉",
+      "has_macd_golden_cross": true,
+      "has_macd_death_cross": false,
+      "entry_price": 12.38,
+      "stop_loss": 11.761000000000001,
+      "take_profit": 14.051300000000001,
+      "analysis_time": "2025-08-02T23:11:17.959534"
+    },
+    {
+      "symbol": "000501.SZ",
+      "name": "武商集团",
+      "signal_type": "买入",
+      "overall_score": 94.0,
+      "signal_strength": "strong",
+      "recommendation": "强烈推荐买入",
+      "backchi_type": "bottom",
+      "reliability": 0.9,
+      "description": "底背驰: 面积比11.27, 价差0.8%, 有金叉",
+      "has_macd_golden_cross": true,
+      "has_macd_death_cross": false,
+      "entry_price": 9.29,
+      "stop_loss": 8.825499999999998,
+      "take_profit": 10.544149999999998,
+      "analysis_time": "2025-08-02T23:11:17.997635"
+    },
+    {
+      "symbol": "000510.SZ",
+      "name": "新金路",
+      "signal_type": "买入",
+      "overall_score": 94.0,
+      "signal_strength": "strong",
+      "recommendation": "强烈推荐买入",
+      "backchi_type": "bottom",
+      "reliability": 0.9,
+      "description": "底背驰: 面积比7.79, 价差1.9%, 有金叉",
+      "has_macd_golden_cross": true,
+      "has_macd_death_cross": false,
+      "entry_price": 4.71,
+      "stop_loss": 4.4745,
+      "take_profit": 5.34585,
+      "analysis_time": "2025-08-02T23:11:18.013393"
     },
     {
       "symbol": "000016.SZ",
@@ -42,8 +110,60 @@
       "entry_price": 4.85,
       "stop_loss": 4.607499999999999,
       "take_profit": 5.374107420647222,
-      "analysis_time": "2025-08-02T23:06:37.999684"
+      "analysis_time": "2025-08-02T23:11:17.817233"
     }
   ],
-  "sell_signals": []
+  "sell_signals": [
+    {
+      "symbol": "000090.SZ",
+      "name": "天健集团",
+      "signal_type": "卖出",
+      "overall_score": 43.510647080892895,
+      "signal_strength": "weak",
+      "recommendation": "谨慎卖出",
+      "backchi_type": "top",
+      "reliability": 0.47517745134821493,
+      "description": "顶背驰: 面积比0.13, 价差4.2%, 有死叉",
+      "has_macd_golden_cross": false,
+      "has_macd_death_cross": false,
+      "entry_price": 3.52,
+      "stop_loss": 3.696,
+      "take_profit": 3.2691063056881426,
+      "analysis_time": "2025-08-02T23:11:17.907508"
+    },
+    {
+      "symbol": "000066.SZ",
+      "name": "中国长城",
+      "signal_type": "卖出",
+      "overall_score": 42.218717636885316,
+      "signal_strength": "weak",
+      "recommendation": "谨慎卖出",
+      "backchi_type": "top",
+      "reliability": 0.45364529394808856,
+      "description": "顶背驰: 面积比0.13, 价差1.7%, 有死叉",
+      "has_macd_golden_cross": false,
+      "has_macd_death_cross": false,
+      "entry_price": 14.99,
+      "stop_loss": 15.739500000000001,
+      "take_profit": 13.969978556557724,
+      "analysis_time": "2025-08-02T23:11:17.890963"
+    },
+    {
+      "symbol": "000415.SZ",
+      "name": "渤海租赁",
+      "signal_type": "卖出",
+      "overall_score": 37.26871384531716,
+      "signal_strength": "weak",
+      "recommendation": "谨慎卖出",
+      "backchi_type": "top",
+      "reliability": 0.371145230755286,
+      "description": "顶背驰: 面积比0.31, 价差2.5%, 有死叉",
+      "has_macd_golden_cross": false,
+      "has_macd_death_cross": false,
+      "entry_price": 3.45,
+      "stop_loss": 3.6225000000000005,
+      "take_profit": 3.2579323430841396,
+      "analysis_time": "2025-08-02T23:11:17.968354"
+    }
+  ]
 }

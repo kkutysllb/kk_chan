@@ -25,7 +25,7 @@ declare function useWatcher<T extends DefaultRow>(): {
     clearFilter: (columnKeys?: string[] | string) => void;
     clearSort: () => void;
     toggleRowExpansion: (row: T, expanded?: boolean) => void;
-    setExpandRowKeysAdapter: (val: (string | number)[]) => void;
+    setExpandRowKeysAdapter: (val: string[]) => void;
     setCurrentRowKey: (key: string) => void;
     toggleRowExpansionAdapter: (row: T, expanded?: boolean) => void;
     isRowExpanded: (row: T) => boolean;
@@ -37,7 +37,7 @@ declare function useWatcher<T extends DefaultRow>(): {
     states: {
         _currentRowKey: Ref<string | null>;
         currentRow: Ref<T | null>;
-        expandRowKeys: Ref<(string | number)[]>;
+        expandRowKeys: Ref<string[]>;
         treeData: Ref<Record<string, import("./tree").TreeData>>;
         indent: Ref<number>;
         lazy: Ref<boolean>;

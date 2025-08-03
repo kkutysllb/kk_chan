@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'vue';
-/** converting camel-cased strings to be lowercase and link it with Separato */
+/** converting camel-cased strings to be lowercase and link it with Separator */
 export declare function toLowercaseSeparator(key: string): string;
 export declare function getStyleStr(style: CSSProperties): string;
 /** Returns the ratio of the device's physical pixel resolution to the css pixel resolution */

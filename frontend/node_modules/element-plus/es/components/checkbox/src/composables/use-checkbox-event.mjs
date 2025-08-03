@@ -43,7 +43,7 @@ const useCheckboxEvent = (props, {
   const validateEvent = computed(() => (checkboxGroup == null ? void 0 : checkboxGroup.validateEvent) || props.validateEvent);
   watch(() => props.modelValue, () => {
     if (validateEvent.value) {
-      formItem == null ? void 0 : formItem.validate("change").catch((err) => debugWarn(err));
+      formItem == null ? void 0 : formItem.validate("change").catch((err) => debugWarn());
     }
   });
   return {

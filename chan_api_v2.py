@@ -22,7 +22,7 @@ from chan_theory_v2.core.chan_engine import ChanEngine, ChanAnalysisResult, Anal
 from chan_theory_v2.models.enums import TimeLevel, BiDirection, SegDirection, ZhongShuType
 from chan_theory_v2.models.dynamics import BuySellPointType, BackChi, DynamicsConfig
 from chan_theory_v2.config.chan_config import ChanConfig
-from chan_theory_v2.strategies.backchi_stock_selector import BackchiStockSelector
+from chan_theory_v2.strategies.backchi_stock_selector import SimpleBackchiStockSelector
 from database.db_handler import get_db_handler
 
 # 设置日志
@@ -42,7 +42,7 @@ class ChanDataAPIv2:
         self.chan_engine = ChanEngine()
         
         # 初始化选股器
-        self.stock_selector = BackchiStockSelector()
+        self.stock_selector = SimpleBackchiStockSelector()
         
         logger.info("🚀 缠论数据API v2初始化完成")
     
@@ -1154,26 +1154,34 @@ class ChanDataAPIv2:
                 "current_config": config,
                 "config_description": {
                     "days_30min": "30分钟级别分析天数",
-                    "days_5min": "5分钟级别分析天数", 
                     "min_backchi_strength": "最小背驰强度阈值(0-1)",
-                    "min_buy_point_strength": "最小买点强度阈值(0-1)",
+                    "min_area_ratio": "绿柱面积比阈值(>1.0)",
+                    "max_area_shrink_ratio": "红柱面积缩小比例(0-1)",
+                    "confirm_days": "金叉确认天数",
+                    "death_cross_confirm_days": "死叉确认天数",
                     "max_stocks_per_batch": "每批处理股票数量上限"
                 },
                 "recommendations": {
                     "conservative": {
                         "min_backchi_strength": 0.8,
-                        "min_buy_point_strength": 0.7,
-                        "description": "保守配置：高强度信号筛选"
+                        "min_area_ratio": 2.0,
+                        "max_area_shrink_ratio": 0.7,
+                        "death_cross_confirm_days": 3,
+                        "description": "保守配置：高阈值严格筛选"
                     },
                     "balanced": {
                         "min_backchi_strength": 0.6,
-                        "min_buy_point_strength": 0.5,
-                        "description": "平衡配置：中等强度信号筛选"
+                        "min_area_ratio": 1.5,
+                        "max_area_shrink_ratio": 0.8,
+                        "death_cross_confirm_days": 2,
+                        "description": "平衡配置：中等阈值筛选"
                     },
                     "aggressive": {
                         "min_backchi_strength": 0.4,
-                        "min_buy_point_strength": 0.3,
-                        "description": "激进配置：低强度信号筛选"
+                        "min_area_ratio": 1.2,
+                        "max_area_shrink_ratio": 0.85,
+                        "death_cross_confirm_days": 1,
+                        "description": "激进配置：低阈值快速响应"
                     }
                 }
             }
@@ -1197,20 +1205,31 @@ class ChanDataAPIv2:
             
             # 验证配置参数
             valid_keys = {
-                'days_30min', 'days_5min', 'min_backchi_strength', 
-                'min_buy_point_strength', 'max_stocks_per_batch'
+                'days_30min', 'min_backchi_strength', 'min_area_ratio',
+                'max_area_shrink_ratio', 'confirm_days', 'death_cross_confirm_days',
+                'max_stocks_per_batch'
             }
             
             validated_config = {}
             for key, value in new_config.items():
                 if key in valid_keys:
                     # 数值范围验证
-                    if key in ['min_backchi_strength', 'min_buy_point_strength']:
+                    if key in ['min_backchi_strength', 'max_area_shrink_ratio']:
                         if 0 <= value <= 1:
                             validated_config[key] = value
                         else:
                             raise ValueError(f"{key} 必须在 0-1 范围内")
-                    elif key in ['days_30min', 'days_5min']:
+                    elif key == 'min_area_ratio':
+                        if value > 1.0:
+                            validated_config[key] = float(value)
+                        else:
+                            raise ValueError(f"{key} 必须大于 1.0")
+                    elif key in ['confirm_days', 'death_cross_confirm_days']:
+                        if value > 0:
+                            validated_config[key] = int(value)
+                        else:
+                            raise ValueError(f"{key} 必须大于 0")
+                    elif key == 'days_30min':
                         if value > 0:
                             validated_config[key] = int(value)
                         else:
@@ -1267,50 +1286,52 @@ class ChanDataAPIv2:
         }
     
     def _convert_stock_selection_to_frontend(self, signals: List, max_results: int) -> Dict[str, Any]:
-        """转换选股结果为前端格式"""
+        """转换选股结果为前端格式（基于新的StockSignal结构）"""
         try:
+            # 统计买入和卖出信号
+            buy_signals = [s for s in signals if s.signal_type == "买入"]
+            sell_signals = [s for s in signals if s.signal_type == "卖出"]
+            
             frontend_data = {
                 "meta": {
                     "analysis_time": datetime.now().isoformat(),
                     "max_results": max_results,
                     "actual_results": len(signals),
                     "selection_criteria": {
-                        "min_30min_backchi_strength": self.stock_selector.config.get('min_backchi_strength', 0.6),
-                        "min_5min_buy_point_strength": self.stock_selector.config.get('min_buy_point_strength', 0.5),
-                        "analysis_days_30min": self.stock_selector.config.get('days_30min', 60),
-                        "analysis_days_5min": self.stock_selector.config.get('days_5min', 10)
+                        "min_backchi_strength": self.stock_selector.config.get('min_backchi_strength', 0.3),
+                        "require_macd_golden_cross": self.stock_selector.config.get('require_macd_golden_cross', True),
+                        "analysis_days_30min": self.stock_selector.config.get('days_30min', 30)
                     }
                 },
                 
-                "results": [],
+                "results": {
+                    "buy_signals": [],
+                    "sell_signals": []
+                },
                 
                 "statistics": {
-                    "total_processed": self.stock_selector.config.get('max_stocks_per_batch', 50),
-                    "signals_found": len(signals),
-                    "success_rate": len(signals) / max(self.stock_selector.config.get('max_stocks_per_batch', 50), 1) * 100,
+                    "total_signals": len(signals),
+                    "buy_signals_count": len(buy_signals),
+                    "sell_signals_count": len(sell_signals),
                     "strength_distribution": {
-                        "strong": 0,
-                        "medium": 0, 
-                        "weak": 0
+                        "strong": len([s for s in signals if s.signal_strength.value == "strong"]),
+                        "medium": len([s for s in signals if s.signal_strength.value == "medium"]),
+                        "weak": len([s for s in signals if s.signal_strength.value == "weak"])
                     },
-                    "recommendation_distribution": {
-                        "强烈关注": 0,
-                        "密切监控": 0,
-                        "适度关注": 0,
-                        "观望": 0
-                    }
+                    "recommendation_distribution": {}
                 },
                 
                 "config_used": self.stock_selector.config.copy()
             }
             
-            # 转换每个信号
-            for signal in signals:
+            # 转换买入信号
+            for signal in buy_signals:
                 try:
                     frontend_signal = {
                         "basic_info": {
                             "symbol": signal.symbol,
                             "name": signal.name,
+                            "signal_type": signal.signal_type,
                             "analysis_time": signal.analysis_time.isoformat()
                         },
                         
@@ -1320,20 +1341,12 @@ class ChanDataAPIv2:
                             "recommendation": signal.recommendation
                         },
                         
-                        "min30_analysis": {
-                            "has_bottom_backchi": signal.min30_bottom_backchi is not None,
-                            "has_top_backchi": signal.min30_top_backchi is not None,
-                            "trend_direction": signal.min30_trend_direction,
-                            "backchi_strength": round(signal.min30_bottom_backchi.backchi_strength, 3) if signal.min30_bottom_backchi else 0,
-                            "backchi_type": str(signal.min30_bottom_backchi.backchi_type) if signal.min30_bottom_backchi else None
-                        },
-                        
-                        "min5_analysis": {
-                            "buy_points_count": len(signal.min5_buy_points),
-                            "has_latest_buy_signal": signal.min5_latest_buy_signal is not None,
-                            "latest_buy_strength": round(signal.min5_latest_buy_signal.strength, 3) if signal.min5_latest_buy_signal else 0,
-                            "latest_buy_type": str(signal.min5_latest_buy_signal.point_type) if signal.min5_latest_buy_signal else None,
-                            "latest_buy_time": signal.min5_latest_buy_signal.timestamp.isoformat() if signal.min5_latest_buy_signal else None
+                        "backchi_analysis": {
+                            "backchi_type": getattr(signal, 'backchi_type', None),
+                            "reliability": round(getattr(signal, 'reliability', 0.0), 3),
+                            "description": getattr(signal, 'description', ''),
+                            "has_macd_golden_cross": getattr(signal, 'has_macd_golden_cross', False),
+                            "has_macd_death_cross": getattr(signal, 'has_macd_death_cross', False)
                         },
                         
                         "key_prices": {
@@ -1344,16 +1357,57 @@ class ChanDataAPIv2:
                         }
                     }
                     
-                    frontend_data["results"].append(frontend_signal)
-                    
-                    # 更新统计信息
-                    strength = signal.signal_strength.value
-                    frontend_data["statistics"]["strength_distribution"][strength] += 1
-                    frontend_data["statistics"]["recommendation_distribution"][signal.recommendation] += 1
+                    frontend_data["results"]["buy_signals"].append(frontend_signal)
                     
                 except Exception as e:
-                    logger.warning(f"转换单个信号失败: {e}")
+                    logger.warning(f"转换买入信号失败: {e}")
                     continue
+            
+            # 转换卖出信号
+            for signal in sell_signals:
+                try:
+                    frontend_signal = {
+                        "basic_info": {
+                            "symbol": signal.symbol,
+                            "name": signal.name,
+                            "signal_type": signal.signal_type,
+                            "analysis_time": signal.analysis_time.isoformat()
+                        },
+                        
+                        "scoring": {
+                            "overall_score": round(signal.overall_score, 2),
+                            "signal_strength": signal.signal_strength.value,
+                            "recommendation": signal.recommendation
+                        },
+                        
+                        "backchi_analysis": {
+                            "backchi_type": getattr(signal, 'backchi_type', None),
+                            "reliability": round(getattr(signal, 'reliability', 0.0), 3),
+                            "description": getattr(signal, 'description', ''),
+                            "has_macd_golden_cross": getattr(signal, 'has_macd_golden_cross', False),
+                            "has_macd_death_cross": getattr(signal, 'has_macd_death_cross', False)
+                        },
+                        
+                        "key_prices": {
+                            "entry_price": round(signal.entry_price, 2) if signal.entry_price else None,
+                            "stop_loss": round(signal.stop_loss, 2) if signal.stop_loss else None,
+                            "take_profit": round(signal.take_profit, 2) if signal.take_profit else None,
+                            "risk_reward_ratio": round((signal.take_profit - signal.entry_price) / (signal.entry_price - signal.stop_loss), 2) if (signal.entry_price and signal.stop_loss and signal.take_profit) else None
+                        }
+                    }
+                    
+                    frontend_data["results"]["sell_signals"].append(frontend_signal)
+                    
+                except Exception as e:
+                    logger.warning(f"转换卖出信号失败: {e}")
+                    continue
+            
+            # 更新推荐分布统计
+            for signal in signals:
+                rec = signal.recommendation
+                if rec not in frontend_data["statistics"]["recommendation_distribution"]:
+                    frontend_data["statistics"]["recommendation_distribution"][rec] = 0
+                frontend_data["statistics"]["recommendation_distribution"][rec] += 1
             
             return frontend_data
             

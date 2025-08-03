@@ -4,7 +4,7 @@ export declare function createStore<T extends DefaultRow>(table: Table<T>, props
         setData(states: {
             _currentRowKey: import("vue").Ref<string | null>;
             currentRow: import("vue").Ref<T | null>;
-            expandRowKeys: import("vue").Ref<(string | number)[]>;
+            expandRowKeys: import("vue").Ref<string[]>;
             treeData: import("vue").Ref<Record<string, import("./tree").TreeData>>;
             indent: import("vue").Ref<number>;
             lazy: import("vue").Ref<boolean>;
@@ -46,7 +46,7 @@ export declare function createStore<T extends DefaultRow>(table: Table<T>, props
         insertColumn(states: {
             _currentRowKey: import("vue").Ref<string | null>;
             currentRow: import("vue").Ref<T | null>;
-            expandRowKeys: import("vue").Ref<(string | number)[]>;
+            expandRowKeys: import("vue").Ref<string[]>;
             treeData: import("vue").Ref<Record<string, import("./tree").TreeData>>;
             indent: import("vue").Ref<number>;
             lazy: import("vue").Ref<boolean>;
@@ -88,7 +88,7 @@ export declare function createStore<T extends DefaultRow>(table: Table<T>, props
         updateColumnOrder(states: {
             _currentRowKey: import("vue").Ref<string | null>;
             currentRow: import("vue").Ref<T | null>;
-            expandRowKeys: import("vue").Ref<(string | number)[]>;
+            expandRowKeys: import("vue").Ref<string[]>;
             treeData: import("vue").Ref<Record<string, import("./tree").TreeData>>;
             indent: import("vue").Ref<number>;
             lazy: import("vue").Ref<boolean>;
@@ -130,7 +130,7 @@ export declare function createStore<T extends DefaultRow>(table: Table<T>, props
         removeColumn(states: {
             _currentRowKey: import("vue").Ref<string | null>;
             currentRow: import("vue").Ref<T | null>;
-            expandRowKeys: import("vue").Ref<(string | number)[]>;
+            expandRowKeys: import("vue").Ref<string[]>;
             treeData: import("vue").Ref<Record<string, import("./tree").TreeData>>;
             indent: import("vue").Ref<number>;
             lazy: import("vue").Ref<boolean>;
@@ -172,7 +172,7 @@ export declare function createStore<T extends DefaultRow>(table: Table<T>, props
         sort(states: {
             _currentRowKey: import("vue").Ref<string | null>;
             currentRow: import("vue").Ref<T | null>;
-            expandRowKeys: import("vue").Ref<(string | number)[]>;
+            expandRowKeys: import("vue").Ref<string[]>;
             treeData: import("vue").Ref<Record<string, import("./tree").TreeData>>;
             indent: import("vue").Ref<number>;
             lazy: import("vue").Ref<boolean>;
@@ -214,7 +214,7 @@ export declare function createStore<T extends DefaultRow>(table: Table<T>, props
         changeSortCondition(states: {
             _currentRowKey: import("vue").Ref<string | null>;
             currentRow: import("vue").Ref<T | null>;
-            expandRowKeys: import("vue").Ref<(string | number)[]>;
+            expandRowKeys: import("vue").Ref<string[]>;
             treeData: import("vue").Ref<Record<string, import("./tree").TreeData>>;
             indent: import("vue").Ref<number>;
             lazy: import("vue").Ref<boolean>;
@@ -256,7 +256,7 @@ export declare function createStore<T extends DefaultRow>(table: Table<T>, props
         filterChange(_states: {
             _currentRowKey: import("vue").Ref<string | null>;
             currentRow: import("vue").Ref<T | null>;
-            expandRowKeys: import("vue").Ref<(string | number)[]>;
+            expandRowKeys: import("vue").Ref<string[]>;
             treeData: import("vue").Ref<Record<string, import("./tree").TreeData>>;
             indent: import("vue").Ref<number>;
             lazy: import("vue").Ref<boolean>;
@@ -299,7 +299,7 @@ export declare function createStore<T extends DefaultRow>(table: Table<T>, props
         rowSelectedChanged(_states: {
             _currentRowKey: import("vue").Ref<string | null>;
             currentRow: import("vue").Ref<T | null>;
-            expandRowKeys: import("vue").Ref<(string | number)[]>;
+            expandRowKeys: import("vue").Ref<string[]>;
             treeData: import("vue").Ref<Record<string, import("./tree").TreeData>>;
             indent: import("vue").Ref<number>;
             lazy: import("vue").Ref<boolean>;
@@ -341,7 +341,7 @@ export declare function createStore<T extends DefaultRow>(table: Table<T>, props
         setHoverRow(states: {
             _currentRowKey: import("vue").Ref<string | null>;
             currentRow: import("vue").Ref<T | null>;
-            expandRowKeys: import("vue").Ref<(string | number)[]>;
+            expandRowKeys: import("vue").Ref<string[]>;
             treeData: import("vue").Ref<Record<string, import("./tree").TreeData>>;
             indent: import("vue").Ref<number>;
             lazy: import("vue").Ref<boolean>;
@@ -383,7 +383,7 @@ export declare function createStore<T extends DefaultRow>(table: Table<T>, props
         setCurrentRow(_states: {
             _currentRowKey: import("vue").Ref<string | null>;
             currentRow: import("vue").Ref<T | null>;
-            expandRowKeys: import("vue").Ref<(string | number)[]>;
+            expandRowKeys: import("vue").Ref<string[]>;
             treeData: import("vue").Ref<Record<string, import("./tree").TreeData>>;
             indent: import("vue").Ref<number>;
             lazy: import("vue").Ref<boolean>;
@@ -447,7 +447,7 @@ export declare function createStore<T extends DefaultRow>(table: Table<T>, props
     clearFilter: (columnKeys?: string[] | string) => void;
     clearSort: () => void;
     toggleRowExpansion: (row: T, expanded?: boolean) => void;
-    setExpandRowKeysAdapter: (val: (string | number)[]) => void;
+    setExpandRowKeysAdapter: (val: string[]) => void;
     setCurrentRowKey: (key: string) => void;
     toggleRowExpansionAdapter: (row: T, expanded?: boolean) => void;
     isRowExpanded: (row: T) => boolean;
@@ -459,7 +459,7 @@ export declare function createStore<T extends DefaultRow>(table: Table<T>, props
     states: {
         _currentRowKey: import("vue").Ref<string | null>;
         currentRow: import("vue").Ref<T | null>;
-        expandRowKeys: import("vue").Ref<(string | number)[]>;
+        expandRowKeys: import("vue").Ref<string[]>;
         treeData: import("vue").Ref<Record<string, import("./tree").TreeData>>;
         indent: import("vue").Ref<number>;
         lazy: import("vue").Ref<boolean>;

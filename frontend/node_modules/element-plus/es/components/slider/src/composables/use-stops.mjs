@@ -1,12 +1,10 @@
 import { computed } from 'vue';
-import { debugWarn } from '../../../../utils/error.mjs';
 
 const useStops = (props, initData, minValue, maxValue) => {
   const stops = computed(() => {
     if (!props.showStops || props.min > props.max)
       return [];
     if (props.step === 0) {
-      debugWarn("ElSlider", "step should not be 0.");
       return [];
     }
     const stopCount = (props.max - props.min) / props.step;

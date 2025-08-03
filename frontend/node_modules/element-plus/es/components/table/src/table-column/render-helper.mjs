@@ -3,7 +3,6 @@ import { cellForced, defaultRenderCell, treeCellPrefix, getDefaultClassName } fr
 import { parseWidth, parseMinWidth } from '../util.mjs';
 import { useNamespace } from '../../../../hooks/use-namespace/index.mjs';
 import { isUndefined } from '../../../../utils/types.mjs';
-import { debugWarn } from '../../../../utils/error.mjs';
 import { isArray } from '@vue/shared';
 
 function useRender(props, slots, owner) {
@@ -83,9 +82,7 @@ function useRender(props, slots, owner) {
     }
   };
   const setColumnRenders = (column) => {
-    if (props.renderHeader) {
-      debugWarn("TableColumn", "Comparing to render-header, scoped-slot header is easier to use. We recommend users to use scoped-slot header.");
-    } else if (column.type !== "selection") {
+    if (props.renderHeader) ; else if (column.type !== "selection") {
       column.renderHeader = (scope) => {
         instance.columnConfig.value["label"];
         return renderSlot(slots, "header", scope, () => [column.label]);

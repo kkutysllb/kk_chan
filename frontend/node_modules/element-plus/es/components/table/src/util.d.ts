@@ -23,7 +23,7 @@ export declare const getColumnByKey: <T extends DefaultRow>(table: {
 export declare const getColumnByCell: <T extends DefaultRow>(table: {
     columns: TableColumnCtx<T>[];
 }, cell: HTMLElement, namespace: string) => null | TableColumnCtx<T>;
-export declare const getRowIdentity: <T extends DefaultRow>(row: T, rowKey: string | ((row: T) => string) | null, isReturnRawValue?: boolean) => string;
+export declare const getRowIdentity: <T extends DefaultRow>(row: T, rowKey: string | ((row: T) => string) | null) => string;
 export declare const getKeysMap: <T extends DefaultRow>(array: T[], rowKey: string | null, flatten?: boolean, childrenKey?: string) => Record<PropertyKey, {
     row: T;
     index: number;

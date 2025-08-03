@@ -7,6 +7,7 @@ import { useNodeExpandEventBroadcast } from './model/useNodeExpandEventBroadcast
 import { useDragNodeHandler } from './model/useDragNode.mjs';
 import { useKeydown } from './model/useKeydown.mjs';
 import { ROOT_TREE_INJECTION_KEY } from './tokens.mjs';
+import { isEqual } from 'lodash-unified';
 import _export_sfc from '../../../_virtual/plugin-vue_export-helper.mjs';
 import { definePropType } from '../../../utils/vue/props/runtime.mjs';
 import { iconPropType } from '../../../utils/vue/icon.mjs';
@@ -137,7 +138,9 @@ const _sfc_main = defineComponent({
     watch(() => props.currentNodeKey, (newVal) => {
       store.value.setCurrentNodeKey(newVal != null ? newVal : null);
     });
-    watch(() => props.defaultCheckedKeys, (newVal) => {
+    watch(() => props.defaultCheckedKeys, (newVal, oldVal) => {
+      if (isEqual(newVal, oldVal))
+        return;
       store.value.setDefaultCheckedKey(newVal != null ? newVal : []);
     });
     watch(() => props.defaultExpandedKeys, (newVal) => {

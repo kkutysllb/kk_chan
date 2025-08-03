@@ -1,7 +1,6 @@
 import { ref, getCurrentInstance, inject, computed, unref } from 'vue';
 import { isNumber } from '../../utils/types.mjs';
 import { isClient } from '@vueuse/core';
-import { debugWarn } from '../../utils/error.mjs';
 
 const initial = {
   current: 0
@@ -23,10 +22,7 @@ const useZIndex = (zIndexOverrides) => {
     zIndex.value = increasingInjection.current;
     return currentZIndex.value;
   };
-  if (!isClient && !inject(ZINDEX_INJECTION_KEY)) {
-    debugWarn("ZIndexInjection", `Looks like you are using server rendering, you must provide a z-index provider to ensure the hydration process to be succeed
-usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`);
-  }
+  if (!isClient && !inject(ZINDEX_INJECTION_KEY)) ;
   return {
     initialZIndex,
     currentZIndex,

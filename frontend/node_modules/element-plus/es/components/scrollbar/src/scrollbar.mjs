@@ -3,6 +3,10 @@ import { useAriaProps } from '../../../hooks/use-aria/index.mjs';
 import { isNumber } from '../../../utils/types.mjs';
 
 const scrollbarProps = buildProps({
+  distance: {
+    type: Number,
+    default: 0
+  },
   height: {
     type: [String, Number],
     default: ""

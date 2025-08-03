@@ -85,13 +85,17 @@ const _sfc_main = defineComponent({
     }
     function onAutofocusTriggerEnter() {
       var _a, _b;
-      (_b = (_a = triggeringElementRef.value) == null ? void 0 : _a.$el) == null ? void 0 : _b.focus();
+      (_b = (_a = triggeringElementRef.value) == null ? void 0 : _a.$el) == null ? void 0 : _b.focus({
+        preventScroll: true
+      });
     }
     function onItemEnter() {
     }
     function onItemLeave() {
       const contentEl = unref(contentRef);
-      trigger.value.includes("hover") && (contentEl == null ? void 0 : contentEl.focus());
+      trigger.value.includes("hover") && (contentEl == null ? void 0 : contentEl.focus({
+        preventScroll: true
+      }));
       currentTabId.value = null;
     }
     function handleCurrentTabIdChange(id) {

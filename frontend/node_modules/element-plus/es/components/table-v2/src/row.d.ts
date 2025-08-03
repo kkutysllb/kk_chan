@@ -5,10 +5,10 @@ export type RowExpandParams = {
     rowKey: KeyType;
 } & RowCommonParams;
 export type RowHoverParams = {
-    event: MouseEvent;
+    event?: MouseEvent;
     hovered: boolean;
     rowKey: KeyType;
-} & RowCommonParams;
+} & Partial<RowCommonParams>;
 export type RowEventHandlerParams = {
     rowKey: KeyType;
     event: Event;

@@ -1,8 +1,6 @@
 import { isVNode, Fragment, Text, Comment, openBlock, createBlock, createCommentVNode } from 'vue';
 import { isArray, hasOwn, camelize } from '@vue/shared';
-import { debugWarn } from '../error.mjs';
 
-const SCOPE = "utils/vue/vnode";
 var PatchFlags = /* @__PURE__ */ ((PatchFlags2) => {
   PatchFlags2[PatchFlags2["TEXT"] = 1] = "TEXT";
   PatchFlags2[PatchFlags2["CLASS"] = 2] = "CLASS";
@@ -58,7 +56,6 @@ function renderBlock(...args) {
 }
 const getNormalizedProps = (node) => {
   if (!isVNode(node)) {
-    debugWarn(SCOPE, "[getNormalizedProps] must be a VNode");
     return {};
   }
   const raw = node.props || {};

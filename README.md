@@ -2,39 +2,40 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![Vue3](https://img.shields.io/badge/Vue3-3.3+-green.svg)](https://vuejs.org/)
-[![Electron](https://img.shields.io/badge/Electron-27+-blue.svg)](https://www.electronjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.68+-green.svg)](https://fastapi.tiangolo.com/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-5.0+-green.svg)](https://www.mongodb.com/)
 
 > 基于缠论理论的专业股票技术分析平台
 
 ## 项目概述
 
-KK缠论量化分析平台是一个完整的股票技术分析系统，基于缠中说禅的缠论理论，提供专业的多周期技术分析功能。
+KK缠论量化分析平台是一个完整的股票技术分析系统，基于缠中说禅的缠论理论，提供专业的多周期技术分析功能和智能选股服务。
 
 ### 核心特性
 
 - ✅ **缠论分析**：分型识别、笔段构造、中枢分析
 - ✅ **多周期联立**：5分钟、30分钟、日线多级别分析  
 - ✅ **交易信号**：买卖点自动识别和质量评估
+- ✅ **智能选股**：基于MACD背驰的多级别选股策略
 - ✅ **可视化展示**：基于ECharts的专业图表展示
-- ✅ **桌面应用**：Vue3 + Electron桌面客户端
+- ✅ **前后端分离**：Vue3前端 + FastAPI后端
 
 ## 系统架构
 
 ```
                                                             
-   Vue3 前端            Python API            数据层      
+   Vue3 前端            FastAPI 后端            数据层      
                                                               
-┌─ ECharts图表   ◄──── ┌─ chan_api.py    ◄──── ┌─ MongoDB      
-├─ Element UI         ├─ JSON数据格式        ├─ 股票数据      
-└─ 响应式布局         └─ 多周期分析          └─ 实时更新    
+┌─ ECharts图表   ◄──── ┌─ backend_proxy.py ◄──── ┌─ MongoDB      
+├─ Element UI         ├─ chan_api_v2.py         ├─ 股票数据      
+└─ 响应式布局         └─ 多周期分析引擎         └─ 实时更新    
                                                             
                                                          
                                  ▲                        ▼
                                   │                        │
                                                                
-                            Electron            MongoDB        
-                            桌面客户端         数据存储       
+                          缠论分析引擎          MongoDB        
+                          选股策略模块          数据存储       
                                                                
 ```
 
@@ -42,52 +43,60 @@ KK缠论量化分析平台是一个完整的股票技术分析系统，基于缠
 
 ### 后端核心
 
-#### 缠论引擎 (`chan_theory/`)
+#### 缠论引擎 (`chan_theory_v2/`)
 - [x] **多周期数据获取** - 5分钟、30分钟、日线数据
 - [x] **结构分析** - 分型识别、笔段构造
 - [x] **中枢识别** - 中枢构造和延伸判断
 - [x] **多周期联立** - 多级别走势分析
 - [x] **交易信号** - 买卖点自动识别
+- [x] **背驰分析** - MACD背驰识别与评分
 
-#### API接口 (`chan_api.py`)
+#### 选股策略 (`chan_theory_v2/strategies/`)
+- [x] **背驰选股** - 基于MACD背驰的选股策略
+- [x] **信号评分** - 综合评分和信号强度判断
+- [x] **关键价位** - 入场价、止损价和止盈价计算
+
+#### API接口 (`chan_api_v2.py` & `backend_proxy.py`)
 - [x] **数据标准化** - ECharts兼容格式
 - [x] **前端API** - 完整的JSON数据输出
 - [x] **股票列表** - 动态股票代码获取
 - [x] **参数配置** - 灵活的分析参数设置
+- [x] **选股服务** - 智能选股API接口
 
 ### 前端界面
 
-#### 桌面GUI (`desktop_gui/`)
-- [x] **PyQt6界面** - 基础桌面应用框架
-- [x] **图表集成** - matplotlib图表显示
-- [x] **中文字体** - 完整的中文显示支持
+#### Vue3前端 (`frontend/`)
+- [x] **分析页面** - 单股票多周期分析
+- [x] **选股页面** - 智能选股结果展示
+- [x] **图表集成** - ECharts专业图表
+- [x] **响应式设计** - 适配不同设备
 
 ## 最新进展
 
-### 2025-07-28 数据传递问题修复 ✅
+### 智能选股功能完成 ✅
 
-经过详细调试，成功解决了可视化数据传递的关键问题：
+成功实现了基于MACD背驰的智能选股功能，支持多级别联立分析：
 
-#### 修复内容
-1. **TrendLevel枚举导入问题** - 统一所有模块使用绝对导入
-2. **数据格式转换错误** - 修复分型、笔段、中枢数据格式化方法
-3. **前端API数据访问** - 解决键值不匹配导致的数据获取失败
+#### 功能特点
+1. **30分钟底背驰筛选** - 识别中期趋势反转机会
+2. **5分钟买点确认** - 通过短期买点信号确认入场时机
+3. **信号评分系统** - 基于背驰可靠度、MACD金叉和信号类型的综合评分
+4. **关键价位计算** - 自动计算入场价、止损价和止盈价
 
-#### 技术细节
-- 修复了 `chan_theory_engine.py` 中的双导入路径问题
-- 修复了 `data_fetcher.py`、`structure_analyzer.py` 等模块的导入不一致
-- 完善了 `_format_fenxing_for_viz`、`_format_bi_for_viz`、`_format_zhongshu_for_viz` 方法
-- 确保 `VisualizationData` 正确传递多周期K线数据
+#### 技术实现
+- 实现了 `SimpleBackchiStockSelector` 类用于执行选股策略
+- 开发了 `StockSelectionPage.vue` 前端页面展示选股结果
+- 通过 `backend_proxy.py` 提供了选股API接口
+- 支持保守、平衡、激进三种预设配置
 
-#### 验证结果
-```bash
-# 测试结果示例 (000001.SZ 日线30天)
-✅ K线数据: 21 条
-✅ 分型数据: 1 个  
-✅ 笔段数据: 0 个
-✅ 中枢数据: 0 个
-✅ 交易信号: 7 个
-✅ JSON文件: frontend_data_000001.SZ_daily_20250728_231111.json
+#### 选股结果示例
+```
+# 选股结果统计
+✅ 筛选股票: 3600+ 只
+✅ 信号总数: 120+ 个
+✅ 强信号: 25+ 个
+✅ 中等信号: 45+ 个
+✅ 弱信号: 50+ 个
 ```
 
 ## 快速开始
@@ -104,79 +113,93 @@ KK缠论量化分析平台是一个完整的股票技术分析系统，基于缠
 # Python依赖
 pip install -r requirements.txt
 
-# 前端依赖 (如果使用Vue版本)
+# 前端依赖
 cd frontend
 npm install
 ```
 
-### 运行测试
+### 运行系统
 
 ```bash
-# 测试缠论分析引擎
-python debug_data_conversion.py
+# 启动后端API服务
+python backend_proxy.py
 
-# 生成前端JSON数据
-python chan_api.py --symbol 000001.SZ --timeframe daily --days 30
+# 启动前端开发服务器
+cd frontend
+npm run dev
 
-# 运行桌面GUI
-python desktop_gui/main.py
+# 执行选股（可选）
+python daily_stock_selection.py
+```
+
+### 数据库检查
+
+```bash
+# 检查数据库连接和集合
+python database/quick_db_check.py
+
+# 检查K线数据质量
+python check_data_quality.py
 ```
 
 ## 项目结构
 
 ```
 kk_chan/
-├── chan_theory/                 # 缠论分析核心
+├── chan_theory_v2/             # 缠论分析核心 v2
 │   ├── core/                   # 核心引擎
-│   │   └── chan_theory_engine.py
+│   │   ├── chan_engine.py      # 缠论分析引擎
+│   │   ├── kline_processor.py  # K线处理器
+│   │   └── trading_calendar.py # 交易日历
 │   ├── models/                 # 数据模型
-│   │   └── chan_theory_models.py
-│   ├── analyzers/              # 分析器
-│   │   ├── structure_analyzer.py
-│   │   └── multi_timeframe_analyzer.py
-│   └── utils/                  # 工具类
-│       ├── data_fetcher.py
-│       └── visualization.py
-├── desktop_gui/                # 桌面GUI
-│   ├── main.py                # 主程序入口
-│   └── components/            # UI组件
-├── frontend/                   # Vue3前端 (开发中)
-├── chan_api.py                # 前端API接口
+│   │   ├── kline.py            # K线模型
+│   │   ├── fenxing.py          # 分型模型
+│   │   ├── bi.py               # 笔模型
+│   │   ├── seg.py              # 线段模型
+│   │   ├── zhongshu.py         # 中枢模型
+│   │   ├── simple_backchi.py   # 简化背驰模型
+│   │   └── enums.py            # 枚举定义
+│   └── strategies/             # 策略模块
+│       └── backchi_stock_selector.py # 背驰选股策略
+├── database/                   # 数据库模块
+│   ├── db_handler.py           # 数据库处理器
+│   └── check_kline_collections.py # 数据检查
+├── frontend/                   # Vue3前端
+│   ├── src/                    # 源代码
+│   │   ├── components/         # 组件
+│   │   ├── views/              # 页面
+│   │   │   ├── AnalysisPage.vue # 分析页面
+│   │   │   └── StockSelectionPage.vue # 选股页面
+│   │   └── utils/              # 工具
+│   │       └── api.js          # API调用
+│   └── package.json            # 依赖配置
+├── chan_api_v2.py              # 前端API接口 v2
+├── backend_proxy.py            # 后端代理服务
+├── daily_stock_selection.py    # 每日选股脚本
 └── README.md
 ```
 
 ## 开发计划
 
-### 近期目标 (Q3 2025)
-- [ ] 完成Vue3前端界面开发
-- [ ] 实现Electron桌面打包
-- [ ] 增加更多技术指标集成
-- [ ] 优化图表交互体验
-
-### 中期目标 (Q4 2025)  
-- [ ] 实时数据流更新
-- [ ] 策略回测功能
-- [ ] 多股票组合分析
-- [ ] 云端数据同步
+### 近期目标
+- [ ] 集成Qlib量化框架
 
 ## 技术栈
 
 ### 后端
 - **Python 3.8+** - 核心分析引擎
+- **FastAPI** - Web API框架
 - **MongoDB** - 数据存储
 - **pandas** - 数据处理
 - **NumPy** - 数值计算
+- **TA-Lib** - 技术分析库
 
 ### 前端
 - **Vue3** - 现代前端框架
 - **ECharts** - 专业图表库
 - **Element Plus** - UI组件库
-- **Electron** - 桌面应用打包
-
-### 桌面GUI
-- **PyQt6** - Python GUI框架
-- **matplotlib** - 图表绘制
-- **中文字体支持** - 完整显示
+- **Axios** - HTTP客户端
+- **Vite** - 前端构建工具
 
 ## 贡献指南
 
@@ -186,15 +209,13 @@ kk_chan/
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 创建 Pull Request
 
-## 许可证
+## 相关文档
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+项目包含以下相关文档：
 
-## 联系方式
-
-- 项目维护者：[你的姓名]
-- 邮箱：[你的邮箱]
-- 项目链接：[GitHub仓库地址]
+- `docs/缠论系统优化完善技术方案.md` - 系统优化技术方案
+- `docs/INSTALL_TALIB.md` - TA-Lib安装指南
+- `qlib_quantitative/README_QLIB_QUICKSTART.md` - Qlib快速入门
 
 ---
 

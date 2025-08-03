@@ -27,8 +27,17 @@ class MacdZone:
 class SimpleBackchiAnalyzer:
     """简化的背驰分析器"""
     
-    def __init__(self):
+    def __init__(self, config=None):
         self.macd_calculator = MacdCalculator()
+        # 默认配置
+        self.config = {
+            'min_area_ratio': 1.1,           # 绿柱面积比阈值
+            'max_area_shrink_ratio': 0.9,    # 红柱面积缩小比例
+            'confirm_days': 3,               # 金叉确认天数
+            'death_cross_confirm_days': 2,   # 死叉确认天数
+        }
+        if config:
+            self.config.update(config)
     
     def analyze_backchi(self, klines, macd_data: List[MacdData]) -> Tuple[Optional[str], float, str]:
         """
@@ -149,7 +158,7 @@ class SimpleBackchiAnalyzer:
         
         # 条件1：面积背驰（后面更大）
         area_ratio = curr_green.area / prev_green.area if prev_green.area > 0 else 0
-        if area_ratio <= 1.1:  # 至少大10%才算面积背驰
+        if area_ratio <= self.config['min_area_ratio']:
             return None
         
         # 条件2：价格新低
@@ -188,7 +197,7 @@ class SimpleBackchiAnalyzer:
         
         # 条件1：面积背驰（后面更小）
         area_ratio = curr_red.area / prev_red.area if prev_red.area > 0 else 1
-        if area_ratio >= 0.9:  # 至少小10%才算面积背驰
+        if area_ratio >= self.config['max_area_shrink_ratio']:
             return None
         
         # 条件2：价格新高

@@ -8,7 +8,9 @@ const timeSelectProps = buildProps({
     type: String,
     default: "HH:mm"
   },
-  modelValue: String,
+  modelValue: {
+    type: definePropType(String)
+  },
   disabled: Boolean,
   editable: {
     type: Boolean,
@@ -36,8 +38,12 @@ const timeSelectProps = buildProps({
     type: String,
     default: "00:30"
   },
-  minTime: String,
-  maxTime: String,
+  minTime: {
+    type: definePropType(String)
+  },
+  maxTime: {
+    type: definePropType(String)
+  },
   includeEndTime: Boolean,
   name: String,
   prefixIcon: {

@@ -1,9 +1,7 @@
 import { ref, computed } from 'vue';
 import { castArray } from 'lodash-unified';
 import { isArray } from '@vue/shared';
-import { debugWarn } from '../../../utils/error.mjs';
 
-const SCOPE = "ElForm";
 function useFormLabelWidth() {
   const potentialLabelWidthArr = ref([]);
   const autoLabelWidth = computed(() => {
@@ -14,9 +12,7 @@ function useFormLabelWidth() {
   });
   function getLabelWidthIndex(width) {
     const index = potentialLabelWidthArr.value.indexOf(width);
-    if (index === -1 && autoLabelWidth.value === "0") {
-      debugWarn(SCOPE, `unexpected width ${width}`);
-    }
+    if (index === -1 && autoLabelWidth.value === "0") ;
     return index;
   }
   function registerLabelWidth(val, oldVal) {

@@ -1,1347 +1,1343 @@
 {
     "meta": {
-        "symbol": "300750.SZ",
-        "timeframe": "daily",
-        "analysis_level": "complete",
-        "analysis_time": "2025-08-01T20:23:07.969487",
-        "data_range": {
-            "days": 90,
-            "start_date": "2025-03-25T00:00:00",
-            "end_date": "2025-08-01T00:00:00"
-        },
-        "data_count": 66
+        "analysis_time": "2025-08-03T10:03:53.099924",
+        "max_results": 50,
+        "actual_results": 50,
+        "selection_criteria": {
+            "min_backchi_strength": 0.6,
+            "require_macd_golden_cross": true,
+            "analysis_days_30min": 30
+        }
     },
-    "chart_data": {
-        "kline": {
-            "categories": [
-                "2025-03-25 00:00",
-                "2025-03-27 00:00",
-                "2025-03-28 00:00",
-                "2025-03-31 00:00",
-                "2025-04-01 00:00",
-                "2025-04-02 00:00",
-                "2025-04-03 00:00",
-                "2025-04-11 00:00",
-                "2025-04-14 00:00",
-                "2025-04-15 00:00",
-                "2025-04-16 00:00",
-                "2025-04-18 00:00",
-                "2025-04-22 00:00",
-                "2025-04-23 00:00",
-                "2025-04-25 00:00",
-                "2025-04-28 00:00",
-                "2025-04-30 00:00",
-                "2025-05-06 00:00",
-                "2025-05-07 00:00",
-                "2025-05-08 00:00",
-                "2025-05-09 00:00",
-                "2025-05-12 00:00",
-                "2025-05-13 00:00",
-                "2025-05-15 00:00",
-                "2025-05-20 00:00",
-                "2025-05-22 00:00",
-                "2025-05-23 00:00",
-                "2025-05-26 00:00",
-                "2025-05-27 00:00",
-                "2025-05-28 00:00",
-                "2025-05-29 00:00",
-                "2025-05-30 00:00",
-                "2025-06-04 00:00",
-                "2025-06-05 00:00",
-                "2025-06-06 00:00",
-                "2025-06-09 00:00",
-                "2025-06-10 00:00",
-                "2025-06-11 00:00",
-                "2025-06-12 00:00",
-                "2025-06-13 00:00",
-                "2025-06-16 00:00",
-                "2025-06-17 00:00",
-                "2025-06-18 00:00",
-                "2025-06-19 00:00",
-                "2025-06-20 00:00",
-                "2025-06-23 00:00",
-                "2025-06-24 00:00",
-                "2025-06-25 00:00",
-                "2025-06-27 00:00",
-                "2025-07-01 00:00",
-                "2025-07-02 00:00",
-                "2025-07-03 00:00",
-                "2025-07-04 00:00",
-                "2025-07-08 00:00",
-                "2025-07-09 00:00",
-                "2025-07-11 00:00",
-                "2025-07-15 00:00",
-                "2025-07-17 00:00",
-                "2025-07-18 00:00",
-                "2025-07-21 00:00",
-                "2025-07-22 00:00",
-                "2025-07-23 00:00",
-                "2025-07-24 00:00",
-                "2025-07-30 00:00",
-                "2025-07-31 00:00",
-                "2025-08-01 00:00"
-            ],
-            "values": [
-                [
-                    257.7,
-                    259.48,
-                    256.28,
-                    260.0
-                ],
-                [
-                    259.4,
-                    258.88,
-                    256.7,
-                    262.8
-                ],
-                [
-                    256.11,
-                    256.8,
-                    255.8,
-                    258.88
-                ],
-                [
-                    256.06,
-                    252.94,
-                    252.12,
-                    257.98
-                ],
-                [
-                    252.94,
-                    249.06,
-                    248.58,
-                    254.5
-                ],
-                [
-                    250.2,
-                    249.14,
-                    247.56,
-                    252.46
-                ],
-                [
-                    245.0,
-                    243.08,
-                    242.55,
-                    247.7
-                ],
-                [
-                    226.09,
-                    224.0,
-                    209.11,
-                    226.09
-                ],
-                [
-                    227.15,
-                    224.0,
-                    222.68,
-                    228.0
-                ],
-                [
-                    226.0,
-                    228.15,
-                    225.12,
-                    230.45
-                ],
-                [
-                    227.0,
-                    224.89,
-                    221.55,
-                    227.18
-                ],
-                [
-                    223.0,
-                    225.46,
-                    223.0,
-                    227.33
-                ],
-                [
-                    225.46,
-                    230.69,
-                    225.46,
-                    235.0
-                ],
-                [
-                    235.0,
-                    233.35,
-                    233.0,
-                    238.75
-                ],
-                [
-                    234.5,
-                    236.6,
-                    232.25,
-                    237.92
-                ],
-                [
-                    238.25,
-                    234.85,
-                    233.2,
-                    238.26
-                ],
-                [
-                    234.0,
-                    231.5,
-                    230.72,
-                    234.38
-                ],
-                [
-                    233.91,
-                    231.63,
-                    231.2,
-                    236.3
-                ],
-                [
-                    236.45,
-                    238.61,
-                    236.08,
-                    240.88
-                ],
-                [
-                    239.49,
-                    244.57,
-                    237.98,
-                    248.68
-                ],
-                [
-                    246.07,
-                    248.27,
-                    244.65,
-                    249.77
-                ],
-                [
-                    255.0,
-                    257.0,
-                    253.0,
-                    257.99
-                ],
-                [
-                    262.0,
-                    258.77,
-                    255.02,
-                    262.0
-                ],
-                [
-                    258.77,
-                    260.18,
-                    258.77,
-                    264.46
-                ],
-                [
-                    259.14,
-                    263.0,
-                    255.2,
-                    263.0
-                ],
-                [
-                    266.99,
-                    270.37,
-                    266.99,
-                    279.99
-                ],
-                [
-                    271.01,
-                    266.99,
-                    266.95,
-                    274.0
-                ],
-                [
-                    265.0,
-                    255.9,
-                    252.9,
-                    266.38
-                ],
-                [
-                    255.89,
-                    253.99,
-                    252.39,
-                    257.21
-                ],
-                [
-                    255.61,
-                    253.6,
-                    253.32,
-                    258.27
-                ],
-                [
-                    253.0,
-                    251.85,
-                    249.0,
-                    253.98
-                ],
-                [
-                    250.9,
-                    250.0,
-                    247.47,
-                    252.65
-                ],
-                [
-                    252.0,
-                    251.05,
-                    250.7,
-                    253.9
-                ],
-                [
-                    251.36,
-                    251.5,
-                    248.27,
-                    252.44
-                ],
-                [
-                    252.0,
-                    248.88,
-                    248.5,
-                    253.33
-                ],
-                [
-                    248.88,
-                    245.58,
-                    245.5,
-                    250.88
-                ],
-                [
-                    245.0,
-                    243.14,
-                    242.22,
-                    246.86
-                ],
-                [
-                    246.09,
-                    250.5,
-                    244.8,
-                    252.44
-                ],
-                [
-                    252.0,
-                    249.81,
-                    248.77,
-                    252.5
-                ],
-                [
-                    248.1,
-                    248.2,
-                    246.37,
-                    250.41
-                ],
-                [
-                    248.0,
-                    246.66,
-                    245.8,
-                    248.7
-                ],
-                [
-                    246.96,
-                    246.26,
-                    245.22,
-                    248.43
-                ],
-                [
-                    246.98,
-                    245.57,
-                    245.57,
-                    249.58
-                ],
-                [
-                    245.3,
-                    242.1,
-                    241.6,
-                    246.16
-                ],
-                [
-                    241.06,
-                    240.26,
-                    239.5,
-                    243.12
-                ],
-                [
-                    239.3,
-                    239.61,
-                    238.03,
-                    240.6
-                ],
-                [
-                    240.58,
-                    245.92,
-                    240.58,
-                    248.08
-                ],
-                [
-                    246.5,
-                    254.9,
-                    246.0,
-                    255.88
-                ],
-                [
-                    255.88,
-                    250.99,
-                    250.99,
-                    257.45
-                ],
-                [
-                    251.5,
-                    251.5,
-                    249.7,
-                    252.74
-                ],
-                [
-                    251.5,
-                    250.45,
-                    249.19,
-                    252.01
-                ],
-                [
-                    251.47,
-                    262.59,
-                    250.59,
-                    263.21
-                ],
-                [
-                    265.01,
-                    265.8,
-                    260.98,
-                    269.98
-                ],
-                [
-                    265.8,
-                    263.31,
-                    258.88,
-                    265.9
-                ],
-                [
-                    262.2,
-                    270.8,
-                    262.1,
-                    274.46
-                ],
-                [
-                    274.99,
-                    271.5,
-                    270.1,
-                    274.99
-                ],
-                [
-                    271.0,
-                    267.75,
-                    266.0,
-                    271.32
-                ],
-                [
-                    268.5,
-                    265.5,
-                    263.04,
-                    268.5
-                ],
-                [
-                    268.7,
-                    271.2,
-                    265.8,
-                    272.45
-                ],
-                [
-                    277.0,
-                    279.66,
-                    273.55,
-                    282.0
-                ],
-                [
-                    280.0,
-                    286.66,
-                    279.18,
-                    290.0
-                ],
-                [
-                    288.16,
-                    287.02,
-                    286.59,
-                    290.75
-                ],
-                [
-                    289.0,
-                    285.2,
-                    282.91,
-                    289.2
-                ],
-                [
-                    285.2,
-                    277.09,
-                    277.09,
-                    286.3
-                ],
-                [
-                    280.8,
-                    264.62,
-                    264.62,
-                    281.98
-                ],
-                [
-                    264.8,
-                    263.07,
-                    262.75,
-                    266.6
-                ]
-            ],
-            "volumes": [
-                295159.0,
-                270838.0,
-                112420.0,
-                194633.0,
-                194162.0,
-                137321.0,
-                232816.0,
-                2411994.0,
-                206965.0,
-                266865.0,
-                216550.0,
-                272503.0,
-                389435.0,
-                191979.0,
-                309173.0,
-                143124.0,
-                323752.0,
-                196876.0,
-                312809.0,
-                312856.0,
-                236933.0,
-                302315.0,
-                204805.0,
-                372581.0,
-                705163.0,
-                841326.0,
-                230003.0,
-                330122.0,
-                176679.0,
-                154562.0,
-                217882.0,
-                204337.0,
-                288812.0,
-                135258.0,
-                165514.0,
-                185497.0,
-                139324.0,
-                279934.0,
-                175696.0,
-                174032.0,
-                122175.0,
-                97650.0,
-                104605.0,
-                147984.0,
-                136883.0,
-                127099.0,
-                235010.0,
-                315377.0,
-                435345.0,
-                271555.0,
-                115713.0,
-                338037.0,
-                272060.0,
-                330586.0,
-                293883.0,
-                455674.0,
-                319314.0,
-                301374.0,
-                221865.0,
-                324862.0,
-                333090.0,
-                200189.0,
-                223891.0,
-                1023187.0,
-                447103.0,
-                252500.0
-            ]
-        },
-        "indicators": {
-            "macd": {
-                "dif": [
-                    233.148296,
-                    -3.037211,
-                    -2.929996,
-                    -2.802235,
-                    -2.113394,
-                    -1.074178,
-                    0.047421,
-                    1.622036,
-                    2.978421,
-                    4.312701,
-                    5.11588,
-                    5.621439,
-                    6.004523,
-                    6.475549,
-                    7.654666,
-                    8.195289,
-                    8.25583,
-                    7.324507,
-                    6.359003,
-                    5.498975,
-                    4.622897,
-                    3.73625,
-                    3.090743,
-                    2.541805,
-                    2.118656,
-                    1.553982,
-                    0.830617,
-                    0.059768,
-                    0.042268,
-                    -0.026968,
-                    -0.209338,
-                    -0.472683,
-                    -0.705531,
-                    -0.934963,
-                    -1.380872,
-                    -1.861276,
-                    -2.268301,
-                    -2.057984,
-                    -1.153399,
-                    -0.599854,
-                    -0.302919,
-                    0.031295,
-                    0.23535,
-                    0.30878,
-                    1.331225,
-                    2.373183,
-                    2.770807,
-                    3.243807,
-                    4.174918,
-                    4.95257,
-                    5.465516,
-                    5.565795,
-                    5.521105,
-                    5.155936,
-                    4.898827,
-                    5.096262,
-                    5.867743,
-                    6.963715,
-                    7.771742,
-                    8.171059,
-                    8.199344,
-                    8.407267,
-                    8.914703,
-                    8.035631,
-                    6.260568,
-                    4.674856
-                ],
-                "dea": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    -0.332937,
-                    0.756826,
-                    1.729749,
-                    2.584704,
-                    3.362873,
-                    4.221232,
-                    5.016043,
-                    5.664,
-                    5.996102,
-                    6.068682,
-                    5.954741,
-                    5.688372,
-                    5.297948,
-                    4.856507,
-                    4.393566,
-                    3.938584,
-                    3.461664,
-                    2.935454,
-                    2.360317,
-                    1.896707,
-                    1.511972,
-                    1.16771,
-                    0.839631,
-                    0.530599,
-                    0.237487,
-                    -0.086185,
-                    -0.441203,
-                    -0.806623,
-                    -1.056895,
-                    -1.076196,
-                    -0.980927,
-                    -0.845326,
-                    -0.670002,
-                    -0.488931,
-                    -0.329389,
-                    0.002734,
-                    0.476824,
-                    0.93562,
-                    1.397258,
-                    1.95279,
-                    2.552746,
-                    3.1353,
-                    3.621399,
-                    4.00134,
-                    4.232259,
-                    4.365573,
-                    4.511711,
-                    4.782917,
-                    5.219077,
-                    5.72961,
-                    6.2179,
-                    6.614189,
-                    6.972804,
-                    7.361184,
-                    7.496073,
-                    7.248972,
-                    6.734149
-                ],
-                "macd": [
-                    466.296593,
-                    -6.074422,
-                    -5.859992,
-                    -5.60447,
-                    -4.226788,
-                    -2.148355,
-                    0.094842,
-                    3.244073,
-                    5.956842,
-                    9.291276,
-                    8.718108,
-                    7.783379,
-                    6.839639,
-                    6.225353,
-                    6.866869,
-                    6.358491,
-                    5.183659,
-                    2.65681,
-                    0.580642,
-                    -0.91153,
-                    -2.130949,
-                    -3.123395,
-                    -3.531527,
-                    -3.703523,
-                    -3.639857,
-                    -3.815364,
-                    -4.209676,
-                    -4.601099,
-                    -3.708879,
-                    -3.07788,
-                    -2.754096,
-                    -2.62463,
-                    -2.472259,
-                    -2.3449,
-                    -2.589374,
-                    -2.840145,
-                    -2.923356,
-                    -2.002177,
-                    -0.154407,
-                    0.762147,
-                    1.084814,
-                    1.402593,
-                    1.448563,
-                    1.276338,
-                    2.656982,
-                    3.792719,
-                    3.670373,
-                    3.693099,
-                    4.444257,
-                    4.799649,
-                    4.660432,
-                    3.888793,
-                    3.039529,
-                    1.847353,
-                    1.066508,
-                    1.169103,
-                    2.169651,
-                    3.489276,
-                    4.084264,
-                    3.906319,
-                    3.170311,
-                    2.868926,
-                    3.107037,
-                    1.079115,
-                    -1.976809,
-                    -4.118585
-                ]
+    "results": {
+        "buy_signals": [
+            {
+                "basic_info": {
+                    "symbol": "300802.SZ",
+                    "name": "矩子科技",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:40.741878"
+                },
+                "scoring": {
+                    "overall_score": 92.01,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比86.84, 价差2.0%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 19.1,
+                    "stop_loss": 18.14,
+                    "take_profit": 21.68,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "601111.SH",
+                    "name": "中国国航",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:46.416195"
+                },
+                "scoring": {
+                    "overall_score": 92.01,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比92.13, 价差2.6%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 7.21,
+                    "stop_loss": 6.85,
+                    "take_profit": 8.18,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "600962.SH",
+                    "name": "国投中鲁",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:46.181060"
+                },
+                "scoring": {
+                    "overall_score": 92.01,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比118.38, 价差2.8%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 18.98,
+                    "stop_loss": 18.03,
+                    "take_profit": 21.54,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "830779.BJ",
+                    "name": "武汉蓝电",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:52.158725"
+                },
+                "scoring": {
+                    "overall_score": 92.0,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比987.31, 价差2.4%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 42.17,
+                    "stop_loss": 40.06,
+                    "take_profit": 47.86,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "600515.SH",
+                    "name": "海南机场",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:44.713673"
+                },
+                "scoring": {
+                    "overall_score": 92.0,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比347.96, 价差4.3%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 3.91,
+                    "stop_loss": 3.71,
+                    "take_profit": 4.44,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "002587.SZ",
+                    "name": "奥拓电子",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:36.871310"
+                },
+                "scoring": {
+                    "overall_score": 92.0,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比113.59, 价差2.7%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 6.45,
+                    "stop_loss": 6.13,
+                    "take_profit": 7.32,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "300750.SZ",
+                    "name": "宁德时代",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:40.568010"
+                },
+                "scoring": {
+                    "overall_score": 91.51,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比114.12, 价差1.9%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 263.07,
+                    "stop_loss": 249.92,
+                    "take_profit": 298.58,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "600864.SH",
+                    "name": "哈投股份",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:46.007279"
+                },
+                "scoring": {
+                    "overall_score": 90.51,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比244.47, 价差1.7%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 6.63,
+                    "stop_loss": 6.3,
+                    "take_profit": 7.53,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "839371.BJ",
+                    "name": "欧福蛋业",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:52.673772"
+                },
+                "scoring": {
+                    "overall_score": 89.5,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比53.41, 价差1.5%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 10.75,
+                    "stop_loss": 10.21,
+                    "take_profit": 12.2,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "300348.SZ",
+                    "name": "长亮科技",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:39.379697"
+                },
+                "scoring": {
+                    "overall_score": 89.38,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比34.21, 价差2.3%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 16.8,
+                    "stop_loss": 15.96,
+                    "take_profit": 19.07,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "300231.SZ",
+                    "name": "银信科技",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:38.879488"
+                },
+                "scoring": {
+                    "overall_score": 88.51,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比256.80, 价差1.3%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 12.36,
+                    "stop_loss": 11.74,
+                    "take_profit": 14.03,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "836247.BJ",
+                    "name": "华密新材",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:52.491593"
+                },
+                "scoring": {
+                    "overall_score": 88.5,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比272.74, 价差1.3%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 20.37,
+                    "stop_loss": 19.35,
+                    "take_profit": 23.12,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "600816.SH",
+                    "name": "建元信托",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:45.904046"
+                },
+                "scoring": {
+                    "overall_score": 88.5,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比52.67, 价差1.3%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 2.94,
+                    "stop_loss": 2.79,
+                    "take_profit": 3.34,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "000541.SZ",
+                    "name": "佛山照明",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:33.345091"
+                },
+                "scoring": {
+                    "overall_score": 87.91,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比49.43, 价差1.2%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 6.43,
+                    "stop_loss": 6.11,
+                    "take_profit": 7.3,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "002649.SZ",
+                    "name": "博彦科技",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:37.144715"
+                },
+                "scoring": {
+                    "overall_score": 87.67,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比24.01, 价差2.4%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 14.61,
+                    "stop_loss": 13.88,
+                    "take_profit": 16.58,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "002208.SZ",
+                    "name": "合肥城建",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:35.741997"
+                },
+                "scoring": {
+                    "overall_score": 87.37,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比40.20, 价差1.4%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 6.87,
+                    "stop_loss": 6.53,
+                    "take_profit": 7.8,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "600520.SH",
+                    "name": "三佳科技",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:44.732827"
+                },
+                "scoring": {
+                    "overall_score": 86.9,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比40.40, 价差1.3%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 28.91,
+                    "stop_loss": 27.46,
+                    "take_profit": 32.81,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "603378.SH",
+                    "name": "亚士创能",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:48.232046"
+                },
+                "scoring": {
+                    "overall_score": 86.36,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比22.11, 价差1.8%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 5.98,
+                    "stop_loss": 5.68,
+                    "take_profit": 6.79,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "300380.SZ",
+                    "name": "安硕信息",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:39.500632"
+                },
+                "scoring": {
+                    "overall_score": 85.97,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比34.84, 价差1.3%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 47.33,
+                    "stop_loss": 44.96,
+                    "take_profit": 53.72,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "688334.SH",
+                    "name": "西高院",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:51.089551"
+                },
+                "scoring": {
+                    "overall_score": 85.58,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比35.45, 价差1.2%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 18.59,
+                    "stop_loss": 17.66,
+                    "take_profit": 21.1,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "000409.SZ",
+                    "name": "云鼎科技",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:33.204641"
+                },
+                "scoring": {
+                    "overall_score": 85.52,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比20.07, 价差1.7%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 12.38,
+                    "stop_loss": 11.76,
+                    "take_profit": 14.05,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "300893.SZ",
+                    "name": "松原安全",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:41.111497"
+                },
+                "scoring": {
+                    "overall_score": 85.33,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比39.95, 价差1.0%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 24.33,
+                    "stop_loss": 23.11,
+                    "take_profit": 27.61,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "002558.SZ",
+                    "name": "巨人网络",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:36.745978"
+                },
+                "scoring": {
+                    "overall_score": 85.19,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比21.11, 价差1.6%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 24.12,
+                    "stop_loss": 22.91,
+                    "take_profit": 27.38,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "002939.SZ",
+                    "name": "长城证券",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:37.900295"
+                },
+                "scoring": {
+                    "overall_score": 85.01,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比69.34, 价差0.8%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 8.81,
+                    "stop_loss": 8.37,
+                    "take_profit": 10.0,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "300292.SZ",
+                    "name": "吴通控股",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:39.147640"
+                },
+                "scoring": {
+                    "overall_score": 84.73,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比17.45, 价差1.8%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 4.84,
+                    "stop_loss": 4.6,
+                    "take_profit": 5.49,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "600476.SH",
+                    "name": "湘邮科技",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:44.577094"
+                },
+                "scoring": {
+                    "overall_score": 84.35,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比25.08, 价差1.3%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 18.31,
+                    "stop_loss": 17.39,
+                    "take_profit": 20.78,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "301024.SZ",
+                    "name": "霍普股份",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:41.779199"
+                },
+                "scoring": {
+                    "overall_score": 83.84,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比13.66, 价差4.3%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 45.01,
+                    "stop_loss": 42.76,
+                    "take_profit": 51.09,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "300817.SZ",
+                    "name": "双飞集团",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:40.801164"
+                },
+                "scoring": {
+                    "overall_score": 83.78,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比13.55, 价差3.5%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 22.24,
+                    "stop_loss": 21.13,
+                    "take_profit": 25.24,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "300989.SZ",
+                    "name": "蕾奥规划",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:41.674275"
+                },
+                "scoring": {
+                    "overall_score": 83.59,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比29.48, 价差1.0%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 16.99,
+                    "stop_loss": 16.14,
+                    "take_profit": 19.28,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "600679.SH",
+                    "name": "上海凤凰",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:45.438186"
+                },
+                "scoring": {
+                    "overall_score": 83.39,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比40.35, 价差0.8%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 12.7,
+                    "stop_loss": 12.06,
+                    "take_profit": 14.41,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "603595.SH",
+                    "name": "东尼电子",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:48.433444"
+                },
+                "scoring": {
+                    "overall_score": 83.16,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比16.32, 价差1.6%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 18.99,
+                    "stop_loss": 18.04,
+                    "take_profit": 21.55,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "003026.SZ",
+                    "name": "中晶科技",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:38.131943"
+                },
+                "scoring": {
+                    "overall_score": 83.01,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比217.98, 价差0.6%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 34.28,
+                    "stop_loss": 32.57,
+                    "take_profit": 38.91,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "601858.SH",
+                    "name": "中国科传",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:47.159017"
+                },
+                "scoring": {
+                    "overall_score": 83.01,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比50.34, 价差0.6%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 20.01,
+                    "stop_loss": 19.01,
+                    "take_profit": 22.71,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "000970.SZ",
+                    "name": "中科三环",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:34.161664"
+                },
+                "scoring": {
+                    "overall_score": 83.0,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比102.65, 价差0.6%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 13.09,
+                    "stop_loss": 12.44,
+                    "take_profit": 14.86,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "600585.SH",
+                    "name": "海螺水泥",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:45.014799"
+                },
+                "scoring": {
+                    "overall_score": 82.93,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比11.85, 价差5.0%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 23.4,
+                    "stop_loss": 22.23,
+                    "take_profit": 26.56,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "000598.SZ",
+                    "name": "兴蓉环境",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:33.484827"
+                },
+                "scoring": {
+                    "overall_score": 82.57,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比12.13, 价差1.9%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 7.1,
+                    "stop_loss": 6.74,
+                    "take_profit": 8.06,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "688686.SH",
+                    "name": "奥普特",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:52.010106"
+                },
+                "scoring": {
+                    "overall_score": 82.49,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比10.98, 价差3.3%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 96.41,
+                    "stop_loss": 91.59,
+                    "take_profit": 109.43,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "920002.BJ",
+                    "name": "万达轴承",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:52.973214"
+                },
+                "scoring": {
+                    "overall_score": 82.32,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比10.62, 价差4.0%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 124.93,
+                    "stop_loss": 118.68,
+                    "take_profit": 141.8,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "603499.SH",
+                    "name": "翔港科技",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:48.317003"
+                },
+                "scoring": {
+                    "overall_score": 82.19,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比10.37, 价差3.0%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 15.6,
+                    "stop_loss": 14.82,
+                    "take_profit": 17.71,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "600927.SH",
+                    "name": "永安期货",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:46.124624"
+                },
+                "scoring": {
+                    "overall_score": 82.02,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比10.04, 价差2.9%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 15.22,
+                    "stop_loss": 14.46,
+                    "take_profit": 17.27,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "002300.SZ",
+                    "name": "太阳电缆",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:35.945459"
+                },
+                "scoring": {
+                    "overall_score": 82.01,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比52.40, 价差0.5%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 6.49,
+                    "stop_loss": 6.17,
+                    "take_profit": 7.37,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "002766.SZ",
+                    "name": "索菱股份",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:37.437850"
+                },
+                "scoring": {
+                    "overall_score": 81.79,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比14.58, 价差1.5%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 5.26,
+                    "stop_loss": 5.0,
+                    "take_profit": 5.97,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "603037.SH",
+                    "name": "凯众股份",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:47.408905"
+                },
+                "scoring": {
+                    "overall_score": 81.79,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比15.56, 价差1.4%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 12.38,
+                    "stop_loss": 11.76,
+                    "take_profit": 14.05,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "002461.SZ",
+                    "name": "珠江啤酒",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:36.402107"
+                },
+                "scoring": {
+                    "overall_score": 81.64,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比9.64, 价差2.7%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 10.25,
+                    "stop_loss": 9.74,
+                    "take_profit": 11.63,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "688091.SH",
+                    "name": "上海谊众",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:50.149999"
+                },
+                "scoring": {
+                    "overall_score": 81.47,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比9.46, 价差4.5%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 77.63,
+                    "stop_loss": 73.75,
+                    "take_profit": 88.11,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "002036.SZ",
+                    "name": "联创电子",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:34.748288"
+                },
+                "scoring": {
+                    "overall_score": 81.24,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比21.42, 价差0.9%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 10.67,
+                    "stop_loss": 10.14,
+                    "take_profit": 12.11,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "002365.SZ",
+                    "name": "永安药业",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:36.117438"
+                },
+                "scoring": {
+                    "overall_score": 81.19,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比9.19, 价差2.0%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 19.6,
+                    "stop_loss": 18.62,
+                    "take_profit": 22.25,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "002314.SZ",
+                    "name": "南山控股",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:35.980034"
+                },
+                "scoring": {
+                    "overall_score": 81.1,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比9.09, 价差2.0%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 2.83,
+                    "stop_loss": 2.69,
+                    "take_profit": 3.21,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "301262.SZ",
+                    "name": "海看股份",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:42.317879"
+                },
+                "scoring": {
+                    "overall_score": 81.01,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比380.63, 价差0.4%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 25.86,
+                    "stop_loss": 24.57,
+                    "take_profit": 29.35,
+                    "risk_reward_ratio": 2.7
+                }
+            },
+            {
+                "basic_info": {
+                    "symbol": "605336.SH",
+                    "name": "帅丰电器",
+                    "signal_type": "买入",
+                    "analysis_time": "2025-08-03T10:03:49.868626"
+                },
+                "scoring": {
+                    "overall_score": 80.92,
+                    "signal_strength": "strong",
+                    "recommendation": "强烈推荐买入"
+                },
+                "backchi_analysis": {
+                    "backchi_type": "bottom",
+                    "reliability": 0.9,
+                    "description": "底背驰: 面积比25.50, 价差0.8%, 有金叉",
+                    "has_macd_golden_cross": true,
+                    "has_macd_death_cross": false
+                },
+                "key_prices": {
+                    "entry_price": 15.94,
+                    "stop_loss": 15.14,
+                    "take_profit": 18.09,
+                    "risk_reward_ratio": 2.7
+                }
             }
+        ],
+        "sell_signals": []
+    },
+    "statistics": {
+        "total_signals": 50,
+        "buy_signals_count": 50,
+        "sell_signals_count": 0,
+        "strength_distribution": {
+            "strong": 50,
+            "medium": 0,
+            "weak": 0
         },
-        "chan_structures": {
-            "fenxing": [
-                {
-                    "name": "顶分型",
-                    "coord": [
-                        "2025-03-27 00:00",
-                        262.8
-                    ],
-                    "value": 262.8,
-                    "type": "top",
-                    "direction": "up",
-                    "strength": 0.010769230769230812,
-                    "confirmed": true,
-                    "symbol": "triangle",
-                    "symbolSize": 8,
-                    "itemStyle": {
-                        "color": "#f44336"
-                    }
-                },
-                {
-                    "name": "底分型",
-                    "coord": [
-                        "2025-04-11 00:00",
-                        209.11
-                    ],
-                    "value": 209.11,
-                    "type": "bottom",
-                    "direction": "down",
-                    "strength": 0.06093946470271238,
-                    "confirmed": true,
-                    "symbol": "triangle",
-                    "symbolSize": 8,
-                    "itemStyle": {
-                        "color": "#4caf50"
-                    }
-                },
-                {
-                    "name": "顶分型",
-                    "coord": [
-                        "2025-04-15 00:00",
-                        230.45
-                    ],
-                    "value": 230.45,
-                    "type": "top",
-                    "direction": "up",
-                    "strength": 0.01074561403508767,
-                    "confirmed": true,
-                    "symbol": "triangle",
-                    "symbolSize": 8,
-                    "itemStyle": {
-                        "color": "#f44336"
-                    }
-                },
-                {
-                    "name": "底分型",
-                    "coord": [
-                        "2025-04-16 00:00",
-                        221.55
-                    ],
-                    "value": 221.55,
-                    "type": "bottom",
-                    "direction": "down",
-                    "strength": 0.005074546434345228,
-                    "confirmed": true,
-                    "symbol": "triangle",
-                    "symbolSize": 8,
-                    "itemStyle": {
-                        "color": "#4caf50"
-                    }
-                },
-                {
-                    "name": "顶分型",
-                    "coord": [
-                        "2025-05-22 00:00",
-                        279.99
-                    ],
-                    "value": 279.99,
-                    "type": "top",
-                    "direction": "up",
-                    "strength": 0.02186131386861317,
-                    "confirmed": true,
-                    "symbol": "triangle",
-                    "symbolSize": 8,
-                    "itemStyle": {
-                        "color": "#f44336"
-                    }
-                },
-                {
-                    "name": "底分型",
-                    "coord": [
-                        "2025-06-10 00:00",
-                        242.22
-                    ],
-                    "value": 242.22,
-                    "type": "bottom",
-                    "direction": "down",
-                    "strength": 0.01053921568627456,
-                    "confirmed": true,
-                    "symbol": "triangle",
-                    "symbolSize": 8,
-                    "itemStyle": {
-                        "color": "#4caf50"
-                    }
-                },
-                {
-                    "name": "顶分型",
-                    "coord": [
-                        "2025-06-12 00:00",
-                        252.5
-                    ],
-                    "value": 252.5,
-                    "type": "top",
-                    "direction": "up",
-                    "strength": 0.00023768024084931972,
-                    "confirmed": true,
-                    "symbol": "triangle",
-                    "symbolSize": 8,
-                    "itemStyle": {
-                        "color": "#f44336"
-                    }
-                },
-                {
-                    "name": "底分型",
-                    "coord": [
-                        "2025-06-23 00:00",
-                        238.03
-                    ],
-                    "value": 238.03,
-                    "type": "bottom",
-                    "direction": "down",
-                    "strength": 0.006137787056367428,
-                    "confirmed": true,
-                    "symbol": "triangle",
-                    "symbolSize": 8,
-                    "itemStyle": {
-                        "color": "#4caf50"
-                    }
-                },
-                {
-                    "name": "顶分型",
-                    "coord": [
-                        "2025-06-27 00:00",
-                        257.45
-                    ],
-                    "value": 257.45,
-                    "type": "top",
-                    "direction": "up",
-                    "strength": 0.006135688604033114,
-                    "confirmed": true,
-                    "symbol": "triangle",
-                    "symbolSize": 8,
-                    "itemStyle": {
-                        "color": "#f44336"
-                    }
-                },
-                {
-                    "name": "底分型",
-                    "coord": [
-                        "2025-07-02 00:00",
-                        249.19
-                    ],
-                    "value": 249.19,
-                    "type": "bottom",
-                    "direction": "down",
-                    "strength": 0.002042450941129319,
-                    "confirmed": true,
-                    "symbol": "triangle",
-                    "symbolSize": 8,
-                    "itemStyle": {
-                        "color": "#4caf50"
-                    }
-                },
-                {
-                    "name": "顶分型",
-                    "coord": [
-                        "2025-07-11 00:00",
-                        274.99
-                    ],
-                    "value": 274.99,
-                    "type": "top",
-                    "direction": "up",
-                    "strength": 0.0019310646360126416,
-                    "confirmed": true,
-                    "symbol": "triangle",
-                    "symbolSize": 8,
-                    "itemStyle": {
-                        "color": "#f44336"
-                    }
-                },
-                {
-                    "name": "底分型",
-                    "coord": [
-                        "2025-07-17 00:00",
-                        263.04
-                    ],
-                    "value": 263.04,
-                    "type": "bottom",
-                    "direction": "down",
-                    "strength": 0.010383747178329536,
-                    "confirmed": true,
-                    "symbol": "triangle",
-                    "symbolSize": 8,
-                    "itemStyle": {
-                        "color": "#4caf50"
-                    }
-                },
-                {
-                    "name": "顶分型",
-                    "coord": [
-                        "2025-07-23 00:00",
-                        290.75
-                    ],
-                    "value": 290.75,
-                    "type": "top",
-                    "direction": "up",
-                    "strength": 0.002586206896551724,
-                    "confirmed": true,
-                    "symbol": "triangle",
-                    "symbolSize": 8,
-                    "itemStyle": {
-                        "color": "#f44336"
-                    }
-                }
-            ],
-            "bi": [
-                {
-                    "id": "bi_0",
-                    "name": "下笔",
-                    "coords": [
-                        [
-                            "2025-03-27 00:00",
-                            262.8
-                        ],
-                        [
-                            "2025-04-11 00:00",
-                            209.11
-                        ]
-                    ],
-                    "direction": "down",
-                    "amplitude": 53.69,
-                    "strength": 0.4430098934550989,
-                    "duration": 2,
-                    "lineStyle": {
-                        "color": "#2196f3",
-                        "width": 2
-                    }
-                },
-                {
-                    "id": "bi_1",
-                    "name": "上笔",
-                    "coords": [
-                        [
-                            "2025-04-11 00:00",
-                            209.11
-                        ],
-                        [
-                            "2025-04-15 00:00",
-                            230.45
-                        ]
-                    ],
-                    "direction": "up",
-                    "amplitude": 21.339999999999975,
-                    "strength": 0.37143608627038394,
-                    "duration": 2,
-                    "lineStyle": {
-                        "color": "#e91e63",
-                        "width": 2
-                    }
-                },
-                {
-                    "id": "bi_2",
-                    "name": "下笔",
-                    "coords": [
-                        [
-                            "2025-04-15 00:00",
-                            230.45
-                        ],
-                        [
-                            "2025-04-16 00:00",
-                            221.55
-                        ]
-                    ],
-                    "direction": "down",
-                    "amplitude": 8.899999999999977,
-                    "strength": 0.09954631378824033,
-                    "duration": 2,
-                    "lineStyle": {
-                        "color": "#2196f3",
-                        "width": 2
-                    }
-                },
-                {
-                    "id": "bi_3",
-                    "name": "上笔",
-                    "coords": [
-                        [
-                            "2025-04-16 00:00",
-                            221.55
-                        ],
-                        [
-                            "2025-05-22 00:00",
-                            279.99
-                        ]
-                    ],
-                    "direction": "up",
-                    "amplitude": 58.44,
-                    "strength": 0.34332594976303316,
-                    "duration": 2,
-                    "lineStyle": {
-                        "color": "#e91e63",
-                        "width": 2
-                    }
-                },
-                {
-                    "id": "bi_4",
-                    "name": "下笔",
-                    "coords": [
-                        [
-                            "2025-05-22 00:00",
-                            279.99
-                        ],
-                        [
-                            "2025-06-10 00:00",
-                            242.22
-                        ]
-                    ],
-                    "direction": "down",
-                    "amplitude": 37.77000000000001,
-                    "strength": 0.24152587244187296,
-                    "duration": 2,
-                    "lineStyle": {
-                        "color": "#2196f3",
-                        "width": 2
-                    }
-                },
-                {
-                    "id": "bi_5",
-                    "name": "上笔",
-                    "coords": [
-                        [
-                            "2025-06-10 00:00",
-                            242.22
-                        ],
-                        [
-                            "2025-06-12 00:00",
-                            252.5
-                        ]
-                    ],
-                    "direction": "up",
-                    "amplitude": 10.280000000000001,
-                    "strength": 0.07696152943604988,
-                    "duration": 2,
-                    "lineStyle": {
-                        "color": "#e91e63",
-                        "width": 2
-                    }
-                },
-                {
-                    "id": "bi_6",
-                    "name": "下笔",
-                    "coords": [
-                        [
-                            "2025-06-12 00:00",
-                            252.5
-                        ],
-                        [
-                            "2025-06-23 00:00",
-                            238.03
-                        ]
-                    ],
-                    "direction": "down",
-                    "amplitude": 14.469999999999999,
-                    "strength": 0.0855341014851485,
-                    "duration": 2,
-                    "lineStyle": {
-                        "color": "#2196f3",
-                        "width": 2
-                    }
-                },
-                {
-                    "id": "bi_7",
-                    "name": "上笔",
-                    "coords": [
-                        [
-                            "2025-06-23 00:00",
-                            238.03
-                        ],
-                        [
-                            "2025-06-27 00:00",
-                            257.45
-                        ]
-                    ],
-                    "direction": "up",
-                    "amplitude": 19.419999999999987,
-                    "strength": 0.14147704826282398,
-                    "duration": 2,
-                    "lineStyle": {
-                        "color": "#e91e63",
-                        "width": 2
-                    }
-                },
-                {
-                    "id": "bi_8",
-                    "name": "下笔",
-                    "coords": [
-                        [
-                            "2025-06-27 00:00",
-                            257.45
-                        ],
-                        [
-                            "2025-07-02 00:00",
-                            249.19
-                        ]
-                    ],
-                    "direction": "down",
-                    "amplitude": 8.259999999999991,
-                    "strength": 0.10511742985045637,
-                    "duration": 2,
-                    "lineStyle": {
-                        "color": "#2196f3",
-                        "width": 2
-                    }
-                },
-                {
-                    "id": "bi_9",
-                    "name": "上笔",
-                    "coords": [
-                        [
-                            "2025-07-02 00:00",
-                            249.19
-                        ],
-                        [
-                            "2025-07-11 00:00",
-                            274.99
-                        ]
-                    ],
-                    "direction": "up",
-                    "amplitude": 25.80000000000001,
-                    "strength": 0.1581828684116538,
-                    "duration": 2,
-                    "lineStyle": {
-                        "color": "#e91e63",
-                        "width": 2
-                    }
-                },
-                {
-                    "id": "bi_10",
-                    "name": "下笔",
-                    "coords": [
-                        [
-                            "2025-07-11 00:00",
-                            274.99
-                        ],
-                        [
-                            "2025-07-17 00:00",
-                            263.04
-                        ]
-                    ],
-                    "direction": "down",
-                    "amplitude": 11.949999999999989,
-                    "strength": 0.1439764879741081,
-                    "duration": 2,
-                    "lineStyle": {
-                        "color": "#2196f3",
-                        "width": 2
-                    }
-                },
-                {
-                    "id": "bi_11",
-                    "name": "上笔",
-                    "coords": [
-                        [
-                            "2025-07-17 00:00",
-                            263.04
-                        ],
-                        [
-                            "2025-07-23 00:00",
-                            290.75
-                        ]
-                    ],
-                    "direction": "up",
-                    "amplitude": 27.70999999999998,
-                    "strength": 0.1489760862530413,
-                    "duration": 2,
-                    "lineStyle": {
-                        "color": "#e91e63",
-                        "width": 2
-                    }
-                }
-            ],
-            "seg": [
-                {
-                    "id": "seg_0",
-                    "name": "下线段",
-                    "coords": [
-                        [
-                            "2025-03-27 00:00",
-                            262.8
-                        ],
-                        [
-                            "2025-06-27 00:00",
-                            257.45
-                        ]
-                    ],
-                    "direction": "down",
-                    "amplitude": 5.350000000000023,
-                    "strength": 0.1777844730356379,
-                    "integrity": 0.7,
-                    "bi_count": 8,
-                    "duration": 16,
-                    "lineStyle": {
-                        "color": "#3f51b5",
-                        "width": 3
-                    }
-                },
-                {
-                    "id": "seg_1",
-                    "name": "下线段",
-                    "coords": [
-                        [
-                            "2025-06-27 00:00",
-                            257.45
-                        ],
-                        [
-                            "2025-07-23 00:00",
-                            290.75
-                        ]
-                    ],
-                    "direction": "down",
-                    "amplitude": 33.30000000000001,
-                    "strength": 0.2063917174273723,
-                    "integrity": 0.7,
-                    "bi_count": 4,
-                    "duration": 8,
-                    "lineStyle": {
-                        "color": "#3f51b5",
-                        "width": 3
-                    }
-                }
-            ],
-            "zhongshu": []
-        },
-        "dynamics": {
-            "buy_sell_points": [],
-            "backchi": []
+        "recommendation_distribution": {
+            "强烈推荐买入": 50
         }
     },
-    "analysis": {
-        "summary": {
-            "klines_original": 90,
-            "klines_processed": 66,
-            "fenxing_count": 13,
-            "bi_count": 12,
-            "seg_count": 2,
-            "zhongshu_count": 0,
-            "backchi_count": 0,
-            "buy_sell_points_count": 0,
-            "buy_points_count": 0,
-            "sell_points_count": 0
-        },
-        "evaluation": {
-            "trend_direction": "down",
-            "trend_strength": 0.5152528571389031,
-            "risk_level": 0.4847471428610969,
-            "confidence_score": 0.62,
-            "recommended_action": "wait",
-            "entry_price": null,
-            "stop_loss": null,
-            "take_profit": null
-        },
-        "latest_signals": []
-    },
-    "chart_config": {
-        "colors": {
-            "up_candle": "#ef5150",
-            "down_candle": "#26a69a",
-            "fenxing_top": "#f44336",
-            "fenxing_bottom": "#4caf50",
-            "bi_up": "#e91e63",
-            "bi_down": "#2196f3",
-            "seg_up": "#ff5722",
-            "seg_down": "#3f51b5",
-            "zhongshu": "#ff9800",
-            "buy_point": "#4caf50",
-            "sell_point": "#f44336",
-            "backchi": "#9c27b0"
-        }
+    "config_used": {
+        "days_30min": 30,
+        "min_backchi_strength": 0.6,
+        "require_macd_golden_cross": true,
+        "max_stocks_per_batch": 0,
+        "min_price": 2.0,
+        "max_price": 1000.0,
+        "min_volume_ratio": 0.5,
+        "min_area_ratio": 1.5,
+        "max_area_shrink_ratio": 0.8,
+        "confirm_days": 3,
+        "death_cross_confirm_days": 2
     }
 }

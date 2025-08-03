@@ -5,7 +5,7 @@
         <el-icon><TrendCharts /></el-icon>
         缠论智能选股
       </h1>
-      <p class="page-subtitle">基于30分钟底背驰筛选 + 5分钟买点确认的多级别选股策略</p>
+      <p class="page-subtitle">基于MACD红绿柱面积对比的双向背驰选股策略：底背驰买入 + 顶背驰卖出</p>
     </div>
 
     <div class="page-content">
@@ -67,13 +67,13 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="买点强度阈值">
+              <el-form-item label="绿柱面积比阈值（买入）">
                 <el-slider
-                  v-model="selectionConfig.min_buy_point_strength"
-                  :min="0"
-                  :max="1"
+                  v-model="selectionConfig.min_area_ratio"
+                  :min="1.1"
+                  :max="3.0"
                   :step="0.1"
-                  :format-tooltip="formatTooltip"
+                  :format-tooltip="val => `${val.toFixed(1)}倍`"
                   show-input
                 />
               </el-form-item>
@@ -82,9 +82,34 @@
 
           <el-row :gutter="24">
             <el-col :span="12">
-              <el-form-item label="30分钟分析天数">
+              <el-form-item label="红柱面积缩小比例（卖出）">
+                <el-slider
+                  v-model="selectionConfig.max_area_shrink_ratio"
+                  :min="0.5"
+                  :max="0.9"
+                  :step="0.05"
+                  :format-tooltip="val => `${(val*100).toFixed(0)}%`"
+                  show-input
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="死叉确认期间（天）">
                 <el-input-number
-                  v-model="selectionConfig.days_30min"
+                  v-model="selectionConfig.death_cross_confirm_days"
+                  :min="1"
+                  :max="5"
+                  :step="1"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row :gutter="24">
+            <el-col :span="12">
+              <el-form-item label="分析天数">
+                <el-input-number
+                  v-model="selectionConfig.days"
                   :min="30"
                   :max="200"
                   :step="10"
@@ -92,11 +117,11 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="5分钟分析天数">
+              <el-form-item label="金叉确认期间">
                 <el-input-number
-                  v-model="selectionConfig.days_5min"
-                  :min="5"
-                  :max="30"
+                  v-model="selectionConfig.confirm_days"
+                  :min="1"
+                  :max="5"
                   :step="1"
                 />
               </el-form-item>
@@ -112,7 +137,7 @@
             <span class="card-title">选股结果</span>
             <div class="result-stats">
               <el-tag type="success" size="large">
-                筛选出 {{ selectionResults.meta?.actual_results || 0 }} 只股票
+                筛选出 {{ totalResults }} 只股票
               </el-tag>
               <el-tag type="info" class="ml-2">
                 成功率 {{ (selectionResults.statistics?.success_rate || 0).toFixed(1) }}%
@@ -125,20 +150,20 @@
         <div class="statistics-section" v-if="selectionResults.statistics">
           <div class="stats-grid">
             <div class="stat-item">
-              <div class="stat-value">{{ selectionResults.statistics.signals_found || 0 }}</div>
+              <div class="stat-value">{{ selectionResults.statistics.total_signals || 0 }}</div>
               <div class="stat-label">信号总数</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ selectionResults.statistics.buy_signals_count || 0 }}</div>
+              <div class="stat-label">买入信号</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ selectionResults.statistics.sell_signals_count || 0 }}</div>
+              <div class="stat-label">卖出信号</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">{{ selectionResults.statistics.strength_distribution?.strong || 0 }}</div>
               <div class="stat-label">强信号</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">{{ selectionResults.statistics.strength_distribution?.medium || 0 }}</div>
-              <div class="stat-label">中等信号</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">{{ selectionResults.statistics.recommendation_distribution?.['强烈关注'] || 0 }}</div>
-              <div class="stat-label">强烈关注</div>
             </div>
           </div>
         </div>
@@ -146,13 +171,13 @@
         <!-- 选股结果表格 -->
         <div class="results-table">
           <el-table
-            :data="selectionResults.results"
+            :data="currentPageData"
             size="small"
             max-height="600"
             empty-text="暂无选股结果"
             @row-click="handleRowClick"
           >
-            <el-table-column type="index" label="#" width="50" />
+            <el-table-column type="index" label="#" width="50" :index="getTableIndex" />
             
             <el-table-column prop="basic_info.symbol" label="股票代码" width="100">
               <template #default="{ row }">
@@ -167,10 +192,10 @@
             <el-table-column prop="scoring.overall_score" label="综合评分" width="100" sortable>
               <template #default="{ row }">
                 <el-progress
-                  :percentage="row.scoring.overall_score"
+                  :percentage="Math.min(row.scoring.overall_score, 100)"
                   :stroke-width="12"
                   :color="getScoreColor(row.scoring.overall_score)"
-                  :format="() => `${row.scoring.overall_score}`"
+                  :format="() => `${row.scoring.overall_score.toFixed(1)}`"
                 />
               </template>
             </el-table-column>
@@ -197,35 +222,49 @@
               </template>
             </el-table-column>
             
-            <el-table-column label="30分钟分析" width="150">
+            <el-table-column label="背驰分析" width="150">
               <template #default="{ row }">
                 <div class="analysis-info">
-                  <div v-if="row.min30_analysis.has_bottom_backchi" class="analysis-item">
-                    <el-tag type="success" size="small">底背驰</el-tag>
-                    <span class="ml-1">{{ (row.min30_analysis.backchi_strength * 100).toFixed(1) }}%</span>
-                  </div>
                   <div class="analysis-item">
                     <el-tag 
-                      :type="row.min30_analysis.trend_direction === 'up' ? 'danger' : 'primary'"
+                      :type="row.backchi_analysis.backchi_type === 'bottom' ? 'success' : 'danger'" 
                       size="small"
                     >
-                      {{ getTrendText(row.min30_analysis.trend_direction) }}
+                      {{ row.backchi_analysis.backchi_type === 'bottom' ? '底背驰' : '顶背驰' }}
                     </el-tag>
+                    <span class="ml-1">{{ (row.backchi_analysis.reliability * 100).toFixed(1) }}%</span>
+                  </div>
+                  <div v-if="row.backchi_analysis.has_macd_golden_cross" class="analysis-item">
+                    <el-tag type="warning" size="small">MACD金叉</el-tag>
+                  </div>
+                  <div v-if="row.backchi_analysis.has_macd_death_cross" class="analysis-item">
+                    <el-tag type="danger" size="small">MACD死叉</el-tag>
+                  </div>
+                  <div class="analysis-item">
+                    <span class="text-sm text-gray-500">
+                      {{ getAreaRatioFromDescription(row.backchi_analysis.description) }}
+                    </span>
                   </div>
                 </div>
               </template>
             </el-table-column>
             
-            <el-table-column label="5分钟分析" width="150">
+            <el-table-column label="技术分析" width="150">
               <template #default="{ row }">
                 <div class="analysis-info">
-                  <div v-if="row.min5_analysis.has_latest_buy_signal" class="analysis-item">
-                    <el-tag type="warning" size="small">买点信号</el-tag>
-                    <span class="ml-1">{{ (row.min5_analysis.latest_buy_strength * 100).toFixed(1) }}%</span>
+                  <div class="analysis-item">
+                    <span class="text-sm text-gray-500">
+                      价差: {{ getMacdValueFromDescription(row.backchi_analysis.description, 'price_diff') }}
+                    </span>
                   </div>
                   <div class="analysis-item">
                     <span class="text-sm text-gray-500">
-                      {{ row.min5_analysis.buy_points_count }} 个买点
+                      可靠度: {{ (row.backchi_analysis.reliability * 100).toFixed(0) }}%
+                    </span>
+                  </div>
+                  <div class="analysis-item">
+                    <span class="text-sm text-gray-500">
+                      状态: {{ row.backchi_analysis.has_macd_golden_cross ? '金叉' : (row.backchi_analysis.has_macd_death_cross ? '死叉' : '中性') }}
                     </span>
                   </div>
                 </div>
@@ -241,13 +280,13 @@
                   </div>
                   <div class="price-item">
                     <span class="price-label">止损:</span>
-                    <span class="price-value text-red-500">{{ row.key_prices.stop_loss }}</span>
+                    <span class="price-value text-red-500">{{ row.key_prices.stop_loss?.toFixed(2) }}</span>
                   </div>
                   <div class="price-item">
                     <span class="price-label">止盈:</span>
-                    <span class="price-value text-green-500">{{ row.key_prices.take_profit }}</span>
+                    <span class="price-value text-green-500">{{ row.key_prices.take_profit?.toFixed(2) }}</span>
                   </div>
-                  <div class="price-item" v-if="row.key_prices.risk_reward_ratio">
+                  <div class="price-item">
                     <span class="price-label">盈亏比:</span>
                     <span class="price-value">{{ row.key_prices.risk_reward_ratio }}</span>
                   </div>
@@ -276,6 +315,19 @@
               </template>
             </el-table-column>
           </el-table>
+
+          <!-- 分页组件 -->
+          <div class="pagination-wrapper" v-if="totalResults > 0">
+            <el-pagination
+              v-model:current-page="currentPage"
+              v-model:page-size="pageSize"
+              :page-sizes="[10, 20, 50, 100]"
+              :total="totalResults"
+              layout="total, sizes, prev, pager, next, jumper"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+            />
+          </div>
         </div>
       </el-card>
 
@@ -292,7 +344,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { TrendCharts } from '@element-plus/icons-vue'
 import { pythonApi } from '@/utils/api'
@@ -304,32 +356,56 @@ const router = useRouter()
 const loading = ref(false)
 const selectionResults = ref(null)
 const selectedPreset = ref('balanced')
+const currentPage = ref(1)
+const pageSize = ref(10)
 
 // 选股配置
 const selectionConfig = reactive({
   max_results: 50,
   min_backchi_strength: 0.6,
-  min_buy_point_strength: 0.5,
-  days_30min: 60,
-  days_5min: 10
+  min_area_ratio: 1.5,
+  max_area_shrink_ratio: 0.8,
+  days: 60,
+  confirm_days: 3,
+  death_cross_confirm_days: 2
+})
+
+// 计算属性
+const allResults = computed(() => {
+  if (!selectionResults.value || !selectionResults.value.results) return []
+  return [...(selectionResults.value.results.buy_signals || []), ...(selectionResults.value.results.sell_signals || [])]
+})
+
+const totalResults = computed(() => allResults.value.length)
+
+const currentPageData = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return allResults.value.slice(start, end)
 })
 
 // 预设配置
 const presetConfigs = {
   conservative: {
     min_backchi_strength: 0.8,
-    min_buy_point_strength: 0.7,
-    description: '保守策略：高强度信号筛选'
+    min_area_ratio: 2.0,
+    max_area_shrink_ratio: 0.7,
+    death_cross_confirm_days: 3,
+    description: '保守策略：高阈值严格筛选'
   },
   balanced: {
     min_backchi_strength: 0.6,
-    min_buy_point_strength: 0.5,
-    description: '平衡策略：中等强度信号筛选'
+    min_area_ratio: 1.5,
+    max_area_shrink_ratio: 0.8,
+    death_cross_confirm_days: 2,
+    description: '平衡策略：中等阈值筛选'
   },
   aggressive: {
     min_backchi_strength: 0.4,
-    min_buy_point_strength: 0.3,
-    description: '激进策略：低强度信号筛选'
+    min_area_ratio: 1.2,
+    max_area_shrink_ratio: 0.85,
+    death_cross_confirm_days: 1,
+    description: '激进策略：低阈值快速响应'
   }
 }
 
@@ -338,11 +414,48 @@ const formatTooltip = (value) => {
   return `${(value * 100).toFixed(0)}%`
 }
 
+const getTableIndex = (index) => {
+  return (currentPage.value - 1) * pageSize.value + index + 1
+}
+
+const handleSizeChange = (val) => {
+  pageSize.value = val
+  currentPage.value = 1
+}
+
+const handleCurrentChange = (val) => {
+  currentPage.value = val
+}
+
+const getAreaRatioFromDescription = (description) => {
+  if (!description) return '-'
+  const match = description.match(/面积比([\d.]+)/)
+  return match ? `面积比: ${match[1]}` : '-'
+}
+
+const getMacdValueFromDescription = (description, type) => {
+  // 从描述中提取价差信息作为MACD相关数据的替代显示
+  if (!description) return '-'
+  
+  try {
+    if (type === 'price_diff') {
+      const match = description.match(/价差([\d.]+)%/)
+      return match ? `${match[1]}%` : '-'
+    }
+    // DIF、DEA具体数值后端未返回，显示状态信息
+    return '-'
+  } catch {
+    return '-'
+  }
+}
+
 const applyPresetConfig = (preset) => {
   if (preset && presetConfigs[preset]) {
     const config = presetConfigs[preset]
     selectionConfig.min_backchi_strength = config.min_backchi_strength
-    selectionConfig.min_buy_point_strength = config.min_buy_point_strength
+    selectionConfig.min_area_ratio = config.min_area_ratio
+    selectionConfig.max_area_shrink_ratio = config.max_area_shrink_ratio
+    selectionConfig.death_cross_confirm_days = config.death_cross_confirm_days
     ElMessage.success(`已应用${config.description}`)
   }
 }
@@ -355,12 +468,16 @@ const runStockSelection = async () => {
     const result = await pythonApi.runStockSelection({
       max_results: selectionConfig.max_results,
       min_backchi_strength: selectionConfig.min_backchi_strength,
-      min_buy_point_strength: selectionConfig.min_buy_point_strength
+      min_area_ratio: selectionConfig.min_area_ratio,
+      max_area_shrink_ratio: selectionConfig.max_area_shrink_ratio,
+      confirm_days: selectionConfig.confirm_days,
+      death_cross_confirm_days: selectionConfig.death_cross_confirm_days
     })
     
     selectionResults.value = result
+    currentPage.value = 1 // 重置到第一页
     
-    const count = result.meta?.actual_results || 0
+    const count = totalResults.value
     ElMessage.success(`选股完成！筛选出 ${count} 只股票`)
     
   } catch (error) {
@@ -396,13 +513,10 @@ const getStrengthText = (strength) => {
 }
 
 const getRecommendationType = (recommendation) => {
-  switch (recommendation) {
-    case '强烈关注': return 'danger'
-    case '密切监控': return 'warning'
-    case '适度关注': return 'success'
-    case '观望': return 'info'
-    default: return 'info'
-  }
+  if (recommendation?.includes('强烈')) return 'danger'
+  if (recommendation?.includes('建议')) return 'warning'
+  if (recommendation?.includes('谨慎')) return 'success'
+  return 'info'
 }
 
 const getTrendText = (direction) => {
@@ -437,7 +551,7 @@ const handleRowClick = (row) => {
 const viewStockDetail = (symbol) => {
   // 跳转到股票详情页面
   router.push({
-    name: 'HomePage',
+    name: 'Home',
     query: { symbol }
   })
 }
@@ -554,6 +668,14 @@ onMounted(() => {
 
 .results-table {
   padding: 0 20px 20px;
+}
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 20px 0;
+  border-top: 1px solid var(--el-border-color-lighter);
 }
 
 .analysis-info {

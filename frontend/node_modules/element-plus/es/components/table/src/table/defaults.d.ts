@@ -103,7 +103,7 @@ interface TableProps<T extends DefaultRow> {
     highlightCurrentRow?: boolean;
     currentRowKey?: string | number;
     emptyText?: string;
-    expandRowKeys?: Array<string | number>;
+    expandRowKeys?: Array<string>;
     defaultExpandAll?: boolean;
     defaultSort?: Sort;
     tooltipEffect?: string;
@@ -131,6 +131,7 @@ interface TableProps<T extends DefaultRow> {
     tooltipFormatter?: TableOverflowTooltipFormatter<T>;
     appendFilterPanelTo?: string;
     scrollbarTabindex?: number | string;
+    nativeScrollbar?: boolean;
 }
 type TableTooltipData<T extends DefaultRow> = Parameters<TableOverflowTooltipFormatter<T>>[0];
 type TableSortOrder = 'ascending' | 'descending';
@@ -375,6 +376,10 @@ declare const _default: {
      * @description whether to preserve expanded row content in DOM when collapsed
      */
     preserveExpandedContent: BooleanConstructor;
+    /**
+     * @description whether to use native scrollbars
+     */
+    nativeScrollbar: BooleanConstructor;
 };
 export default _default;
 export type { SummaryMethod, Table, TableProps, TableRefs, ColumnCls, ColumnStyle, CellCls, CellStyle, DefaultRow, TreeNode, RenderRowData, Sort, Filter, TableColumnCtx, TreeProps, TableTooltipData, TableSortOrder, RenderExpanded, };

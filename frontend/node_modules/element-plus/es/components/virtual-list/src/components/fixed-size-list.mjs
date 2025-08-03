@@ -1,8 +1,6 @@
 import createList from '../builders/build-list.mjs';
 import { isHorizontal } from '../utils.mjs';
 import { AUTO_ALIGNMENT, CENTERED_ALIGNMENT, END_ALIGNMENT, START_ALIGNMENT, SMART_ALIGNMENT } from '../defaults.mjs';
-import { isString } from '@vue/shared';
-import { throwError } from '../../../../utils/error.mjs';
 
 const FixedSizeList = createList({
   name: "ElFixedSizeList",
@@ -11,14 +9,6 @@ const FixedSizeList = createList({
   getEstimatedTotalSize: ({ total, itemSize }) => itemSize * total,
   getOffset: ({ height, total, itemSize, layout, width }, index, alignment, scrollOffset) => {
     const size = isHorizontal(layout) ? width : height;
-    if (process.env.NODE_ENV !== "production" && isString(size)) {
-      throwError("[ElVirtualList]", `
-        You should set
-          width/height
-        to number when your layout is
-          horizontal/vertical
-      `);
-    }
     const lastItemOffset = Math.max(0, total * itemSize - size);
     const maxOffset = Math.min(lastItemOffset, index * itemSize);
     const minOffset = Math.max(0, (index + 1) * itemSize - size);

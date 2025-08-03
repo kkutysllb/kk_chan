@@ -1,9 +1,6 @@
 import createGrid from '../builders/build-grid.mjs';
 import { AUTO_ALIGNMENT, CENTERED_ALIGNMENT, END_ALIGNMENT, START_ALIGNMENT, SMART_ALIGNMENT } from '../defaults.mjs';
-import { isNumber } from '../../../../utils/types.mjs';
-import { throwError } from '../../../../utils/error.mjs';
 
-const SCOPE = "ElFixedSizeGrid";
 const FixedSizeGrid = createGrid({
   name: "ElFixedSizeGrid",
   getColumnPosition: ({ columnWidth }, index) => [
@@ -111,20 +108,6 @@ const FixedSizeGrid = createGrid({
   initCache: () => void 0,
   clearCache: true,
   validateProps: ({ columnWidth, rowHeight }) => {
-    if (process.env.NODE_ENV !== "production") {
-      if (!isNumber(columnWidth)) {
-        throwError(SCOPE, `
-          "columnWidth" must be passed as number,
-            instead ${typeof columnWidth} was given.
-        `);
-      }
-      if (!isNumber(rowHeight)) {
-        throwError(SCOPE, `
-          "columnWidth" must be passed as number,
-            instead ${typeof rowHeight} was given.
-        `);
-      }
-    }
   }
 });
 

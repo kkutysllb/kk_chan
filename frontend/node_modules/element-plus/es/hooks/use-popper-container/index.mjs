@@ -26,7 +26,7 @@ const usePopperContainer = () => {
   onBeforeMount(() => {
     if (!isClient)
       return;
-    if (process.env.NODE_ENV === "test" || !document.body.querySelector(selector.value)) {
+    if (!document.body.querySelector(selector.value)) {
       createContainer(id.value);
     }
   });

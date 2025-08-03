@@ -6,7 +6,6 @@ const FOCUSABLE_CHILDREN = "_trap-focus-children";
 const TRAP_FOCUS_HANDLER = "_trap-focus-handler";
 const FOCUS_STACK = [];
 const FOCUS_HANDLER = (e) => {
-  var _a;
   if (FOCUS_STACK.length === 0)
     return;
   const focusableElement = FOCUS_STACK[FOCUS_STACK.length - 1][FOCUSABLE_CHILDREN];
@@ -28,12 +27,6 @@ const FOCUS_HANDLER = (e) => {
     if (isLast && !goingBackward) {
       e.preventDefault();
       focusableElement[0].focus();
-    }
-    if (process.env.NODE_ENV === "test") {
-      const index = focusableElement.indexOf(e.target);
-      if (index !== -1) {
-        (_a = focusableElement[goingBackward ? index - 1 : index + 1]) == null ? void 0 : _a.focus();
-      }
     }
   }
 };

@@ -28,7 +28,7 @@ export declare const formProps: {
     readonly validateOnRuleChange: import("element-plus/es/utils").EpPropFinalized<BooleanConstructor, unknown, unknown, true, boolean>;
     readonly hideRequiredAsterisk: BooleanConstructor;
     readonly scrollToError: BooleanConstructor;
-    readonly scrollIntoViewOptions: import("element-plus/es/utils").EpPropFinalized<readonly [ObjectConstructor, BooleanConstructor], unknown, unknown, true, boolean>;
+    readonly scrollIntoViewOptions: import("element-plus/es/utils").EpPropFinalized<(new (...args: any[]) => boolean | ScrollIntoViewOptions) | (() => boolean | ScrollIntoViewOptions) | ((new (...args: any[]) => boolean | ScrollIntoViewOptions) | (() => boolean | ScrollIntoViewOptions))[], unknown, unknown, true, boolean>;
     readonly size: {
         readonly type: import("vue").PropType<import("element-plus/es/utils").EpPropMergeType<StringConstructor, "" | "small" | "default" | "large", unknown>>;
         readonly required: false;

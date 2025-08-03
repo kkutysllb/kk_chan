@@ -348,7 +348,7 @@ declare const __VLS_component: import("vue").DefineComponent<{
      */
     onOpen: (event?: Event) => void;
     /**
-     * @description expose onOpen function to mange el-tooltip open state
+     * @description expose onClose function to manage el-tooltip close state
      */
     onClose: (event?: Event) => void;
     /**

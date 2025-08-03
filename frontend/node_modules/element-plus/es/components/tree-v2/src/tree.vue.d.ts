@@ -137,6 +137,8 @@ declare const __VLS_component: import("vue").DefineComponent<{
     readonly height: number;
     readonly props: import("./types").TreeOptionProps;
     readonly checkStrictly: boolean;
+    readonly checkOnClickNode: boolean;
+    readonly checkOnClickLeaf: import("element-plus/es/utils").EpPropMergeType<BooleanConstructor, unknown, unknown>;
     readonly accordion: boolean;
     readonly perfMode: import("element-plus/es/utils").EpPropMergeType<BooleanConstructor, unknown, unknown>;
     readonly scrollbarAlwaysOn: boolean;
@@ -146,8 +148,6 @@ declare const __VLS_component: import("vue").DefineComponent<{
     readonly defaultExpandedKeys: import("./types").TreeKey[];
     readonly showCheckbox: boolean;
     readonly expandOnClickNode: import("element-plus/es/utils").EpPropMergeType<BooleanConstructor, unknown, unknown>;
-    readonly checkOnClickNode: boolean;
-    readonly checkOnClickLeaf: import("element-plus/es/utils").EpPropMergeType<BooleanConstructor, unknown, unknown>;
     readonly highlightCurrent: boolean;
 }>;
 declare const _default: __VLS_WithTemplateSlots<typeof __VLS_component, ReturnType<typeof __VLS_template>>;

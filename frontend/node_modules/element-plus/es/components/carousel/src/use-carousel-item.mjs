@@ -1,17 +1,10 @@
 import { inject, getCurrentInstance, ref, unref, reactive, onBeforeUnmount } from 'vue';
-import { carouselContextKey, CAROUSEL_ITEM_NAME } from './constants.mjs';
-import { debugWarn } from '../../../utils/error.mjs';
+import { carouselContextKey } from './constants.mjs';
 import { isUndefined } from '../../../utils/types.mjs';
 
 const useCarouselItem = (props) => {
   const carouselContext = inject(carouselContextKey);
   const instance = getCurrentInstance();
-  if (!carouselContext) {
-    debugWarn(CAROUSEL_ITEM_NAME, "usage: <el-carousel></el-carousel-item></el-carousel>");
-  }
-  if (!instance) {
-    debugWarn(CAROUSEL_ITEM_NAME, "compositional hook can only be invoked inside setups");
-  }
   const carouselItemRef = ref();
   const hover = ref(false);
   const translate = ref(0);

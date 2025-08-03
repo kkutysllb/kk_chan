@@ -1,7 +1,6 @@
 import { getCurrentInstance, inject, unref } from 'vue';
-import { isClient, computedEager } from '@vueuse/core';
+import { computedEager } from '@vueuse/core';
 import { useGetDerivedNamespace } from '../use-namespace/index.mjs';
-import { debugWarn } from '../../utils/error.mjs';
 
 const defaultIdInjection = {
   prefix: Math.floor(Math.random() * 1e4),
@@ -13,13 +12,6 @@ const useIdInjection = () => {
 };
 const useId = (deterministicId) => {
   const idInjection = useIdInjection();
-  if (!isClient && idInjection === defaultIdInjection) {
-    debugWarn("IdInjection", `Looks like you are using server rendering, you must provide a id provider to ensure the hydration process to be succeed
-usage: app.provide(ID_INJECTION_KEY, {
-  prefix: number,
-  current: number,
-})`);
-  }
   const namespace = useGetDerivedNamespace();
   const idRef = computedEager(() => unref(deterministicId) || `${namespace.value}-id-${idInjection.prefix}-${idInjection.current++}`);
   return idRef;

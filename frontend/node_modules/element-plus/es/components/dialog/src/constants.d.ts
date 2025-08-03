@@ -9,3 +9,4 @@ export type DialogContext = {
     style: ComputedRef<CSSProperties>;
 };
 export declare const dialogInjectionKey: InjectionKey<DialogContext>;
+export declare const DEFAULT_DIALOG_TRANSITION = "dialog-fade";

@@ -5,7 +5,7 @@ import { UPDATE_MODEL_EVENT, CHANGE_EVENT } from '../../../constants/event.mjs';
 import { useNamespace } from '../../../hooks/use-namespace/index.mjs';
 import { isPromise } from '@vue/shared';
 import { isBoolean } from '../../../utils/types.mjs';
-import { throwError, debugWarn } from '../../../utils/error.mjs';
+import { throwError } from '../../../utils/error.mjs';
 
 const SCOPE = "ElCollapse";
 const useCollapse = (props, emit) => {
@@ -50,7 +50,6 @@ const useCollapse = (props, emit) => {
           handleChange(name);
         }
       }).catch((e) => {
-        debugWarn(SCOPE, `some error occurred: ${e}`);
       });
     } else if (shouldChange) {
       handleChange(name);

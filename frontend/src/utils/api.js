@@ -133,18 +133,41 @@ export const pythonApi = {
   },
 
   // 执行选股
-  async runStockSelection({ max_results = 50, min_backchi_strength = null, min_buy_point_strength = null }) {
+  async runStockSelection({ 
+    max_results = 50, 
+    min_backchi_strength = null,
+    min_area_ratio = null,
+    max_area_shrink_ratio = null,
+    confirm_days = null,
+    death_cross_confirm_days = null
+  }) {
     try {
       let url = `http://localhost:8000/stock-selection?max_results=${max_results}`
       
       if (min_backchi_strength !== null) {
         url += `&min_backchi_strength=${min_backchi_strength}`
       }
-      if (min_buy_point_strength !== null) {
-        url += `&min_buy_point_strength=${min_buy_point_strength}`
+      if (min_area_ratio !== null) {
+        url += `&min_area_ratio=${min_area_ratio}`
+      }
+      if (max_area_shrink_ratio !== null) {
+        url += `&max_area_shrink_ratio=${max_area_shrink_ratio}`
+      }
+      if (confirm_days !== null) {
+        url += `&confirm_days=${confirm_days}`
+      }
+      if (death_cross_confirm_days !== null) {
+        url += `&death_cross_confirm_days=${death_cross_confirm_days}`
       }
       
-      console.log('执行选股:', { max_results, min_backchi_strength, min_buy_point_strength })
+      console.log('执行选股:', { 
+        max_results, 
+        min_backchi_strength, 
+        min_area_ratio, 
+        max_area_shrink_ratio,
+        confirm_days,
+        death_cross_confirm_days
+      })
       
       const response = await fetch(url)
       

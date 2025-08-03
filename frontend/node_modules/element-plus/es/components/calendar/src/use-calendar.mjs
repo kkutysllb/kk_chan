@@ -3,7 +3,6 @@ import dayjs from 'dayjs';
 import { useLocale } from '../../../hooks/use-locale/index.mjs';
 import { INPUT_EVENT, UPDATE_MODEL_EVENT } from '../../../constants/event.mjs';
 import { isArray, isDate } from '@vue/shared';
-import { debugWarn } from '../../../utils/error.mjs';
 
 const adjacentMonth = (start, end) => {
   const firstMonthLastDay = start.endOf("month");
@@ -53,14 +52,12 @@ const useCalendar = (props, emit, componentName) => {
     const rangeArrDayjs = props.range.map((_) => dayjs(_).locale(lang.value));
     const [startDayjs, endDayjs] = rangeArrDayjs;
     if (startDayjs.isAfter(endDayjs)) {
-      debugWarn(componentName, "end time should be greater than start time");
       return [];
     }
     if (startDayjs.isSame(endDayjs, "month")) {
       return calculateValidatedDateRange(startDayjs, endDayjs);
     } else {
       if (startDayjs.add(1, "month").month() !== endDayjs.month()) {
-        debugWarn(componentName, "start time and end time interval must not exceed two months");
         return [];
       }
       return calculateValidatedDateRange(startDayjs, endDayjs);
@@ -89,7 +86,6 @@ const useCalendar = (props, emit, componentName) => {
     } else if (firstMonth + 2 === lastMonth || (firstMonth + 1) % 11 === lastMonth) {
       return threeConsecutiveMonth(firstDay, lastDay);
     } else {
-      debugWarn(componentName, "start time and end time interval must not exceed two months");
       return [];
     }
   };

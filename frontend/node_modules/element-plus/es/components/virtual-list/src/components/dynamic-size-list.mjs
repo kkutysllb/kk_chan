@@ -1,9 +1,7 @@
 import createList from '../builders/build-list.mjs';
 import { isHorizontal } from '../utils.mjs';
 import { AUTO_ALIGNMENT, CENTERED_ALIGNMENT, END_ALIGNMENT, START_ALIGNMENT, DEFAULT_DYNAMIC_LIST_ITEM_SIZE, SMART_ALIGNMENT } from '../defaults.mjs';
-import { throwError } from '../../../../utils/error.mjs';
 
-const SCOPE = "ElDynamicSizeList";
 const getItemFromCache = (props, index, listCache) => {
   const { itemSize } = props;
   const { items, lastVisitedIndex } = listCache;
@@ -142,13 +140,6 @@ const DynamicSizeList = createList({
   },
   clearCache: false,
   validateProps: ({ itemSize }) => {
-    if (process.env.NODE_ENV !== "production") {
-      if (typeof itemSize !== "function") {
-        throwError(SCOPE, `
-          itemSize is required as function, but the given value was ${typeof itemSize}
-        `);
-      }
-    }
   }
 });
 

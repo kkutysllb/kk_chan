@@ -3,7 +3,6 @@ import MessageBoxConstructor from './index.mjs';
 import { isClient } from '@vueuse/core';
 import { isString, isObject, hasOwn, isFunction } from '@vue/shared';
 import { isUndefined, isElement } from '../../../utils/types.mjs';
-import { debugWarn } from '../../../utils/error.mjs';
 
 const messageInstance = /* @__PURE__ */ new Map();
 const getAppendToElement = (props) => {
@@ -16,7 +15,6 @@ const getAppendToElement = (props) => {
       appendTo = props.appendTo;
     }
     if (!isElement(appendTo)) {
-      debugWarn("ElMessageBox", "the appendTo option is not an HTMLElement. Falling back to document.body.");
       appendTo = document.body;
     }
   }

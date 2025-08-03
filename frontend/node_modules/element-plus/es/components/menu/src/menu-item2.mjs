@@ -18,7 +18,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   emits: menuItemEmits,
   setup(__props, { expose, emit }) {
     const props = __props;
-    isPropAbsent(props.index) && debugWarn(COMPONENT_NAME, 'Missing required prop: "index"');
+    isPropAbsent(props.index) && debugWarn();
     const instance = getCurrentInstance();
     const rootMenu = inject(MENU_INJECTION_KEY);
     const nsMenu = useNamespace("menu");

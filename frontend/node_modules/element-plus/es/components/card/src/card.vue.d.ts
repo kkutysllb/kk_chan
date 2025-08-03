@@ -10,7 +10,7 @@ declare const __VLS_component: import("vue").DefineComponent<{
     readonly headerClass: StringConstructor;
     readonly bodyClass: StringConstructor;
     readonly footerClass: StringConstructor;
-    readonly shadow: import("element-plus/es/utils").EpPropFinalized<StringConstructor, "always" | "never" | "hover", unknown, "always", boolean>;
+    readonly shadow: import("element-plus/es/utils").EpPropFinalized<StringConstructor, "always" | "never" | "hover", unknown, undefined, boolean>;
 }, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, Record<string, any>, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
     readonly header: import("element-plus/es/utils").EpPropFinalized<StringConstructor, unknown, unknown, "", boolean>;
     readonly footer: import("element-plus/es/utils").EpPropFinalized<StringConstructor, unknown, unknown, "", boolean>;
@@ -18,7 +18,7 @@ declare const __VLS_component: import("vue").DefineComponent<{
     readonly headerClass: StringConstructor;
     readonly bodyClass: StringConstructor;
     readonly footerClass: StringConstructor;
-    readonly shadow: import("element-plus/es/utils").EpPropFinalized<StringConstructor, "always" | "never" | "hover", unknown, "always", boolean>;
+    readonly shadow: import("element-plus/es/utils").EpPropFinalized<StringConstructor, "always" | "never" | "hover", unknown, undefined, boolean>;
 }>>, {
     readonly footer: string;
     readonly header: string;

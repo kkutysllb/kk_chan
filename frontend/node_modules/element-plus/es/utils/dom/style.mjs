@@ -2,9 +2,7 @@ import { isNumber, isStringNumber } from '../types.mjs';
 import { isClient } from '@vueuse/core';
 import { camelize, isObject, isString } from '@vue/shared';
 import { entriesOf, keysOf } from '../objects.mjs';
-import { debugWarn } from '../error.mjs';
 
-const SCOPE = "utils/dom/style";
 const classNameToArray = (cls = "") => cls.split(" ").filter((item) => !!item.trim());
 const hasClass = (el, cls) => {
   if (!el || !cls)
@@ -67,7 +65,6 @@ function addUnit(value, defaultUnit = "px") {
   } else if (isString(value)) {
     return value;
   }
-  debugWarn(SCOPE, "binding value must be a string or number");
 }
 
 export { addClass, addUnit, classNameToArray, getStyle, hasClass, removeClass, removeStyle, setStyle };

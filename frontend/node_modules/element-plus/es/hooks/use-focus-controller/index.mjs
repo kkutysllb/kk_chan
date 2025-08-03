@@ -1,6 +1,5 @@
-import { getCurrentInstance, shallowRef, ref, unref, watch, onMounted } from 'vue';
+import { getCurrentInstance, shallowRef, ref, unref, watch } from 'vue';
 import { useEventListener } from '@vueuse/core';
-import { isElement } from '../../utils/types.mjs';
 import { isFocusable } from '../../utils/dom/aria.mjs';
 import { isFunction } from '@vue/shared';
 
@@ -50,15 +49,6 @@ function useFocusController(target, {
   useEventListener(wrapperRef, "focus", handleFocus, true);
   useEventListener(wrapperRef, "blur", handleBlur, true);
   useEventListener(wrapperRef, "click", handleClick, true);
-  if (process.env.NODE_ENV === "test") {
-    onMounted(() => {
-      const targetEl = isElement(target.value) ? target.value : document.querySelector("input,textarea");
-      if (targetEl) {
-        useEventListener(targetEl, "focus", handleFocus, true);
-        useEventListener(targetEl, "blur", handleBlur, true);
-      }
-    });
-  }
   return {
     isFocused,
     wrapperRef,

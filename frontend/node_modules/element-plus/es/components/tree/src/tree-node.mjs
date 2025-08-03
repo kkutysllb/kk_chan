@@ -11,7 +11,6 @@ import Node from './model/node.mjs';
 import { ROOT_TREE_INJECTION_KEY, NODE_INSTANCE_INJECTION_KEY } from './tokens.mjs';
 import _export_sfc from '../../../_virtual/plugin-vue_export-helper.mjs';
 import { useNamespace } from '../../../hooks/use-namespace/index.mjs';
-import { debugWarn } from '../../../utils/error.mjs';
 import { isFunction, isString } from '@vue/shared';
 
 const _sfc_main = defineComponent({
@@ -50,9 +49,6 @@ const _sfc_main = defineComponent({
     const dragEvents = inject(dragEventsKey);
     const instance = getCurrentInstance();
     provide(NODE_INSTANCE_INJECTION_KEY, instance);
-    if (!tree) {
-      debugWarn("Tree", "Can not find node's tree.");
-    }
     if (props.node.expanded) {
       expanded.value = true;
       childNodeRendered.value = true;

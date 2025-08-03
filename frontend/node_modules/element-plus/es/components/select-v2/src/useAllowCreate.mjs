@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useProps } from './useProps.mjs';
 
 function useAllowCreate(props, states) {
@@ -7,6 +7,10 @@ function useAllowCreate(props, states) {
   const cachedSelectedOption = ref();
   const enableAllowCreateMode = computed(() => {
     return props.allowCreate && props.filterable;
+  });
+  watch(() => props.options, (options) => {
+    const optionLabelsSet = new Set(options.map((option) => getLabel(option)));
+    states.createdOptions = states.createdOptions.filter((createdOption) => !optionLabelsSet.has(getLabel(createdOption)));
   });
   function hasExistingOption(query) {
     const hasOption = (option) => getLabel(option) === query;
@@ -26,6 +30,7 @@ function useAllowCreate(props, states) {
     if (enableAllowCreateMode.value) {
       if (query && query.length > 0) {
         if (hasExistingOption(query)) {
+          states.createdOptions = states.createdOptions.filter((createdOption) => getLabel(createdOption) !== states.previousQuery);
           return;
         }
         const newOption = {
