@@ -173,7 +173,8 @@ $RECYCLE.BIN/
 # 环境变量文件
 *.env
 .env.*
-!env_example.txt
+env_example.txt
+qwen3_env.txt
 
 # 日志文件 - 全面排除
 *.log
