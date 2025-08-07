@@ -284,6 +284,9 @@ keys/
 *.pem
 *.crt
 
+# Qlib量化策略文档（包含策略细节）
+qlib_quantitative/docs/
+
 # 大文件
 *.zip
 *.tar.gz
