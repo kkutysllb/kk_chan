@@ -26,16 +26,16 @@ KK缠论量化分析平台是一个完整的股票技术分析系统，基于缠
                                                             
    Vue3 前端            FastAPI 后端            数据层      
                                                               
-┌─ ECharts图表   ◄──── ┌─ backend_proxy.py ◄──── ┌─ MongoDB      
-├─ Element UI         ├─ chan_api_v2.py         ├─ 股票数据      
-└─ 响应式布局         └─ 多周期分析引擎         └─ 实时更新    
+┌─ ECharts图表   ◄──── ┌─ api/main.py     ◄──── ┌─ MongoDB      
+├─ Element UI         ├─ api/routers.py         ├─ 股票数据      
+└─ 响应式布局         └─ api/chan_api_v2.py    └─ 本地存储    
                                                             
                                                          
                                  ▲                        ▼
                                   │                        │
                                                                
                           缠论分析引擎          MongoDB        
-                          选股策略模块          数据存储       
+                          选股策略模块          本地数据库       
                                                                
 ```
 
@@ -56,12 +56,14 @@ KK缠论量化分析平台是一个完整的股票技术分析系统，基于缠
 - [x] **信号评分** - 综合评分和信号强度判断
 - [x] **关键价位** - 入场价、止损价和止盈价计算
 
-#### API接口 (`chan_api_v2.py` & `backend_proxy.py`)
+#### API接口 (`api/`)
+- [x] **FastAPI应用** - 标准FastAPI应用结构
 - [x] **数据标准化** - ECharts兼容格式
 - [x] **前端API** - 完整的JSON数据输出
 - [x] **股票列表** - 动态股票代码获取
 - [x] **参数配置** - 灵活的分析参数设置
 - [x] **选股服务** - 智能选股API接口
+- [x] **文档生成** - 自动生成API文档
 
 ### 前端界面
 
@@ -86,7 +88,7 @@ KK缠论量化分析平台是一个完整的股票技术分析系统，基于缠
 #### 技术实现
 - 实现了 `SimpleBackchiStockSelector` 类用于执行选股策略
 - 开发了 `StockSelectionPage.vue` 前端页面展示选股结果
-- 通过 `backend_proxy.py` 提供了选股API接口
+- 通过 `api/` 模块提供了标准FastAPI选股接口
 - 支持保守、平衡、激进三种预设配置
 
 #### 选股结果示例
@@ -122,7 +124,11 @@ npm install
 
 ```bash
 # 启动后端API服务
-python backend_proxy.py
+cd api
+python main.py
+
+# 或者在项目根目录使用uvicorn启动
+uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
 
 # 启动前端开发服务器
 cd frontend
@@ -131,6 +137,17 @@ npm run dev
 # 执行选股（可选）
 python daily_stock_selection.py
 ```
+
+> **注意**: 如果遇到模块导入错误，请确保在项目根目录(`kk_chan/`)执行uvicorn命令
+
+### API服务访问
+
+启动后端API服务后，可以通过以下地址访问：
+
+- **服务地址**: http://localhost:8000
+- **API文档**: http://localhost:8000/docs (Swagger UI)
+- **API备用文档**: http://localhost:8000/redoc (ReDoc)
+- **健康检查**: http://localhost:8000/health
 
 ### 数据库检查
 
@@ -146,6 +163,10 @@ python check_data_quality.py
 
 ```
 kk_chan/
+├── api/                        # FastAPI后端服务
+│   ├── main.py                 # FastAPI应用入口
+│   ├── routers.py              # API路由定义
+│   └── chan_api_v2.py          # 缠论分析API实现
 ├── chan_theory_v2/             # 缠论分析核心 v2
 │   ├── core/                   # 核心引擎
 │   │   ├── chan_engine.py      # 缠论分析引擎
@@ -162,7 +183,7 @@ kk_chan/
 │   └── strategies/             # 策略模块
 │       └── backchi_stock_selector.py # 背驰选股策略
 ├── database/                   # 数据库模块
-│   ├── db_handler.py           # 数据库处理器
+│   ├── db_handler.py           # 本地数据库处理器
 │   └── check_kline_collections.py # 数据检查
 ├── frontend/                   # Vue3前端
 │   ├── src/                    # 源代码
@@ -173,8 +194,6 @@ kk_chan/
 │   │   └── utils/              # 工具
 │   │       └── api.js          # API调用
 │   └── package.json            # 依赖配置
-├── chan_api_v2.py              # 前端API接口 v2
-├── backend_proxy.py            # 后端代理服务
 ├── daily_stock_selection.py    # 每日选股脚本
 └── README.md
 ```
